@@ -12,50 +12,51 @@ import java.util.List;
 
 public class TestMain {
     public static <Reservations> void main(String[] args) {
-//
-//        EvenementService evenementService = new EvenementService();
-//
-//        // Ajouter un événement avec un lieu existant
-//        Evenement event1 = new Evenement(0, "Conférence Tech", "Une conférence sur les nouvelles technologies",
-//                "2025-05-20 10:00:00", "2025-05-20 18:00:00", 200,
-//                13, 1, 10, 50.0, "en attente", null, "image1.jpg");
-//        evenementService.ajouter(event1);
-//        System.out.println("Événement ajouté avec ID : " + event1.getId());
-//
-//        // Ajouter un événement avec un lieu personnalisé
-//        Evenement event2 = new Evenement(0, "Workshop IA", "Atelier sur l'intelligence artificielle",
-//                "2025-06-15 09:00:00", "2025-06-15 17:00:00", 150,
-//                10, 1, 10, 30.0, "en attente", "Hôtel Royal", "image2.jpg");
-//        evenementService.ajouter(event2);
-//        System.out.println("Événement ajouté avec ID : " + event2.getId());
-//
-//        // Modifier un événement existant
-//        event1.setTitre("Conférence Tech 2025");
-//        event1.setPrix(55.0);
-//        evenementService.modifier(event1);
-//        System.out.println("Événement modifié : " + event1);
-//
-//        // Rechercher et afficher tous les événements
-//        List<Evenement> evenements = evenementService.rechercher();
-//        System.out.println("Liste des événements :");
-//        for (Evenement e : evenements) {
-//            System.out.println(e);
-//        }
-//
-//        // Supprimer un événement
-//        evenementService.supprimer(event1);
+        //***************************************************event**************************
 
- //*********************************************cathegorie***********************************************************
+        EvenementService evenementService = new EvenementService();
+
+        // Ajouter un événement avec un lieu existant
+        Evenement event1 = new Evenement(0, "Conférence Tech", "Une conférence sur les nouvelles technologies",
+                "2025-05-20 10:00:00", "2025-05-20 18:00:00", 200,
+                13, 7, 10, 50.0, "en attente", null, "image1.jpg");
+        evenementService.ajouter(event1);
+
+
+        // Ajouter un événement avec un lieu personnalisé
+        Evenement event2 = new Evenement(0, "Workshop IA", "Atelier sur l'intelligence artificielle",
+                "2025-06-15 09:00:00", "2025-06-15 17:00:00", 150,
+                10, 7, 10, 30.0, "en attente", "Hôtel Royal", "image2.jpg");
+        evenementService.ajouter(event2);
+
+
+        // Modifier un événement existant
+        event1.setTitre("Conférence Tech 2025");
+        event1.setPrix(55.0);
+        evenementService.modifier(event1);
+
+
+        // Rechercher et afficher tous les événements
+        List<Evenement> evenements = evenementService.rechercher();
+        System.out.println("Liste des événements :");
+        for (Evenement e : evenements) {
+            System.out.println(e);
+        }
+
+        // Supprimer un événement
+        evenementService.supprimer(event1);
+
+        //*********************************************cathegorie***********************************************************
 
 //        CategoriesEventService categoryService = new CategoriesEventService();
 //
 //        // Ajouter une nouvelle catégorie
-//        CategoriesEvent newCategory = new CategoriesEvent("fddb");
+//        CategoriesEvent newCategory = new CategoriesEvent("fddbNNBABBACXEZA");
 //        categoryService.ajouter(newCategory);
 //
 //        // Modifier une catégorie existante
 //
-//        newCategory.setNom("Updated Tqethehech");
+//        newCategory.setNom("Updated TqetheCZEChechH");
 //        categoryService.modifier(newCategory);
 //
 //        // Supprimer une catégorie
@@ -67,24 +68,25 @@ public class TestMain {
 
 //**************************************************Reservations*************************************************************************
 
-        ReservationsService reservationsService = new ReservationsService();
+        ReservationsService ReservationsService = new ReservationsService();
 
-        // Simuler un utilisateur et un événement
+        // Simuler un utilisateur connecté (ID = 1) et un événement (ID = 1)
         int userId = 10;
-        int eventId = 62;
+        int eventId = 67;
 
-        // Créer une réservation de 1 billet
+        // Créer une réservation initiale (1 billet)
         com.esprit.models.Reservations Reservations = new com.esprit.models.Reservations(0, eventId, userId, 1, 0.0, "en_attente");
-        reservationsService.ajouter(Reservations);
+        ReservationsService.ajouter(Reservations);
 
+        // Afficher toutes les réservations
+        ReservationsService.rechercher().forEach(System.out::println);
 
-        // Confirmer l'achat avec 3 billets
-        reservationsService.confirmerAchat(Reservations.getId(), 3);
+        // Confirmer l'achat avec une nouvelle quantité
+        ReservationsService.confirmerAchat(Reservations.getId(), 3);
 
-        // Afficher la réservation après confirmation
-        System.out.println("Réservations après confirmation :");
-        reservationsService.rechercher().forEach(System.out::println);
-        reservationsService.supprimer(Reservations.getId());
+        // Afficher toutes les réservations après confirmation
+        System.out.println("Liste des réservations après confirmation :");
+        ReservationsService.rechercher().forEach(System.out::println);
     }
 
     }
