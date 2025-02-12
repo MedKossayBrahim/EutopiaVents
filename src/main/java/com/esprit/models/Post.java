@@ -12,10 +12,17 @@ public class Post {
     private LocalDateTime updatedAt;
     private boolean isPinned;
     private int categoryId;
+    private String category;
 
     public Post() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Post(String title, String content, String author) {
+        this.title=title;
+        this.content=content;
+        this.author=author;
     }
 
     public int getUserId() {
@@ -72,6 +79,14 @@ public class Post {
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 
+    public String getCategory() { 
+        return category; 
+    }
+    
+    public void setCategory(String category) { 
+        this.category = category; 
+    }
+
     @Override
     public String toString() {
         return "Post{" +
@@ -79,5 +94,35 @@ public class Post {
                 ", content='" + content + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        Post post = (Post) o;
+        return id == post.id &&
+               userId == post.userId &&
+               categoryId == post.categoryId &&
+               isPinned == post.isPinned &&
+               title.equals(post.title) &&
+               content.equals(post.content) &&
+               (author == null ? post.author == null : author.equals(post.author)) &&
+               (category == null ? post.category == null : category.equals(post.category));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + id;
+        result = 31 * result + userId;
+        result = 31 * result + categoryId;
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        result = 31 * result + (author != null ? author.hashCode() : 0);
+        result = 31 * result + (category != null ? category.hashCode() : 0);
+        result = 31 * result + (isPinned ? 1 : 0);
+        return result;
     }
 }
