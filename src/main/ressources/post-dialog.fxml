@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" style="-fx-padding: 20;" 
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.esprit.controllers.PostDialogController">
+    <TextField fx:id="titleField" promptText="Post Title" 
+               style="-fx-padding: 8; -fx-background-radius: 5;"/>
+    
+    <TextArea fx:id="contentArea" promptText="Post Content" 
+              wrapText="true" prefRowCount="6"
+              style="-fx-padding: 8; -fx-background-radius: 5;"/>
+    
+    <ComboBox fx:id="categoryComboBox" promptText="Select Category"
+              style="-fx-padding: 8; -fx-background-radius: 5;"/>
+    
+    <CheckBox fx:id="pinnedCheckBox" text="Pin this post"/>
+    
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Cancel" 
+                style="-fx-padding: 8 15; -fx-background-radius: 5;"/>
+        <Button fx:id="saveButton" text="Save" defaultButton="true"
+                style="-fx-padding: 8 15; -fx-background-radius: 5; 
+                       -fx-background-color: #FFE5EC;"/>
+    </HBox>
+</VBox> 
