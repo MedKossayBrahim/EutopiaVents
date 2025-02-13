@@ -31,9 +31,19 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.io.File;
 import java.util.stream.Collectors;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import com.esprit.services.ChatService;
+import com.esprit.services.ChatService.UserChatMessage;
+import javafx.application.Platform;
 
 public class ForumMainController implements SearchableController, Initializable {
 
@@ -47,19 +57,7 @@ public class ForumMainController implements SearchableController, Initializable 
     private TextField searchField;
 
     @FXML
-    private Button searchButton;
-
-    @FXML
-    private Button addButton;
-
-    @FXML
-    private Button refreshPostsButton;
-
-    @FXML
     private BorderPane rootPane;
-
-    @FXML
-    private HBox searchContainer;
 
     @FXML
     private VBox calendarContainer;
@@ -90,11 +88,6 @@ public class ForumMainController implements SearchableController, Initializable 
 
     private final PostService postService = new PostService();
 
-    // Add these constants for database connection
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/eutopia_db";
-    private static final String USER = "root";
-    private static final String PASS = "";
-
     @FXML
     private Label welcomeUsernameLabel;
 
@@ -104,6 +97,10 @@ public class ForumMainController implements SearchableController, Initializable 
     private ComboBox<String> searchFilterComboBox;
     private String currentSearchFilter = "Title";
 
+    private ChatService chatService;
+
+    private VBox messagesContainer; // Add this as a class field
+
     public void setApplication(Eutopia app) {
         this.application = app; // Set the application instance
     }
@@ -111,39 +108,23 @@ public class ForumMainController implements SearchableController, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            // Set up ListViews
-            setupListView(latestUpdatesList);
-            setupListView(pinnedPostsList);
+            System.out.println("Initializing ForumMainController...");
             
-            // Initialize Calendar and Chat
-            initializeCalendar();
-            initializeChat();
-            
-            // Set simple welcome message
-            if (welcomeUsernameLabel != null) {
-                welcomeUsernameLabel.setText("Welcome to Forum");
-            }
-            
-            // Initialize search filter ComboBox
+            // Initialize your components
             if (searchFilterComboBox != null) {
                 ObservableList<String> filterOptions = FXCollections.observableArrayList(
                     "Title", "Author", "Category"
                 );
                 searchFilterComboBox.setItems(filterOptions);
-                searchFilterComboBox.setValue("Title"); // Set default value
+                searchFilterComboBox.setValue("Title");
                 
                 searchFilterComboBox.setOnAction(event -> {
                     currentSearchFilter = searchFilterComboBox.getValue();
                     if (searchField != null && !searchField.getText().isEmpty()) {
                         handleSearch(searchField.getText());
                     }
-                    System.out.println("Search filter changed to: " + currentSearchFilter);
                 });
             }
-            
-            // Initialize your components
-            loadLatestUpdates();
-            loadPinnedPosts();
             
             // Set up search field
             if (searchField != null) {
@@ -152,38 +133,44 @@ public class ForumMainController implements SearchableController, Initializable 
                 });
             }
             
-            // Debug prints
-            System.out.println("Initialize called");
-            System.out.println("LatestUpdatesList items: " + latestUpdatesList.getItems().size());
-            System.out.println("PinnedPostsList items: " + pinnedPostsList.getItems().size());
+            // Only set up ListViews if they exist
+            if (latestUpdatesList != null) {
+                setupListView(latestUpdatesList);
+                loadLatestUpdates();
+            } else {
+                System.out.println("Warning: latestUpdatesList is null");
+            }
+            
+            if (pinnedPostsList != null) {
+                setupListView(pinnedPostsList);
+                loadPinnedPosts();
+            } else {
+                System.out.println("Warning: pinnedPostsList is null");
+            }
+            
+            // Initialize Calendar and Chat if needed
+            initializeCalendar();
+            initializeChat();
+            
+            // Set welcome message if label exists
+            if (welcomeUsernameLabel != null) {
+                welcomeUsernameLabel.setText("Welcome to Forum");
+            }
+            
+            System.out.println("ForumMainController initialization complete");
             
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println("Error initializing ForumMainController: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    @FXML
-    public void initialize() {
-        System.out.println("FXML initialize called");
-
-        // Set up ListViews
-        setupListView(latestUpdatesList);
-        setupListView(pinnedPostsList);
-
-        // Initialize lists
-        loadLatestUpdates();
-        loadPinnedPosts();
-        displayLimitedLatestUpdates(3);
-
-        // Debug print
-        System.out.println("Posts loaded: " + latestUpdatesList.getItems().size());
-
-        // Style the view all button
-        styleViewAllButton();
-    }
-
     void setupListView(ListView<Post> listView) {
+        if (listView == null) {
+            System.out.println("Warning: ListView is null, skipping setup");
+            return;
+        }
+
         System.out.println("Setting up ListView");
 
         listView.setFixedCellSize(160);
@@ -340,6 +327,12 @@ public class ForumMainController implements SearchableController, Initializable 
 
     private void loadLatestUpdates() {
         try {
+            // Check if ListView is initialized
+            if (latestUpdatesList == null) {
+                System.out.println("Warning: latestUpdatesList is null, skipping load");
+                return;
+            }
+
             // Fetch posts from database
             List<Post> allPosts = postService.getAllPosts();
             System.out.println("Fetched " + allPosts.size() + " posts from database");
@@ -798,52 +791,77 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     private void onViewAllUpdatesClick() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/all-posts-page.fxml"));
+            // Load the FXML file using the correct path
+            FXMLLoader loader = new FXMLLoader();
+            URL fxmlUrl = getClass().getClassLoader().getResource("all-posts-page.fxml");
+            if (fxmlUrl == null) {
+                // Try alternate path if not found
+                File file = new File("src/main/ressources/all-posts-page.fxml");
+                if (!file.exists()) {
+                    throw new IOException("Could not find all-posts-page.fxml");
+                }
+                fxmlUrl = file.toURI().toURL();
+            }
+            loader.setLocation(fxmlUrl);
             Parent root = loader.load();
 
+            // Get the controller and set application
             AllPostsController controller = loader.getController();
             controller.setApplication(application);
 
-            // Convert Post objects to strings for display
-            ArrayList<String> postsList = new ArrayList<>();
-            for (Post post : latestUpdatesList.getItems()) {
-                postsList.add(post.getTitle() + ": " + post.getContent());
-            }
-            controller.setPosts(postsList, "Latest Updates");
-
-            // Get the current scene and set the new content
+            // Create new scene and show in current window
             Scene scene = latestUpdatesList.getScene();
             scene.setRoot(root);
 
+            // Initialize the controller
+            if (controller != null) {
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not load all posts page.");
+            showError("Could not load all posts page: " + e.getMessage());
         }
     }
 
     @FXML
     private void onViewAllPinnedClick() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/all-posts-page.fxml"));
+            // Load the FXML file using the correct path
+            FXMLLoader loader = new FXMLLoader();
+            URL fxmlUrl = getClass().getClassLoader().getResource("all-posts-page.fxml");
+            if (fxmlUrl == null) {
+                // Try alternate path if not found
+                File file = new File("src/main/ressources/all-posts-page.fxml");
+                if (!file.exists()) {
+                    throw new IOException("Could not find all-posts-page.fxml");
+                }
+                fxmlUrl = file.toURI().toURL();
+            }
+            loader.setLocation(fxmlUrl);
             Parent root = loader.load();
 
             AllPostsController controller = loader.getController();
             controller.setApplication(application);
 
+            // Get all pinned posts from database
+            List<Post> allPinnedPosts = postService.getPinnedPosts().stream()
+                .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
+                .collect(Collectors.toList());
+
             // Convert Post objects to strings for display
             ArrayList<String> postsList = new ArrayList<>();
-            for (Post post : pinnedPostsList.getItems()) {
+            for (Post post : allPinnedPosts) {
                 postsList.add(post.getTitle() + ": " + post.getContent());
             }
             controller.setPosts(postsList, "Pinned Posts");
 
-            // Get the current scene and set the new content
+            // Create new scene and show in current window
             Scene scene = pinnedPostsList.getScene();
             scene.setRoot(root);
 
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
-            showError("Could not load all posts page.");
+            showError("Could not load all posts page: " + e.getMessage());
         }
     }
 
@@ -925,7 +943,7 @@ public class ForumMainController implements SearchableController, Initializable 
 
     private String getUsernameById(int userId) {
         String sql = "SELECT userName FROM users WHERE userID = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DataSource.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -979,25 +997,24 @@ public class ForumMainController implements SearchableController, Initializable 
         alert.showAndWait();
     }
 
-    private void initializeCalendar() {
+    protected void initializeCalendar() {
         try {
             if (calendarContainer == null) {
                 System.err.println("Calendar container is null!");
                 return;
             }
 
-            File file = new File("src/main/ressources/calendar.fxml");
-            if (!file.exists()) {
-                throw new IOException("Could not find calendar.fxml at: " + file.getAbsolutePath());
-            }
-
-            URL fxmlUrl = file.toURI().toURL();
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            FXMLLoader loader = new FXMLLoader();
+            URL fxmlUrl = new File("src/main/ressources/calendar.fxml").toURI().toURL();
+            loader.setLocation(fxmlUrl);
             Parent calendarView = loader.load();
-            calendarController = loader.getController();
+            
+            // Store the controller reference in a final variable
+            final CalendarController controller = loader.getController();
+            this.calendarController = controller;
 
-            // Set up calendar selection listener
-            calendarController.setOnDateSelected((startDate, endDate) -> {
+            // Set up calendar selection listener using the final variable
+            controller.setOnDateSelected((startDate, endDate) -> {
                 filterPostsByDate(startDate, endDate);
             });
 
@@ -1031,44 +1048,216 @@ public class ForumMainController implements SearchableController, Initializable 
 
     private void initializeChat() {
         try {
-            File file = new File("src/main/ressources/chat_interface.fxml");
-            if (!file.exists()) {
-                throw new IOException("Could not find chat_interface.fxml at: " + file.getAbsolutePath());
+            if (chatArea == null) {
+                System.out.println("Chat area is null, skipping chat initialization");
+                return;
             }
 
-            URL fxmlUrl = file.toURI().toURL();
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Parent chatView = loader.load();
+            // Initialize chat service first
+            chatService = new ChatService();
+            System.out.println("Chat service initialized");
 
-            // Update the Event Assistant label style to black
-            Label eventAssistantLabel = (Label) chatView.lookup("Label");
-            if (eventAssistantLabel != null) {
-                eventAssistantLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: black;");
-            }
-
-            // Add the chat to the container
+            // Clear existing chat messages
             chatArea.getChildren().clear();
-            chatArea.getChildren().add(chatView);
+
+            // Create title label
+            Label titleLabel = new Label("Event Assistant");
+            titleLabel.setStyle("-fx-font-size: 18px; " +
+                              "-fx-font-weight: bold; " +
+                              "-fx-text-fill: #2c3e50; " +
+                              "-fx-padding: 0 0 10 0;"); // Add some padding below the title
+            titleLabel.setAlignment(Pos.CENTER);
+            titleLabel.setPrefWidth(400); // Match chat area width
+
+            // Style the chat area with transparent background
+            chatArea.setStyle("-fx-background-color: transparent; " +
+                    "-fx-background-radius: 15; " +
+                    "-fx-padding: 15; " +
+                    "-fx-spacing: 10;");
+            chatArea.setPrefWidth(400);
+            chatArea.setMaxWidth(400);
+            chatArea.setPrefHeight(450);
+            chatArea.setMinHeight(450);
+            chatArea.setMaxHeight(450);
+
+            // Create a VBox to hold title and chat area
+            VBox chatContainer = new VBox(5); // 5px spacing between elements
+            chatContainer.setAlignment(Pos.TOP_CENTER);
+            chatContainer.getChildren().add(titleLabel);
+
+            // Create messages container with scroll capability
+            ScrollPane scrollPane = new ScrollPane();
+            messagesContainer = new VBox(10);
+            messagesContainer.setStyle("-fx-padding: 10; -fx-background-color: transparent;");
+            
+            scrollPane.setContent(messagesContainer);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollPane.setPrefWidth(400);
+            scrollPane.setMaxWidth(400);
+            scrollPane.setPrefHeight(380);
+            scrollPane.setMaxHeight(380);
+            scrollPane.setStyle("-fx-background: transparent; " +
+                              "-fx-background-color: transparent; " +
+                              "-fx-control-inner-background: transparent;");
+            
+            // Create input area with adjusted spacing
+            HBox inputArea = new HBox(10);
+            inputArea.setAlignment(Pos.CENTER);
+            inputArea.setPadding(new Insets(10, 0, 0, 0));
+            inputArea.setMaxWidth(400);
+            inputArea.setPrefHeight(40);
+            inputArea.setStyle("-fx-background-color: transparent;");
+            
+            // Create text input with reduced width
+            TextField messageInput = new TextField();
+            messageInput.setPromptText("Type a message...");
+            messageInput.setPrefWidth(250);  // Reduced from 300
+            messageInput.setMaxWidth(250);   // Reduced from 300
+            messageInput.setStyle("-fx-background-radius: 20; " +
+                    "-fx-padding: 8 15; " +
+                    "-fx-font-size: 13px;");
+            
+            // Create send button with fixed width
+            Button sendButton = new Button("Send");
+            sendButton.setPrefWidth(80);     // Fixed width for button
+            sendButton.setMaxWidth(80);      // Fixed width for button
+            sendButton.setStyle("-fx-background-color: #007bff; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-background-radius: 20; " +
+                    "-fx-padding: 8 15; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-font-size: 13px;");
+            
+            // Add hover effect to send button
+            sendButton.setOnMouseEntered(e -> 
+                sendButton.setStyle(sendButton.getStyle().replace("#007bff", "#0056b3")));
+            sendButton.setOnMouseExited(e -> 
+                sendButton.setStyle(sendButton.getStyle().replace("#0056b3", "#007bff")));
+            
+            // Add send functionality
+            EventHandler<ActionEvent> sendMessage = e -> {
+                String message = messageInput.getText().trim();
+                if (!message.isEmpty()) {
+                    System.out.println("Sending message: " + message);
+                    
+                    // Add user message to chat
+                    UserChatMessage userChatMessage = new UserChatMessage(
+                        "User", // Replace with actual username when available
+                        message,
+                        LocalDateTime.now()
+                    );
+                    addMessageToChat(userChatMessage);
+                    
+                    // Process message and get bot response
+                    try {
+                        UserChatMessage botResponse = chatService.processMessage(message);
+                        System.out.println("Bot response received: " + botResponse.getContent());
+                        addMessageToChat(botResponse);
+                    } catch (Exception ex) {
+                        System.err.println("Error processing message: " + ex.getMessage());
+                        ex.printStackTrace();
+                        UserChatMessage errorMessage = new UserChatMessage(
+                            "System",
+                            "Sorry, there was an error processing your message.",
+                            LocalDateTime.now()
+                        );
+                        addMessageToChat(errorMessage);
+                    }
+                    
+                    messageInput.clear();
+                    
+                    // Scroll to bottom after new message
+                    Platform.runLater(() -> {
+                        scrollPane.setVvalue(1.0);
+                    });
+                }
+            };
+            
+            // Connect send button and enter key to send message
+            sendButton.setOnAction(sendMessage);
+            messageInput.setOnAction(sendMessage);
+            
+            // Set input field to take remaining space
+            HBox.setHgrow(messageInput, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Add components to input area
+            inputArea.getChildren().addAll(messageInput, sendButton);
+            
+            // Add all components to chat container instead of chat area directly
+            chatContainer.getChildren().addAll(scrollPane, inputArea);
+            
+            // Add chat container to chat area
+            chatArea.getChildren().add(chatContainer);
+
+            // Add welcome message
+            UserChatMessage welcomeMessage = new UserChatMessage(
+                "Eventor",
+                chatService.getWelcomeMessage(),
+                LocalDateTime.now()
+            );
+            addMessageToChat(welcomeMessage);
 
             System.out.println("Chat interface initialized successfully");
 
         } catch (Exception e) {
             System.err.println("Error loading chat interface: " + e.getMessage());
             e.printStackTrace();
-            showError("Could not load chat interface: " + e.getMessage());
         }
     }
 
-    @Override
-    public void handleRefresh() {
-        // Load latest posts
-        loadLatestUpdates();
-        // Load pinned posts
-        loadPinnedPosts();
-        // Clear search field
-        if (searchField != null) {
-            searchField.clear();
+    private void loadChatMessages() {
+        if (chatArea == null || chatService == null) {
+            return;
         }
-        System.out.println("Forum view refreshed");
+
+        List<UserChatMessage> messages = chatService.getRecentMessages();
+        for (UserChatMessage message : messages) {
+            addMessageToChat(message);
+        }
+    }
+
+
+    private void addMessageToChat(UserChatMessage message) {
+        if (messagesContainer == null) {
+            System.err.println("Messages container is null");
+            return;
+        }
+        
+        HBox messageBox = new HBox(10);
+        messageBox.setAlignment(Pos.CENTER_LEFT);
+        messageBox.setPadding(new Insets(8, 12, 8, 12));
+        messageBox.setStyle("-fx-background-color: white; " +
+                           "-fx-background-radius: 15; " +
+                           "-fx-border-radius: 15; " +
+                           "-fx-border-color: #e1e1e1; " +
+                           "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);");
+        
+        VBox contentBox = new VBox(4);
+        
+        // Username and timestamp in one line
+        HBox headerBox = new HBox(8);
+        Label userLabel = new Label(message.getUsername());
+        userLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        
+        Label timeLabel = new Label(formatTimestamp(message.getTimestamp()));
+        timeLabel.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+        
+        headerBox.getChildren().addAll(userLabel, timeLabel);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Message content
+        Label messageLabel = new Label(message.getContent());
+        messageLabel.setWrapText(true);
+        messageLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px;");
+        
+        contentBox.getChildren().addAll(headerBox, messageLabel);
+        messageBox.getChildren().add(contentBox);
+        
+        // Add some spacing between messages
+        VBox.setMargin(messageBox, new Insets(0, 0, 8, 0));
+        
+        // Add message to container
+        messagesContainer.getChildren().add(messageBox);
     }
 } 

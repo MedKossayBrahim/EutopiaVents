@@ -9,8 +9,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 public class NavbarController {
@@ -76,9 +81,40 @@ public class NavbarController {
     }
 
     @FXML
-    public void onForumButtonClick() {
-        updateButtonStyles("forum");
-        navigateToPage("src/main/ressources/forum_main_page.fxml");
+    public void onForumButtonClick(ActionEvent event) {
+        try {
+            // Get the project root directory
+            String projectRoot = System.getProperty("user.dir");
+
+            // Define the path to the FXML file
+            String fxmlPath = projectRoot + "/src/main/ressources/forum_main_page.fxml";
+            File fxmlFile = new File(fxmlPath);
+
+            URL url;
+            if (!fxmlFile.exists()) {
+                System.err.println("FXML file not found at: " + fxmlPath);
+                // Try loading from resources
+                url = getClass().getResource("/forum_main_page.fxml");
+                if (url == null) {
+                    throw new IOException("Cannot find forum_main_page.fxml");
+                }
+            } else {
+                url = fxmlFile.toURI().toURL();
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Scene scene = ((Button) event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("Error loading forum main page: " + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Navigation Error");
+            alert.setContentText("Could not load the forum page: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -131,13 +167,6 @@ public class NavbarController {
     private void activateSearch() {
         if (!searchField.isFocused()) {
             searchField.requestFocus();
-        }
-    }
-
-    @FXML
-    private void onRefreshPostsClick() {
-        if (currentController != null) {
-            currentController.handleRefresh();
         }
     }
 
