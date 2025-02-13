@@ -38,7 +38,7 @@ public class ListeCategorieController {
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
         
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button modifyBtn = new Button("Modifier");
+            private final Button modifyBtn = new Button("Modifiercateg");
             private final Button deleteBtn = new Button("Supprimer");
             private final HBox buttonsBox = new HBox(5);
 
