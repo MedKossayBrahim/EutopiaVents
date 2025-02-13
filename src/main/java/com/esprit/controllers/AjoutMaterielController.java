@@ -35,9 +35,7 @@ public class AjoutMaterielController {
 
     @FXML
     public void initialize() {
-        if (categorieComboBox != null) {
             loadCategories();
-        }
     }
 
     private void loadCategories() {

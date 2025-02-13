@@ -24,6 +24,7 @@ public class ListeCategorieController {
     private final CategorieService categorieService;
 
     public ListeCategorieController() {
+
         categorieService = new CategorieService();
     }
 
@@ -52,7 +53,8 @@ public class ListeCategorieController {
 
                 deleteBtn.setOnAction(event -> {
                     Categorie categorie = getTableView().getItems().get(getIndex());
-                    confirmerSuppression(categorie);
+                    categorieService.supprimer(categorie);
+                    loadCategories();;
                 });
             }
 
@@ -90,17 +92,5 @@ public class ListeCategorieController {
         }
     }
 
-    private void confirmerSuppression(Categorie categorie) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation de suppression");
-        alert.setHeaderText("Supprimer la catégorie");
-        alert.setContentText("Êtes-vous sûr de vouloir supprimer cette catégorie ?");
 
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                categorieService.supprimer(categorie);
-                loadCategories(); // Recharger la liste
-            }
-        });
-    }
 } 
