@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.ListeMaterielController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Liste des Matériels" style="-fx-font-size: 20px;"/>
+    
+    <TableView fx:id="materielTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="libelleColumn" text="Libellé" prefWidth="200"/>
+            <TableColumn fx:id="quantiteColumn" text="Quantité" prefWidth="100"/>
+            <TableColumn fx:id="prixColumn" text="Prix" prefWidth="100"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
+        </columns>
+    </TableView>
+</VBox> 
