@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="500.0" prefWidth="600.0" 
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/11" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.esprit.controllers.AjouterEvenementController">
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane"
+                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" 
+                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <VBox spacing="15" styleClass="card">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            
+            <Label text="Ajouter un événement" styleClass="title-label"/>
+            
+            <TextField fx:id="titreField" promptText="Titre"/>
+            <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
+            
+            <HBox spacing="10">
+                <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"/>
+                <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            
+            <TextField fx:id="capaciteField" promptText="Capacité"/>
+            <TextField fx:id="categorieIdField" promptText="ID Catégorie"/>
+            <TextField fx:id="lieuIdField" promptText="ID Lieu"/>
+            <TextField fx:id="organisateurIdField" promptText="ID Organisateur"/>
+            <TextField fx:id="prixField" promptText="Prix"/>
+            <TextField fx:id="lieuProprietaireField" promptText="Lieu Proprietaire"/>
+            <TextField fx:id="imageField" promptText="Image URL"/>
+            
+            <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement" 
+                    styleClass="confirm-button"/>
+        </VBox>
+    </ScrollPane>
+</AnchorPane> 

@@ -99,28 +99,42 @@ public class EvenementService implements IService<Evenement> {
         }
     }
 
-
     public List<Evenement> rechercher() {
         List<Evenement> evenements = new ArrayList<>();
-        String req = "SELECT * FROM events";
+
+
+
+        String req = "SELECT e.*, " +
+                "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
+                "c.nom AS categorie_nom, " +
+                "l.nom AS lieu_nom " +
+                "FROM events e " +
+                "LEFT JOIN users u ON e.organisateur_id = u.userID " +
+                "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
+                "LEFT JOIN lieu l ON e.lieu_id = l.id";
+
         try (PreparedStatement pst = connection.prepareStatement(req);
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
-                evenements.add(new Evenement(
-                        rs.getInt("id"),
-                        rs.getString("titre"),
-                        rs.getString("description"),
-                        rs.getString("date_debut"),
-                        rs.getString("date_fin"),
-                        rs.getInt("capacite"),
-                        rs.getInt("categorie_id"),
-                        rs.getInt("lieu_id"),
-                        rs.getInt("organisateur_id"),
-                        rs.getDouble("prix"),
-                        rs.getString("statut"),
-                        rs.getString("lieu_proprietaire"),
-                        rs.getString("image")
-                ));
+                Evenement evt = new Evenement(
+                    rs.getInt("id"),
+                    rs.getString("titre"),
+                    rs.getString("description"),
+                    rs.getString("date_debut"),
+                    rs.getString("date_fin"),
+                    rs.getInt("capacite"),
+                    rs.getInt("categorie_id"),
+                    rs.getInt("lieu_id"),
+                    rs.getInt("organisateur_id"),
+                    rs.getDouble("prix"),
+                    rs.getString("statut"),
+                    rs.getString("lieu_proprietaire"),
+                    rs.getString("image")
+                );
+                evt.setOrganisateurNom(rs.getString("organisateur_nom"));
+                evt.setCategorieNom(rs.getString("categorie_nom"));
+                evt.setLieuNom(rs.getString("lieu_nom"));
+                evenements.add(evt);
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération des événements: " + e.getMessage());

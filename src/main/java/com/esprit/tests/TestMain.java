@@ -44,7 +44,7 @@ public class TestMain {
         }
 
         // Supprimer un événement
-        evenementService.supprimer(event1);
+        //evenementService.supprimer(event1);
 
         //*********************************************cathegorie***********************************************************
 
@@ -70,15 +70,15 @@ public class TestMain {
 
         ReservationsService ReservationsService = new ReservationsService();
 
-        // Simuler un utilisateur connecté (ID = 1) et un événement (ID = 1)
+
         int userId = 10;
-        int eventId = 67;
+        int eventId = 91;
 
         // Créer une réservation initiale (1 billet)
         com.esprit.models.Reservations Reservations = new com.esprit.models.Reservations(0, eventId, userId, 1, 0.0, "en_attente");
         ReservationsService.ajouter(Reservations);
 
-        // Afficher toutes les réservations
+        // Afficher toutes les réservation
         ReservationsService.rechercher().forEach(System.out::println);
 
         // Confirmer l'achat avec une nouvelle quantité

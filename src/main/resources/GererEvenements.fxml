@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="600.0" prefWidth="1200.0" 
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/11" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.esprit.controllers.GererEvenementsController">
+    <VBox spacing="15" styleClass="card">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <Label text="Gestion des Événements" styleClass="title-label"/>
+        
+        <TableView fx:id="eventTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="titreColumn" text="Titre" prefWidth="150"/>
+                <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="200"/>
+                <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120"/>
+                <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120"/>
+                <TableColumn fx:id="capaciteColumn" text="Capacité" prefWidth="80"/>
+                <TableColumn fx:id="categorieIdColumn" text="Catégorie" prefWidth="100"/>
+                <TableColumn fx:id="lieuColumn" text="Lieu" prefWidth="120"/>
+                <TableColumn fx:id="organisateurColumn" text="Organisateur" prefWidth="120"/>
+                <TableColumn fx:id="prixColumn" text="Prix" prefWidth="80"/>
+                <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
+                <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+</AnchorPane> 

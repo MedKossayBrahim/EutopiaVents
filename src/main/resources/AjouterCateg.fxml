@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" 
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/11" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.esprit.controllers.Ajoutercategorieevent">
+    <VBox spacing="10" styleClass="card">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <Label text="Ajouter une catégorie" styleClass="title-label"/>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="categ" promptText="Nom de la catégorie"/>
+            <Button text="Ajouter" onAction="#ajouter" styleClass="confirm-button"/>
+        </HBox>
+        
+        <TableView fx:id="categorieTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="nomColumn" text="Nom" prefWidth="300"/>
+                <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
+            </columns>
+        </TableView>
+    </VBox>
+</AnchorPane>

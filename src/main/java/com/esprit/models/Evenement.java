@@ -15,6 +15,9 @@ public class Evenement {
     private String statut;
     private String lieu_proprietaire;
     private String image;
+    private String organisateurNom;
+    private String categorieNom;
+    private String lieuNom;
 
     // Constructor with all fields
     public Evenement(int id, String titre, String description, String dateDebut, String dateFin, int capacite, int categorieId, int lieuId, int organisateurId, double prix, String statut, String lieuProprietaire, String image) {
@@ -145,6 +148,30 @@ public class Evenement {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getOrganisateurNom() {
+        return organisateurNom;
+    }
+
+    public void setOrganisateurNom(String organisateurNom) {
+        this.organisateurNom = organisateurNom;
+    }
+
+    public String getCategorieNom() {
+        return categorieNom;
+    }
+
+    public void setCategorieNom(String categorieNom) {
+        this.categorieNom = categorieNom;
+    }
+
+    public String getLieuNom() {
+        return lieuNom;
+    }
+
+    public void setLieuNom(String lieuNom) {
+        this.lieuNom = lieuNom;
     }
 
     @Override

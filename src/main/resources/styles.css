@@ -1,0 +1,173 @@
+/* Variables de couleurs */
+* {
+    -main-bg: #FAF6F3;
+    -main-light: #FFFFFF;
+    -main-dark: #F0EBE6;
+    -accent: #E6DED5;
+    -text: #2C2C2C;
+    -success: #4CAF50;
+    -success-hover: #45A049;
+    -danger: #FF4444;
+    -danger-hover: #FF0000;
+}
+
+/* Styles généraux */
+.root {
+    -fx-background-color: -main-bg;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Style pour les cartes */
+.card {
+    -fx-background-color: -main-light;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 1);
+    -fx-padding: 20;
+    -fx-spacing: 15;
+}
+
+/* Style pour les boutons */
+.button {
+    -fx-background-color: -accent;
+    -fx-text-fill: -text;
+    -fx-background-radius: 5;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: derive(-accent, -5%);
+}
+
+.confirm-button {
+    -fx-background-color: -success;
+    -fx-text-fill: white;
+}
+
+.confirm-button:hover {
+    -fx-background-color: -success-hover;
+}
+
+.delete-button, .cancel-button {
+    -fx-background-color: -danger;
+    -fx-text-fill: white;
+}
+
+.delete-button:hover, .cancel-button:hover {
+    -fx-background-color: -danger-hover;
+}
+
+/* Style pour les champs de texte */
+.text-field, .text-area {
+    -fx-background-color: -main-light;
+    -fx-background-radius: 5;
+    -fx-border-color: -accent;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+}
+
+.text-field:focused, .text-area:focused {
+    -fx-border-color: derive(-accent, -15%);
+    -fx-background-color: -main-light;
+}
+
+/* Style pour les labels */
+.title-label {
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text;
+}
+
+.subtitle-label {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text;
+}
+
+/* Style pour les spinners */
+.spinner {
+    -fx-background-color: -main-light;
+    -fx-border-color: -accent;
+    -fx-border-radius: 5;
+}
+
+/* Style pour les tables */
+.table-view {
+    -fx-background-color: -main-light;
+    -fx-background-radius: 5;
+    -fx-border-color: -accent;
+    -fx-border-radius: 5;
+}
+
+.table-view .column-header {
+    -fx-background-color: -accent;
+    -fx-text-fill: -text;
+    -fx-font-weight: bold;
+    -fx-padding: 8;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -accent;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.table-row-cell {
+    -fx-background-color: -main-light;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -main-bg;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: derive(-accent, 30%);
+}
+
+/* Style pour le panier */
+.cart-container {
+    -fx-background-color: -main-light;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-radius: 8;
+}
+
+.total-section {
+    -fx-background-color: -main-dark;
+    -fx-padding: 15;
+    -fx-background-radius: 8;
+}
+
+/* Style pour les scroll panes */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: -accent;
+    -fx-background-radius: 5;
+}
+
+/* Style pour DatePicker */
+.date-picker {
+    -fx-background-color: -main-light;
+    -fx-border-color: -accent;
+    -fx-border-radius: 5;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: -accent;
+    -fx-background-radius: 0 5 5 0;
+}
+
+.date-picker .arrow-button:hover {
+    -fx-background-color: derive(-accent, -5%);
+} 
