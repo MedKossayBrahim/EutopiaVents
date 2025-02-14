@@ -39,7 +39,7 @@ public class MainController {
     @FXML
     private void openAjoutCategorie() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutCategorie.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ajouterCateg.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Ajouter une Catégorie");
