@@ -1,9 +1,5 @@
 package com.esprit.tests;
 
-import com.esprit.models.Participant;
-import com.esprit.models.Role;
-import com.esprit.services.ParticipantService;
-
 public class MainProg {
     public static void main(String[] args) {
         //********************************MODULE MATERIEL************************************************
@@ -158,22 +154,22 @@ public class MainProg {
 //        ReservationsService.rechercher().forEach(System.out::println);
         //***************************************************event**************************
 //********************************************************* user *******************************
-        Participant participant = new Participant();
-        participant.setNom("Doe");
-        participant.setPrenom("John");
-        participant.setUserName("johndoe");
-        participant.setphone(123456789);
-        participant.setEmail("john.doe@example.com");
-        participant.setPasswd("password123");
-        participant.setImage("fffff");
-        participant.setActive(true);
-        participant.setRole(Role.Admin);
-
-        ParticipantService participantService=new ParticipantService();
-        participantService.ajouter(participant);
-        participant.setNom("aaaa");
-        participant.setUserID(20);
-        participantService.modifier(participant);
+//        Participant participant = new Participant();
+//        participant.setNom("Doe");
+//        participant.setPrenom("John");
+//        participant.setUserName("johndoe");
+//        participant.setphone(123456789);
+//        participant.setEmail("john.doe@example.com");
+//        participant.setPasswd("password123");
+//        participant.setImage("fffff");
+//        participant.setActive(true);
+//        participant.setRole(Role.Admin);
+//
+//        ParticipantService participantService=new ParticipantService();
+//        participantService.ajouter(participant);
+//        participant.setNom("aaaa");
+//        participant.setUserID(20);
+//        participantService.modifier(participant);
         //participantService.supprimer(participant);
         //System.out.println(participantService.rechercher());
         //*****************************  user   ********************************

@@ -16,8 +16,7 @@ public class ParticipantService extends UserService implements IService<Particip
     @Override
     public void ajouter(Participant participant) {
 
-        String req = "INSERT INTO users (nom, prenom, userName, phone, email, password, image, isActive, role) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO users (nom, prenom, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
@@ -88,7 +87,7 @@ public class ParticipantService extends UserService implements IService<Particip
         String req = "DELETE FROM users WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
-             PreparedStatement st = connection.prepareStatement(req)) {
+              PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set the userID parameter for the delete query
             st.setInt(1, participant.getUserID());
@@ -116,23 +115,13 @@ public class ParticipantService extends UserService implements IService<Particip
         List<Participant> participants = new ArrayList<>();
 
         try (// Ensure you have a method to get a connection
-             Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
+             Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(req)) {
 
             // Iterate through the result set and create Participant objects
             while (rs.next()) {
                 // Create a Participant object using the parameterized constructor
-                Participant participantTEMP = new Participant(
-                        rs.getInt("userID"),
-                        rs.getString("nom"),
-                        rs.getString("prenom"),
-                        rs.getString("email"),
-                        rs.getString("password"), // Ensure this is hashed
-                        rs.getString("userName"),
-                        rs.getString("image"),
-                        rs.getInt("phone"),
-                        rs.getBoolean("isActive"),
-                        Role.valueOf(rs.getString("role")) // Assuming Role is an enum
+                Participant participantTEMP = new Participant(rs.getInt("userID"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
+                        rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")) // Assuming Role is an enum
                 );
 
                 // Add the participant to the list

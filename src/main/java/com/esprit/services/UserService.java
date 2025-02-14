@@ -1,7 +1,6 @@
 package com.esprit.services;
 
 
-
 import com.esprit.models.Role;
 import com.esprit.models.User;
 import com.esprit.utils.DataSource;
@@ -16,7 +15,7 @@ public class UserService {
 
     public User signIn(String login, String passwd) {
         User user = null;
-        String req = "SELECT * FROM user WHERE (email = ? OR username = ?) AND password = ?;";
+        String req = "SELECT * FROM users WHERE (email = ? OR username = ?) AND password = ?;";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {

@@ -7,17 +7,28 @@ public class User {
     private Boolean isActive;
     private Role role;
 
-    public User(String nom, String prenom, String email, String passwd, int phone) {
-        this.nom = nom;
+    public User(String nom, String prenom, String userName, String email, String passwd, int phone) {
+        this.nom = nom; 
         this.prenom = prenom;
+        this.userName = userName;
         this.email = email;
         this.passwd = passwd;
         this.phone = phone;
         this.isActive = true;
     }
 
-    public User() {
 
+    public User(int userID, String nom, String prenom, String email, String passwd, String userName, String image, int phone, Boolean isActive, Role role) {
+        this.userID = userID;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.email = email;
+        this.passwd = passwd;
+        this.userName = userName;
+        this.image = image;
+        this.phone = phone;
+        this.isActive = isActive;
+        this.role = role;
     }
 
     public String getImage() {
@@ -41,21 +52,12 @@ public class User {
         return "User{" + "userID=" + userID + ", nom='" + nom + '\'' + ", prenom='" + prenom + '\'' + ", email='" + email + '\'' + ", passwd='" + passwd + '\'' + ", userName='" + userName + '\'' + ", image='" + image + '\'' + ", phone=" + phone + ", isActive=" + isActive + ", role=" + role + '}';
     }
 
-    public User(int userID, String nom, String prenom, String email, String passwd, String userName, String image, int phone, Boolean isActive, Role role) {
-        this.userID = userID;
-        this.nom = nom;
-        this.prenom = prenom;
-        this.email = email;
-        this.passwd = passwd;
-        this.userName = userName;
-        this.image = image;
-        this.phone = phone;
-        this.isActive = isActive;
-        this.role = role;
-    }
-
     public int getUserID() {
         return userID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public String getNom() {
@@ -86,8 +88,8 @@ public class User {
         return passwd;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 
     public Boolean getActive() {
@@ -96,10 +98,6 @@ public class User {
 
     public void setActive(Boolean active) {
         isActive = active;
-    }
-
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
     }
 
     public int getphone() {
