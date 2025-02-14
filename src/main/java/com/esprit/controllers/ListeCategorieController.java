@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -24,7 +25,6 @@ public class ListeCategorieController {
     private final CategorieService categorieService;
 
     public ListeCategorieController() {
-
         categorieService = new CategorieService();
     }
 
@@ -37,27 +37,29 @@ public class ListeCategorieController {
     private void setupColumns() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        
+
+        // Rendre la colonne "nom" éditable
+        nomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nomColumn.setOnEditCommit(event -> {
+            Categorie categorie = event.getRowValue();
+            categorie.setNom(event.getNewValue());
+            categorieService.modifier(categorie);
+        });
+
+        // Configurer la colonne des actions
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button modifyBtn = new Button("Modifiercateg");
             private final Button deleteBtn = new Button("Supprimer");
             private final HBox buttonsBox = new HBox(5);
 
             {
-                buttonsBox.getChildren().addAll(modifyBtn, deleteBtn);
-                
-                modifyBtn.setOnAction(event -> {
-                    Categorie categorie = getTableView().getItems().get(getIndex());
-                    ouvrirModification(categorie);
-                });
+                buttonsBox.getChildren().addAll(deleteBtn);
 
                 deleteBtn.setOnAction(event -> {
                     Categorie categorie = getTableView().getItems().get(getIndex());
                     categorieService.supprimer(categorie);
-                    loadCategories();;
+                    loadCategories();
                 });
             }
-
 
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -69,29 +71,23 @@ public class ListeCategorieController {
                 }
             }
         });
+
+        // Activer l'édition sur double-clic
+        categorieTable.setEditable(true);
+        categorieTable.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !categorieTable.getSelectionModel().isEmpty()) {
+                TablePosition<Categorie, ?> pos = categorieTable.getSelectionModel().getSelectedCells().get(0);
+                int row = pos.getRow();
+                TableColumn<Categorie, ?> col = pos.getTableColumn();
+                if (col == nomColumn) {
+                    categorieTable.edit(row, col);
+                }
+            }
+        });
     }
 
     private void loadCategories() {
         categorieTable.getItems().clear();
         categorieTable.getItems().addAll(categorieService.rechercher());
     }
-
-    private void ouvrirModification(Categorie categorie) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierCategorie.fxml"));
-            Parent root = loader.load();
-            
-            ModifierCategorieController controller = loader.getController();
-            controller.setCategorie(categorie);
-            
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Catégorie");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
-        }
-    }
-
-
-} 
+}

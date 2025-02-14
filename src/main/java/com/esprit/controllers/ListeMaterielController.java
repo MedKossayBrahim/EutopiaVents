@@ -3,12 +3,9 @@ package com.esprit.controllers;
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 
 public class ListeMaterielController {
@@ -17,9 +14,15 @@ public class ListeMaterielController {
     @FXML
     private TableColumn<Materiel, String> libelleColumn;
     @FXML
+    private TableColumn<Materiel, String> descriptionColumn;
+    @FXML
     private TableColumn<Materiel, Integer> quantiteColumn;
     @FXML
     private TableColumn<Materiel, Double> prixColumn;
+    @FXML
+    private TableColumn<Materiel, String> categorieColumn;
+    @FXML
+    private TableColumn<Materiel, String> imageUrlColumn;
     @FXML
     private TableColumn<Materiel, Void> actionsColumn;
 
@@ -36,23 +39,59 @@ public class ListeMaterielController {
     }
 
     private void setupColumns() {
+        // Configuration des colonnes
         libelleColumn.setCellValueFactory(new PropertyValueFactory<>("libelle"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         quantiteColumn.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        
-        // Configuration de la colonne des actions (bouton modifier)
+        categorieColumn.setCellValueFactory(new PropertyValueFactory<>("categorieId")); // Assurez-vous que "categorieId" est correct
+        imageUrlColumn.setCellValueFactory(new PropertyValueFactory<>("Image_url"));
+
+        // Rendre les colonnes éditables
+        libelleColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        descriptionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.IntegerStringConverter()));
+        prixColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.DoubleStringConverter()));
+        imageUrlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        // Gérer les modifications
+        libelleColumn.setOnEditCommit(event -> {
+            Materiel materiel = event.getRowValue();
+            materiel.setLibelle(event.getNewValue());
+            materielService.modifier(materiel);
+        });
+
+        descriptionColumn.setOnEditCommit(event -> {
+            Materiel materiel = event.getRowValue();
+            materiel.setDescription(event.getNewValue());
+            materielService.modifier(materiel);
+        });
+
+        quantiteColumn.setOnEditCommit(event -> {
+            Materiel materiel = event.getRowValue();
+            materiel.setQuantite(event.getNewValue());
+            materielService.modifier(materiel);
+        });
+
+        prixColumn.setOnEditCommit(event -> {
+            Materiel materiel = event.getRowValue();
+            materiel.setPrix(event.getNewValue());
+            materielService.modifier(materiel);
+        });
+
+        imageUrlColumn.setOnEditCommit(event -> {
+            Materiel materiel = event.getRowValue();
+            materiel.setImage_url(event.getNewValue());
+            materielService.modifier(materiel);
+        });
+
+        // Configuration de la colonne des actions (supprimer uniquement)
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button modifyBtn = new Button("Modifier");
             private final Button deleteBtn = new Button("Supprimer");
             private final HBox buttonsBox = new HBox(5); // 5 est l'espacement entre les boutons
 
             {
-                buttonsBox.getChildren().addAll(modifyBtn, deleteBtn);
-                
-                modifyBtn.setOnAction(event -> {
-                    Materiel materiel = getTableView().getItems().get(getIndex());
-                    ouvrirModification(materiel);
-                });
+                buttonsBox.getChildren().addAll(deleteBtn);
 
                 deleteBtn.setOnAction(event -> {
                     Materiel materiel = getTableView().getItems().get(getIndex());
@@ -71,28 +110,23 @@ public class ListeMaterielController {
                 }
             }
         });
+
+        // Activer l'édition sur double-clic
+        materielTable.setEditable(true);
+        materielTable.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !materielTable.getSelectionModel().isEmpty()) {
+                TablePosition<Materiel, ?> pos = materielTable.getSelectionModel().getSelectedCells().get(0);
+                int row = pos.getRow();
+                TableColumn<Materiel, ?> col = pos.getTableColumn();
+                if (col == libelleColumn || col == descriptionColumn || col == quantiteColumn || col == prixColumn || col == imageUrlColumn) {
+                    materielTable.edit(row, col);
+                }
+            }
+        });
     }
 
     private void loadMateriels() {
         materielTable.getItems().clear();
         materielTable.getItems().addAll(materielService.rechercher());
     }
-
-    private void ouvrirModification(Materiel materiel) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierMateriel.fxml"));
-            Parent root = loader.load();
-            
-            ModifierMaterielController controller = loader.getController();
-            controller.setMateriel(materiel);
-            
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Matériel");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
-        }
-    }
-
-} 
+}
