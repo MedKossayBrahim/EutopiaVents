@@ -56,7 +56,8 @@ public class ListeMaterielController {
 
                 deleteBtn.setOnAction(event -> {
                     Materiel materiel = getTableView().getItems().get(getIndex());
-                    confirmerSuppression(materiel);
+                    materielService.supprimer(materiel);
+                    loadMateriels();
                 });
             }
 
@@ -94,17 +95,4 @@ public class ListeMaterielController {
         }
     }
 
-    private void confirmerSuppression(Materiel materiel) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation de suppression");
-        alert.setHeaderText("Supprimer le matériel");
-        alert.setContentText("Êtes-vous sûr de vouloir supprimer ce matériel ?");
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                materielService.supprimer(materiel);
-                loadMateriels(); // Recharger la liste
-            }
-        });
-    }
 } 

@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class ListeReservationController {
     @FXML
@@ -26,9 +27,9 @@ public class ListeReservationController {
     @FXML
     private TableColumn<Reservation, Double> prixTotalColumn;
     @FXML
-    private TableColumn<Reservation, Date> dateDebutColumn;
+    private TableColumn<Reservation, Timestamp> dateDebutColumn;
     @FXML
-    private TableColumn<Reservation, Date> dateFinColumn;
+    private TableColumn<Reservation, Timestamp> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
 
