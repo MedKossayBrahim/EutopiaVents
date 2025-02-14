@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1200.0"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.Reservation1"
+            stylesheets="@styles/theme.css">
+
+    <VBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+        <!-- En-tête -->
+        <HBox styleClass="header-container" alignment="CENTER">
+            <Label styleClass="main-title" text="Gestion des Réservations"/>
+        </HBox>
+
+        <!-- Contenu principal -->
+        <HBox spacing="20" VBox.vgrow="ALWAYS" styleClass="content-container">
+
+            <!-- Panneau gauche : Formulaire -->
+            <VBox styleClass="form-section" spacing="15">
+                <Label styleClass="section-title" text="Nouvelle Réservation"/>
+
+                <!-- Sélection du lieu -->
+                <VBox spacing="5">
+                    <Label text="Lieu de l'événement *"/>
+                    <ComboBox fx:id="lieuComboBox" prefWidth="300"/>
+                    <Label fx:id="lieuCapaciteLabel" styleClass="info-label"/>
+                </VBox>
+
+                <!-- Sélection de l'événement -->
+                <VBox spacing="5">
+                    <Label text="Événement *"/>
+                    <ComboBox fx:id="eventComboBox" prefWidth="300"/>
+                    <Label fx:id="eventDetailsLabel" styleClass="info-label"/>
+                </VBox>
+
+                <!-- Dates de réservation -->
+                <VBox spacing="5">
+                    <Label text="Date et heure de début *"/>
+                    <HBox spacing="10">
+                        <DatePicker fx:id="dateDebutPicker"/>
+                        <ComboBox fx:id="heureDebutCombo" prefWidth="100"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Date et heure de fin *"/>
+                    <HBox spacing="10">
+                        <DatePicker fx:id="dateFinPicker"/>
+                        <ComboBox fx:id="heureFinCombo" prefWidth="100"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Boutons d'action -->
+                <HBox styleClass="buttons-container" spacing="10">
+                    <Button fx:id="ajouterBtn" text="Ajouter" styleClass="button-primary" onAction="#handleAjouter"/>
+                    <Button fx:id="modifierBtn" text="Modifier" styleClass="button-secondary" onAction="#handleModifier"/>
+                    <Button fx:id="supprimerBtn" text="Supprimer" styleClass="button-danger" onAction="#handleSupprimer"/>
+                    <Button fx:id="annulerBtn" text="Annuler" styleClass="button-cancel" onAction="#handleAnnuler"/>
+                </HBox>
+
+                <Label styleClass="required-note" text="* Champs obligatoires"/>
+            </VBox>
+
+            <!-- Panneau droit : Liste des réservations -->
+            <VBox styleClass="list-section" HBox.hgrow="ALWAYS">
+                <Label styleClass="section-title" text="Réservations existantes"/>
+
+                <TableView fx:id="reservationsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="lieuColumn" text="Lieu" prefWidth="150"/>
+                        <TableColumn fx:id="eventColumn" text="Événement" prefWidth="150"/>
+                        <TableColumn fx:id="dateDebutColumn" text="Début" prefWidth="150"/>
+                        <TableColumn fx:id="dateFinColumn" text="Fin" prefWidth="150"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Aucune réservation disponible"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>

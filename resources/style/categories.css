@@ -1,0 +1,114 @@
+/* Couleurs du thème
+Blanc: #FFFFFF
+Gris clair: #CCC1BE
+Bleu: #456086
+Noir: #000000
+Pêche: #F8BD8D
+Violet: #844685
+Gris très clair: #F2F2F2
+*/
+
+.root {
+    -fx-background-color: #F2F2F2;
+    -fx-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Style général des Labels */
+.label {
+    -fx-text-fill: #456086;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Style spécifique pour les labels de titre */
+#lbNom, #lbDescription {
+    -fx-font-size: 16px;
+    -fx-text-fill: #844685;
+    -fx-padding: 5px;
+}
+
+/* Style des TextFields */
+.text-field {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CCC1BE;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+.text-field:focused {
+    -fx-border-color: #844685;
+    -fx-border-width: 2px;
+}
+
+/* Style du bouton */
+.button {
+    -fx-background-color: #456086;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #844685;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+}
+
+.button:pressed {
+    -fx-background-color: #F8BD8D;
+}
+
+/* Style de l'AnchorPane */
+.anchor-pane {
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F2F2F2);
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Nouveaux styles pour l'affichage des catégories */
+.title-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #456086;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+
+.category-card {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 20px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+    -fx-border-radius: 10px;
+    -fx-border-color: #CCC1BE;
+    -fx-border-width: 1px;
+}
+
+.category-icon {
+    -fx-fill: #F8BD8D;
+    -fx-stroke: #844685;
+    -fx-stroke-width: 2;
+    -fx-arc-height: 10;
+    -fx-arc-width: 10;
+}
+
+.card-header {
+    -fx-font-size: 16px;
+    -fx-text-fill: #844685;
+    -fx-font-weight: bold;
+}
+
+.card-content {
+    -fx-font-size: 14px;
+    -fx-text-fill: #456086;
+    -fx-wrap-text: true;
+    -fx-padding: 0 0 0 10;
+}
+
+.category-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(132,70,133,0.2), 15, 0, 0, 0);
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+    -fx-transition: all 0.2s ease-in-out;
+} 

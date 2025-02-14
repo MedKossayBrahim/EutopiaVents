@@ -1,0 +1,225 @@
+/* ========== VARIABLES GLOBALES DU THÈME FESTIF ========== */
+* {
+    -fx-primary: #456086;    /* Bleu-gris profond */
+    -fx-secondary: #844685;  /* Violet élégant */
+    -fx-accent: #F8BD8D;     /* Orange doux */
+    -fx-highlight: #FF9800;  /* Orange vif */
+    -fx-grey: #CCC1BE;       /* Gris clair */
+    -fx-background: #F2F2F2; /* Fond très clair */
+    -fx-danger: #dc3545;     /* Rouge */
+}
+
+/* ========== STYLES DE BASE ========== */
+.root {
+    -fx-background-color: -fx-background;
+    -fx-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ========== EN-TÊTE ========== */
+.header-container {
+    -fx-background-color: linear-gradient(to right, -fx-primary, -fx-secondary);
+    -fx-padding: 30px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);
+    -fx-min-height: 100px;
+    -fx-alignment: center;
+}
+
+.main-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 3, 0, 0, 3);
+    -fx-padding: 10px;
+    -fx-background-color: rgba(0,0,0,0.2);
+    -fx-background-radius: 10px;
+    -fx-border-color: -fx-accent;
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;
+}
+
+/* ========== CONTENEURS PRINCIPAUX ========== */
+.content-container {
+    -fx-padding: 20px;
+    -fx-spacing: 20;
+}
+
+.form-section {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-padding: 25px;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-min-width: 400px;
+    -fx-max-width: 450px;
+}
+
+.list-section {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-padding: 25px;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
+    -fx-border-color: -fx-grey;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+}
+
+/* ========== ÉLÉMENTS DE FORMULAIRE ========== */
+.label {
+    -fx-text-fill: -fx-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-secondary;
+    -fx-padding: 0 0 15 0;
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 0 0 2 0;
+}
+
+.combo-box, .date-picker {
+    -fx-background-color: white;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-pref-height: 35px;
+}
+
+.combo-box:focused, .date-picker:focused {
+    -fx-border-color: -fx-secondary;
+    -fx-border-width: 2px;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 5 10;
+}
+
+/* ========== TABLEAU DES RÉSERVATIONS ========== */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-grey;
+    -fx-border-radius: 5px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to right, -fx-primary, -fx-secondary);
+    -fx-background-radius: 5px 5px 0 0;
+    -fx-padding: 5px;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: derive(-fx-background, -2%);
+}
+
+.table-row-cell:selected {
+    -fx-background-color: derive(-fx-accent, 20%);
+    -fx-text-fill: -fx-primary;
+}
+
+/* ========== BOUTONS ========== */
+.buttons-container {
+    -fx-padding: 20px 0;
+    -fx-spacing: 10;
+    -fx-alignment: center;
+}
+
+.button {
+    -fx-pref-height: 35px;
+    -fx-min-width: 100px;
+    -fx-background-radius: 17.5px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 20px;
+}
+
+.button-primary {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+}
+
+.button-primary:hover {
+    -fx-background-color: derive(-fx-primary, 10%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.button-secondary {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: white;
+}
+
+.button-secondary:hover {
+    -fx-background-color: derive(-fx-secondary, 10%);
+}
+
+.button-danger {
+    -fx-background-color: -fx-danger;
+    -fx-text-fill: white;
+}
+
+.button-danger:hover {
+    -fx-background-color: derive(-fx-danger, 10%);
+}
+
+.button-cancel {
+    -fx-background-color: white;
+    -fx-text-fill: -fx-primary;
+    -fx-border-color: -fx-primary;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 17.5px;
+}
+
+.button-cancel:hover {
+    -fx-background-color: derive(-fx-primary, 95%);
+}
+
+/* ========== LABELS INFORMATIFS ========== */
+.info-label {
+    -fx-text-fill: -fx-grey;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+}
+
+.required-note {
+    -fx-text-fill: -fx-grey;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-padding: 10 0 0 0;
+}
+
+/* ========== EFFETS DE SURVOL ET ANIMATIONS ========== */
+.form-section:hover, .list-section:hover {
+    -fx-effect: dropshadow(gaussian, rgba(132,70,133,0.2), 12, 0, 0, 0);
+}
+
+.button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== STYLES POUR LES MESSAGES D'ERREUR ========== */
+.error-label {
+    -fx-text-fill: -fx-danger;
+    -fx-font-size: 12px;
+    -fx-padding: 5px 0;
+}

@@ -143,12 +143,18 @@ public class LieuServiceImpl implements IService<Lieu>{
     @Override
     public List<Lieu> rechercher() {
         List<Lieu> lieux = new ArrayList<>();
-        String req = "SELECT * FROM lieu";
+        String req = "SELECT l.*, c.id AS cat_id, c.nom AS cat_nom, c.description AS cat_description " +
+                "FROM lieu l " +
+                "JOIN categorie_salle c ON l.categorie_salle_id = c.id";
 
-        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(req)) {
+        try (PreparedStatement pst = connection.prepareStatement(req);
+             ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
-                // Récupération de la catégorie à partir de la colonne "categorie_salle_id"
-                categorie_salle categoriesalle = getCategorieById(rs.getInt("categorie_salle_id"));
+                categorie_salle categoriesalle = new categorie_salle(
+                        rs.getInt("cat_id"),
+                        rs.getString("cat_nom"),
+                        rs.getString("cat_description")
+                );
 
                 Lieu lieu = new Lieu(
                         rs.getInt("id"),
@@ -169,6 +175,7 @@ public class LieuServiceImpl implements IService<Lieu>{
         return lieux;
     }
 
+
     // Méthode pour récupérer la catégorie associée à un lieu (en utilisant la table categorie_salle)
     private categorie_salle getCategorieById(int id) {
         String req = "SELECT * FROM categorie_salle WHERE id = ?";
@@ -184,5 +191,21 @@ public class LieuServiceImpl implements IService<Lieu>{
         }
         return null;
     }
+    //nouvelles methodes**********************************************
+    public void afficherLieux() {
+        List<Lieu> lieux = this.rechercher();
+        lieux.forEach(System.out::println);
+    }
+
+    public Lieu getPremierLieu() {
+        List<Lieu> lieux = this.rechercher();
+        return lieux.isEmpty() ? null : lieux.get(0);
+    }
+
+    public Lieu getDernierLieu() {
+        List<Lieu> lieux = this.rechercher();
+        return lieux.isEmpty() ? null : lieux.get(lieux.size() - 1);
+    }
+
 
 }

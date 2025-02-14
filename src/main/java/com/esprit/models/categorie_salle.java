@@ -2,7 +2,6 @@ package com.esprit.models;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class categorie_salle {
     private int id;
     private String nom;
