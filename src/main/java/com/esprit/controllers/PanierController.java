@@ -32,8 +32,8 @@ public class PanierController implements Initializable {
         double totalPanier = 0;
 
         var reservations = reservationsService.rechercher().stream()
-            .filter(r -> r.getUtilisateurId() == USER_ID)
-            .toList();
+                .filter(r -> r.getUtilisateurId() == USER_ID && "en_attente".equals(r.getStatut())) // Filtrer par statut
+                .toList();
 
         for (Reservations reservation : reservations) {
             Evenement event = evenementService.rechercherParId(reservation.getEvenementId());
@@ -55,7 +55,7 @@ public class PanierController implements Initializable {
         titreLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
 
         // Informations de l'événement
-        String lieu = event.getLieuId() != 0 ? "Lieu " + event.getLieuId() : event.getLieu_proprietaire();
+        String lieu = event.getLieuId() != 0 ? event.getLieuNom() : event.getLieu_proprietaire(); // Utiliser le nom du lieu
         Label infoLabel = new Label(String.format("Date: %s\nLieu: %s", event.getDateDebut(), lieu));
 
         // Prix et quantité
@@ -63,7 +63,7 @@ public class PanierController implements Initializable {
         prixQuantiteBox.setAlignment(Pos.CENTER_LEFT);
 
         Label prixLabel = new Label(String.format("Prix unitaire: %.2f TND", event.getPrix()));
-        
+
         Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, reservation.getQuantite());
         quantiteSpinner.setMaxWidth(100);
         quantiteSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
@@ -74,7 +74,7 @@ public class PanierController implements Initializable {
         });
 
         Label totalLabel = new Label(String.format("Total: %.2f TND", reservation.getPrixTotal()));
-        
+
         prixQuantiteBox.getChildren().addAll(prixLabel, new Label("Quantité:"), quantiteSpinner, totalLabel);
 
         // Boutons
@@ -83,7 +83,7 @@ public class PanierController implements Initializable {
 
         Button confirmerBtn = new Button("Confirmer");
         confirmerBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        
+
         Button annulerBtn = new Button("Annuler");
         annulerBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
 
@@ -105,13 +105,13 @@ public class PanierController implements Initializable {
         buttonsBox.getChildren().addAll(confirmerBtn, annulerBtn);
 
         card.getChildren().addAll(
-            titreLabel,
-            infoLabel,
-            prixQuantiteBox,
-            statutLabel,
-            buttonsBox
+                titreLabel,
+                infoLabel,
+                prixQuantiteBox,
+                statutLabel,
+                buttonsBox
         );
 
         return card;
     }
-} 
+}

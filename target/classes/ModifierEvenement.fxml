@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableColumn?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.ModifierEvenementController">
+    <children>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="Modifier Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+            <TableView fx:id="eventTable" editable="true" prefWidth="800" prefHeight="600">
+                <columns>
+                    <TableColumn fx:id="titreColumn" text="Titre" editable="true" />
+                    <TableColumn fx:id="descriptionColumn" text="Description" editable="true" />
+                    <TableColumn fx:id="dateDebutColumn" text="Date Début" editable="true" />
+                    <TableColumn fx:id="dateFinColumn" text="Date Fin" editable="true" />
+                    <TableColumn fx:id="capaciteColumn" text="Capacité" editable="true" />
+                    <TableColumn fx:id="prixColumn" text="Prix" editable="true" />
+                    <TableColumn fx:id="statutColumn" text="Statut" />
+                    <TableColumn fx:id="actionsColumn" text="Actions" />
+                </columns>
+            </TableView>
+            <Button text="Retour" onAction="#handleRetour"/>
+        </VBox>
+    </children>
+</AnchorPane>

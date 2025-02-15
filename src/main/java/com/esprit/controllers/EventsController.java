@@ -3,8 +3,6 @@ package com.esprit.controllers;
 import com.esprit.models.Evenement;
 import com.esprit.services.EvenementService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
@@ -14,6 +12,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.control.Label;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -38,13 +39,16 @@ public class EventsController {
         int row = 0;
 
         for (Evenement evenement : evenements) {
-            VBox eventBox = createEventBox(evenement);
-            eventsGrid.add(eventBox, column, row);
+            // Vérifiez si la capacité de l'événement est supérieure à 0
+            if (evenement.getCapacite() > 0) {
+                VBox eventBox = createEventBox(evenement);
+                eventsGrid.add(eventBox, column, row);
 
-            column++;
-            if (column == 2) { // 2 colonnes par ligne
-                column = 0;
-                row++;
+                column++;
+                if (column == 2) { // 2 colonnes par ligne
+                    column = 0;
+                    row++;
+                }
             }
         }
     }

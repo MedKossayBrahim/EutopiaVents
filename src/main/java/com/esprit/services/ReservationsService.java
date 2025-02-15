@@ -130,8 +130,29 @@ public class ReservationsService {
 
         // Mettre à jour la réservation dans la base de données
         modifier(reservation);
+
+        // Décrémenter la capacité de l'événement
+        decrementerCapacite(reservation.getEvenementId(), quantite);
+
         System.out.println("Achat confirmé avec succès.");
     }
+
+    private void decrementerCapacite(int evenementId, int quantite) {
+        String req = "UPDATE events SET capacite = capacite - ? WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setInt(1, quantite);
+            pst.setInt(2, evenementId);
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Capacité de l'événement mise à jour avec succès.");
+            } else {
+                System.out.println("Erreur lors de la mise à jour de la capacité de l'événement.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la mise à jour de la capacité : " + e.getMessage());
+        }
+    }
+
 
     // Méthode pour récupérer une réservation par son ID
     private Reservations getReservationById(int reservationId) {
