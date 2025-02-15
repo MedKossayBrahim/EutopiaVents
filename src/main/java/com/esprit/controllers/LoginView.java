@@ -1,8 +1,10 @@
 package com.esprit.controllers;
 
 
+import com.esprit.models.User;
 import com.esprit.services.UserService;
 import com.esprit.tests.MainProgGUI;
+import com.esprit.utils.UserSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -34,13 +36,16 @@ public class LoginView {
 
     @FXML
     private void login() throws IOException {
+        User user = null;
         String passwd;
         if (isPasswordVisible) {
             passwd = VloginPasswd.getText();
         } else {
             passwd = loginPasswd.getText();
         }
-        if (us.signIn(loginEmail.getText(), passwd) != null) {
+        user =  us.signIn(loginEmail.getText(), passwd);
+        if (user != null) {
+            UserSession.saveUser(user);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/otp-view.fxml"));
             Parent root = loader.load();
             loginEmail.getScene().setRoot(root);

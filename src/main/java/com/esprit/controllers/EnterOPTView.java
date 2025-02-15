@@ -1,11 +1,14 @@
 package com.esprit.controllers;
 
+import com.esprit.tests.MainProgGUI;
 import com.esprit.utils.DataReceiver;
 import com.esprit.utils.EmailSender;
 import com.esprit.utils.OTPGenerator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+
+import java.io.IOException;
 
 public class EnterOPTView implements DataReceiver<String> {
     String generatedOTP = OTPGenerator.generateOTP();
@@ -58,10 +61,11 @@ public class EnterOPTView implements DataReceiver<String> {
     }
 
     @FXML
-    public void check(ActionEvent actionEvent) {
+    public void check(ActionEvent actionEvent) throws IOException {
         String userOTP = input1.getText() + input2.getText() + input3.getText() + input4.getText() + input5.getText();
 
         if (generatedOTP.equals(userOTP)) {
+            MainProgGUI.getSceneManager().switchScene("/newPass-view.fxml",null);
             System.out.println(" OTP Verified Successfully!");
         } else {
             System.out.println(" Invalid OTP. Please try again.");

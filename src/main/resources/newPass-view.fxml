@@ -12,32 +12,30 @@
 <ScrollPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
             stylesheets="@styles.css"
             fx:controller="com.esprit.controllers.NewPassView">
-    <content>
-        <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0">
-            <Pane prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #F5D0C8;">
-                <ImageView fitHeight="259.0" fitWidth="207.0" layoutX="64.0" layoutY="71.0" pickOnBounds="true"
-                           preserveRatio="true">
-                    <Image url="@images/eutopia2.png"/>
-                </ImageView>
-            </Pane>
-            <TextField fx:id="aaa" layoutX="50.0" layoutY="150.0" promptText="Mot de passe"
-                       AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"/>
-            <Button layoutX="50.0" layoutY="266.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="300.0"
-                    text="Continuer" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0">
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Button>
-            <Text fx:id="welcome" layoutX="50.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                  text="Nouveau Mot de passe" AnchorPane.leftAnchor="350.0"/>
-            <Text layoutX="65.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Back"
-                  AnchorPane.leftAnchor="365.0"/>
-            <ImageView fitHeight="35.0" fitWidth="15.0" layoutX="50.0" layoutY="48.0" pickOnBounds="true"
-                       preserveRatio="true" AnchorPane.leftAnchor="350.0">
-                <Image url="@icons/back.png"/>
+    <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0">
+        <Pane prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #F5D0C8;">
+            <ImageView fitHeight="259.0" fitWidth="207.0" layoutX="64.0" layoutY="71.0" pickOnBounds="true"
+                       preserveRatio="true">
+                <Image url="@images/eutopia2.png"/>
             </ImageView>
-            <TextField fx:id="aaa1" layoutX="49.0" layoutY="209.0" promptText="Confirmer Mot de passe"
-                       AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"/>
-        </AnchorPane>
-    </content>
+        </Pane>
+        <TextField fx:id="aaa" layoutX="50.0" layoutY="150.0" promptText="Mot de passe"
+                   AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"/>
+        <Button layoutX="50.0" layoutY="266.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="300.0"
+                text="Continuer" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0">
+            <font>
+                <Font name="System Bold" size="12.0"/>
+            </font>
+        </Button>
+        <Text fx:id="welcome" layoutX="50.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Nouveau Mot de passe" AnchorPane.leftAnchor="350.0"/>
+        <Text layoutX="65.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Back"
+              AnchorPane.leftAnchor="365.0"/>
+        <ImageView fitHeight="35.0" fitWidth="15.0" layoutX="50.0" layoutY="48.0" pickOnBounds="true"
+                   preserveRatio="true" AnchorPane.leftAnchor="350.0">
+            <Image url="@icons/back.png"/>
+        </ImageView>
+        <TextField fx:id="aaa1" layoutX="49.0" layoutY="209.0" promptText="Confirmer Mot de passe"
+                   AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"/>
+    </AnchorPane>
 </ScrollPane>
