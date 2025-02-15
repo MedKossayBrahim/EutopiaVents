@@ -7,8 +7,12 @@ import com.esprit.services.CategorieServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.io.IOException;
 
 public class LieuController {
 
@@ -256,4 +260,25 @@ public class LieuController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    @FXML
+    private void goToCategorie() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/AfficheCategorie.fxml"));
+            tfNom.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    private void goToPhotoView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/photoView.fxml"));
+            tfNom.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -3,13 +3,16 @@ package com.esprit.controllers;
 import com.esprit.models.reservation1;
 import com.esprit.services.ReservationServiceImpl;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -467,5 +470,13 @@ public class Reservation1 implements Initializable {
             }
         }
     }
+    @FXML
+    private void goToPhotoView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/photoView.fxml"));
+            lieuComboBox.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
-

@@ -223,3 +223,22 @@
     -fx-font-size: 12px;
     -fx-padding: 5px 0;
 }
+//style pour boutton de navigation retour
+
+
+.button-back {
+    -fx-background-color: transparent;
+    -fx-text-fill: derive(-fx-primary, 50%); /* Texte légèrement atténué */
+    -fx-font-size: 14px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: derive(-fx-primary, 50%);
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.button-back:hover {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-border-color: -fx-primary;
+}

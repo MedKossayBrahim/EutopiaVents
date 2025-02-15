@@ -10,99 +10,52 @@ import javafx.stage.Stage;
 
 public class MainProgGUI extends Application {
 
+    private static Stage primaryStage;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        // Création d'une interface d'accueil
-        VBox root = new VBox(20); // Espacement de 20 entre les éléments
+    public void start(Stage stage) throws Exception {
+        primaryStage = stage;
+        showMainMenu();
+    }
+
+    public static void showMainMenu() throws Exception {
+        VBox root = new VBox(20);
         root.getStyleClass().add("welcome-container");
 
-        // Création des boutons
-        Button btnCategories = new Button("Gestion des Catégories");
-        Button btnLieux = new Button("Gestion des Lieux");
-        Button btnPhotos = new Button("Voir les Photos");
-        Button btnReservations = new Button("Gestion des Réservations"); // Nouveau bouton ajouté
+        Button[] buttons = {
+                createNavButton("Gestion des Catégories", "/AjoutCategorie.fxml"),
+                createNavButton("Gestion des Lieux", "/LieuView.fxml"),
+                createNavButton("Gestion des Photos", "/PhotoView.fxml"),
+                createNavButton("Gestion des Réservations", "/Reservation1View.fxml")
+        };
 
-        // Stylisation des boutons
-        btnCategories.getStyleClass().add("welcome-button");
-        btnLieux.getStyleClass().add("welcome-button");
-        btnPhotos.getStyleClass().add("welcome-button");
-        btnReservations.getStyleClass().add("welcome-button"); // Appliquer le même style
+        root.getChildren().addAll(buttons);
+        Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add(MainProgGUI.class.getResource("/styles/theme.css").toExternalForm());
 
-        // Ajout des actions aux boutons
-        btnCategories.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutCategorie.fxml"));
-                Parent categorieRoot = loader.load();
-                Scene categorieScene = new Scene(categorieRoot);
-                Stage categorieStage = new Stage();
-                categorieStage.setScene(categorieScene);
-                categorieStage.setTitle("Gestion des Catégories");
-                categorieStage.show();
-                primaryStage.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        btnLieux.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/LieuView.fxml"));
-                Parent lieuRoot = loader.load();
-                Scene lieuScene = new Scene(lieuRoot);
-                Stage lieuStage = new Stage();
-                lieuStage.setScene(lieuScene);
-                lieuStage.setTitle("Gestion des Lieux");
-                lieuStage.show();
-                primaryStage.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        btnPhotos.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/PhotoView.fxml")); // Assurez-vous que ce fichier existe
-                Parent photoRoot = loader.load();
-                Scene photoScene = new Scene(photoRoot);
-                Stage photoStage = new Stage();
-                photoStage.setScene(photoScene);
-                photoStage.setTitle("Voir les Photos");
-                photoStage.show();
-                primaryStage.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        btnReservations.setOnAction(e -> { // Action pour le nouveau bouton
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Reservation1View.fxml"));
-                Parent reservationRoot = loader.load();
-                Scene reservationScene = new Scene(reservationRoot);
-                Stage reservationStage = new Stage();
-                reservationStage.setScene(reservationScene);
-                reservationStage.setTitle("Gestion des Réservations");
-                reservationStage.show();
-                primaryStage.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        // Ajout des boutons à l'interface
-        root.getChildren().addAll(btnCategories, btnLieux, btnPhotos, btnReservations); // Ajout du nouveau bouton
-
-        // Configuration de la scène principale
-        Scene scene = new Scene(root, 400, 300);
-        scene.getStylesheets().add(getClass().getResource("/styles/theme.css").toExternalForm());
-
-        // Configuration de la fenêtre principale
         primaryStage.setTitle("Gestion des Salles");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private static Button createNavButton(String text, String fxmlPath) {
+        Button btn = new Button(text);
+        btn.getStyleClass().add("nav-button");
+        btn.setOnAction(e -> loadFXML(fxmlPath));
+        return btn;
+    }
+
+    public static void loadFXML(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(MainProgGUI.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            primaryStage.getScene().setRoot(root);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

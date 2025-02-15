@@ -9,6 +9,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 public class AfficheCategorie {
     @FXML
     private TextField tfNom;
@@ -17,6 +21,8 @@ public class AfficheCategorie {
 
     private categorie_salle currentCategorie;
     private CategorieServiceImpl categorieService;
+
+
 
     @FXML
     public void initialize() {
@@ -109,4 +115,16 @@ public class AfficheCategorie {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    @FXML
+    private void goToLieu() {
+        try {
+            // Charge le fichier FXML de l'interface Lieu
+            Parent root = FXMLLoader.load(getClass().getResource("/LieuView.fxml"));
+            // Remplace la racine de la scène actuelle par la nouvelle vue
+            tfNom.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

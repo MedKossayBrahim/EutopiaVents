@@ -21,12 +21,12 @@
             <!-- Contenu principal -->
             <HBox spacing="20" VBox.vgrow="ALWAYS" styleClass="main-content">
                 <padding>
-                    <Insets left="20" right="20" bottom="20"/>
+                    <Insets left="20" right="200" bottom="20"/>
                 </padding>
 
                 <!-- Section gauche : Formulaire -->
                 <VBox spacing="15" styleClass="form-section" HBox.hgrow="NEVER"
-                      maxWidth="500" minWidth="400">
+                      maxWidth="1000" minWidth="800">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
@@ -105,7 +105,7 @@
                 </VBox>
 
                 <!-- Section droite : Liste des lieux -->
-                <VBox spacing="15" styleClass="list-section" HBox.hgrow="ALWAYS">
+                <VBox spacing="100" styleClass="list-section" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
@@ -116,9 +116,9 @@
                         <columns>
                             <TableColumn fx:id="nomColumn" text="Nom" prefWidth="200"/>
                             <TableColumn fx:id="villeColumn" text="Ville" prefWidth="120"/>
-                            <TableColumn fx:id="capaciteColumn" text="Capacité" prefWidth="100"/>
-                            <TableColumn fx:id="prixColumn" text="Prix (DT)" prefWidth="100"/>
-                            <TableColumn fx:id="categorieColumn" text="Catégorie" prefWidth="150"/>
+                            <TableColumn fx:id="capaciteColumn" text="Capacité" prefWidth="120"/>
+                            <TableColumn fx:id="prixColumn" text="Prix (DT)" prefWidth="150"/>
+                            <TableColumn fx:id="categorieColumn" text="Catégorie" prefWidth="200"/>
                         </columns>
                         <placeholder>
                             <Label text="Aucun lieu disponible"/>
@@ -128,4 +128,16 @@
             </HBox>
         </VBox>
     </children>
+
+    <Button fx:id="btnGoToCategorie" text="← Retour" onAction="#goToCategorie"
+            AnchorPane.topAnchor="10.0"
+            AnchorPane.leftAnchor="10.0"
+            styleClass="button-back"/>
+
+    <Button fx:id="btnGoToPhotoView" text="Voir les photos" onAction="#goToPhotoView"
+            AnchorPane.bottomAnchor="10.0"
+            AnchorPane.leftAnchor="10.0"
+            AnchorPane.rightAnchor="10.0"
+            prefHeight="30.0"
+            styleClass="button-bottom"/>
 </AnchorPane>

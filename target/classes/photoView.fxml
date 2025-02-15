@@ -51,4 +51,16 @@
             <FlowPane fx:id="flowPanePhotos" hgap="15" vgap="15" prefWrapLength="750"/>
         </VBox>
     </VBox>
+    <Button fx:id="btnGoToReservation" text="Aller à la réservation" onAction="#goToReservation"
+            AnchorPane.bottomAnchor="10.0"
+            AnchorPane.leftAnchor="10.0"
+            AnchorPane.rightAnchor="10.0"
+            prefHeight="30.0"
+            styleClass="button-bottom"/>
+    <Button fx:id="btnGoToLieu" text="← Retour" onAction="#goToLieu"
+            AnchorPane.topAnchor="10.0"
+            AnchorPane.rightAnchor="10.0"
+            styleClass="button-back"/>
+
+
 </AnchorPane>

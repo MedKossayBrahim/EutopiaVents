@@ -7,12 +7,15 @@ import com.esprit.services.LieuServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import java.io.File;
+import java.io.IOException;
 
 public class photo {
 
@@ -155,4 +158,26 @@ public class photo {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    //navigation vers reservation
+    @FXML
+    private void goToReservation() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Reservation1View.fxml"));
+            txtUrlImage.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //navigation retour vers lieu
+    @FXML
+    private void goToLieu() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/LieuView.fxml"));
+            txtUrlImage.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
