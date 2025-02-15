@@ -320,23 +320,9 @@ public class AllPostsController extends ForumMainController {
                     Post post = getItem();
                     if (post != null) {
                         try {
-                            // Get the project root directory
-                            String projectRoot = System.getProperty("user.dir");
-
-                            // Define the path to the FXML file
-                            String fxmlPath = projectRoot + "/src/main/ressources/post_view.fxml";
-                            File fxmlFile = new File(fxmlPath);
-
-                            URL url;
-                            if (!fxmlFile.exists()) {
-                                System.err.println("FXML file not found at: " + fxmlPath);
-                                // Try loading from resources
-                                url = getClass().getResource("/post_view.fxml");
-                                if (url == null) {
-                                    throw new IOException("Cannot find post_view.fxml");
-                                }
-                            } else {
-                                url = fxmlFile.toURI().toURL();
+                            URL url = getClass().getResource("/post_view.fxml");
+                            if (url == null) {
+                                throw new IOException("Cannot find post_view.fxml");
                             }
 
                             FXMLLoader loader = new FXMLLoader(url);
@@ -761,5 +747,26 @@ public class AllPostsController extends ForumMainController {
         }
         query = query.trim();
         return query.isEmpty() ? null : query;
+    }
+
+    @Override
+    protected void initializeCalendar() {
+        try {
+            URL url = getClass().getResource("/calendar.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find calendar.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent calendarRoot = loader.load();
+            calendarController = loader.getController();
+            calendarController.setMainController(this);
+            calendarContainer.getChildren().add(calendarRoot);
+
+        } catch (IOException e) {
+            System.err.println("Error loading calendar: " + e.getMessage());
+            e.printStackTrace();
+            showError("Could not load calendar: " + e.getMessage());
+        }
     }
 }

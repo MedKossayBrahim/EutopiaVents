@@ -465,23 +465,9 @@ public class PostViewController {
 
     private void goBack() {
         try {
-            // Get the project root directory
-            String projectRoot = System.getProperty("user.dir");
-
-            // Define the path to the FXML file
-            String fxmlPath = projectRoot + "/src/main/ressources/forum_main_page.fxml";
-            File fxmlFile = new File(fxmlPath);
-
-            URL url;
-            if (!fxmlFile.exists()) {
-                System.err.println("FXML file not found at: " + fxmlPath);
-                // Try loading from resources
-                url = getClass().getResource("/forum_main_page.fxml");
-                if (url == null) {
-                    throw new IOException("Cannot find forum_main_page.fxml");
-                }
-            } else {
-                url = fxmlFile.toURI().toURL();
+            URL url = getClass().getResource("/forum_main_page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find forum_main_page.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(url);

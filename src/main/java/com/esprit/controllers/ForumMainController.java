@@ -288,25 +288,12 @@ public class ForumMainController implements SearchableController, Initializable 
                     // Add view button click handler
                     viewButton.setOnAction(event -> {
                         try {
-                            // Get the project root directory
-                            String projectRoot = System.getProperty("user.dir");
-                            
-                            // Define the path to the FXML file
-                            String fxmlPath = projectRoot + "/src/main/ressources/post_view.fxml";
-                            File fxmlFile = new File(fxmlPath);
-                            
-                            if (!fxmlFile.exists()) {
-                                System.err.println("FXML file not found at: " + fxmlPath);
-                                // Try loading from resourcess
-                                URL resource = getClass().getResource("/post_view.fxml");
-                                if (resource != null) {
-                                    fxmlFile = new File(resource.toURI());
-                                } else {
-                                    throw new IOException("Cannot find post_view.fxml");
-                                }
+                            URL url = getClass().getResource("/post_view.fxml");
+                            if (url == null) {
+                                throw new IOException("Cannot find post_view.fxml");
                             }
 
-                            FXMLLoader loader = new FXMLLoader(fxmlFile.toURI().toURL());
+                            FXMLLoader loader = new FXMLLoader(url);
                             Parent root = loader.load();
 
                             PostViewController controller = loader.getController();
@@ -320,7 +307,7 @@ public class ForumMainController implements SearchableController, Initializable 
                             Scene scene = viewButton.getScene();
                             scene.setRoot(root);
 
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                             System.err.println("Error loading post view: " + e.getMessage());
                             e.printStackTrace();
                             showError("Could not load post view: " + e.getMessage());
@@ -336,59 +323,33 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     private void onAddPostClick() {
         try {
-            // Get the project root directory
-            String projectRoot = System.getProperty("user.dir");
-
-            // Define the path to the FXML file
-            String fxmlPath = projectRoot + "/src/main/ressources/post-dialog.fxml";
-            File fxmlFile = new File(fxmlPath);
-
-            if (!fxmlFile.exists()) {
-                System.err.println("FXML file not found at: " + fxmlPath);
-                // Try loading from resources
-                URL resource = getClass().getResource("/post-dialog.fxml");
-                if (resource != null) {
-                    fxmlFile = new File(resource.toURI());
-                } else {
-                    throw new IOException("Cannot find post-dialog.fxml");
-                }
+            URL url = getClass().getResource("/post-dialog.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find post-dialog.fxml");
             }
 
-            FXMLLoader loader = new FXMLLoader(fxmlFile.toURI().toURL());
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
 
-            // Get the controller and pass any necessary data
             PostDialogController controller = loader.getController();
             controller.setPostService(postService);
 
-            // Create new stage for the dialog
             Stage dialogStage = new Stage();
             dialogStage.setTitle("New Post");
             dialogStage.initModality(Modality.APPLICATION_MODAL);
-
-            // Set up the scene
-            Scene scene = new Scene(root);
-            dialogStage.setScene(scene);
-
-            // Set minimum window size
+            dialogStage.setScene(new Scene(root));
             dialogStage.setMinWidth(400);
             dialogStage.setMinHeight(300);
-
-            // Center on parent window
-            Stage parentStage = (Stage) latestUpdatesList.getScene().getWindow();
-            dialogStage.initOwner(parentStage);
-
-            // Show the dialog and wait for it to close
+            dialogStage.initOwner((Stage) latestUpdatesList.getScene().getWindow());
             dialogStage.showAndWait();
 
-            // Refresh the posts list after dialog closes
             loadLatestUpdates();
             loadPinnedPosts();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error loading post dialog: " + e.getMessage());
             e.printStackTrace();
-            showError("Could not load post dialog. Error: " + e.getMessage());
+            showError("Could not load post dialog: " + e.getMessage());
         }
     }
 
@@ -876,31 +837,19 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     private void onViewAllUpdatesClick() {
         try {
-            // Load the FXML file using the correct path
-            FXMLLoader loader = new FXMLLoader();
-            URL fxmlUrl = getClass().getClassLoader().getResource("all-posts-page.fxml");
-            if (fxmlUrl == null) {
-                // Try alternate path if not found
-                File file = new File("src/main/ressources/all-posts-page.fxml");
-                if (!file.exists()) {
-                    throw new IOException("Could not find all-posts-page.fxml");
-                }
-                fxmlUrl = file.toURI().toURL();
+            URL url = getClass().getResource("/all-posts-page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find all-posts-page.fxml");
             }
-            loader.setLocation(fxmlUrl);
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
 
-            // Get the controller and set application
             AllPostsController controller = loader.getController();
             controller.setApplication(application);
 
-            // Create new scene and show in current window
             Scene scene = latestUpdatesList.getScene();
             scene.setRoot(root);
-
-            // Initialize the controller
-            if (controller != null) {
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -911,36 +860,27 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     private void onViewAllPinnedClick() {
         try {
-            // Load the FXML file using the correct path
-            FXMLLoader loader = new FXMLLoader();
-            URL fxmlUrl = getClass().getClassLoader().getResource("all-posts-page.fxml");
-            if (fxmlUrl == null) {
-                // Try alternate path if not found
-                File file = new File("src/main/ressources/all-posts-page.fxml");
-                if (!file.exists()) {
-                    throw new IOException("Could not find all-posts-page.fxml");
-                }
-                fxmlUrl = file.toURI().toURL();
+            URL url = getClass().getResource("/all-posts-page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find all-posts-page.fxml");
             }
-            loader.setLocation(fxmlUrl);
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
 
             AllPostsController controller = loader.getController();
             controller.setApplication(application);
 
-            // Get all pinned posts from database
             List<Post> allPinnedPosts = postService.getPinnedPosts().stream()
                 .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
                 .collect(Collectors.toList());
 
-            // Convert Post objects to strings for display
             ArrayList<String> postsList = new ArrayList<>();
             for (Post post : allPinnedPosts) {
                 postsList.add(post.getTitle() + ": " + post.getContent());
             }
             controller.setPosts(postsList, "Pinned Posts");
 
-            // Create new scene and show in current window
             Scene scene = pinnedPostsList.getScene();
             scene.setRoot(root);
 
@@ -1003,7 +943,12 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     private void handleShowAllPosts() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo1/allPosts.fxml"));
+            URL url = getClass().getResource("/all-posts-page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find all-posts-page.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("All Posts");
@@ -1089,21 +1034,21 @@ public class ForumMainController implements SearchableController, Initializable 
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader();
-            URL fxmlUrl = new File("src/main/ressources/calendar.fxml").toURI().toURL();
-            loader.setLocation(fxmlUrl);
+            URL url = getClass().getResource("/calendar.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find calendar.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent calendarView = loader.load();
             
-            // Store the controller reference in a final variable
             final CalendarController controller = loader.getController();
             this.calendarController = controller;
 
-            // Set up calendar selection listener using the final variable
             controller.setOnDateSelected((startDate, endDate) -> {
                 filterPostsByDate(startDate, endDate);
             });
 
-            // Add the calendar to the container
             calendarContainer.getChildren().clear();
             calendarContainer.getChildren().add(calendarView);
 
