@@ -189,12 +189,15 @@ public class ForumMainController implements SearchableController, Initializable 
                 + ".list-view { -fx-background-insets: 0; padding: 0; }");
 
         listView.setCellFactory(lv -> new ListCell<Post>() {
-            private final VBox contentBox = new VBox(8); // Increased spacing between elements
+            private final VBox contentBox = new VBox(8);
             private final HBox headerBox = new HBox(10);
+            private final HBox bottomBox = new HBox(10);
             private final Label titleLabel = new Label();
             private final Label authorLabel = new Label();
             private final Label contentLabel = new Label();
             private final Label timeLabel = new Label();
+            private final Button viewButton = new Button("View Post");
+            private final Region spacer = new Region();
 
             {
                 // Style labels with bigger fonts
@@ -202,17 +205,56 @@ public class ForumMainController implements SearchableController, Initializable 
                 authorLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 14; -fx-font-weight: 600;");
                 contentLabel.setStyle("-fx-font-size: 15;");
                 contentLabel.setWrapText(true);
+                contentLabel.setMaxWidth(600); // Increase max width for content
                 timeLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 11;");
 
-                // Add spacing in header
-                headerBox.setSpacing(15);
+                // Add title and author to header box with more spacing
+                headerBox.setSpacing(15); // Increase spacing between title and author
                 headerBox.getChildren().addAll(titleLabel, authorLabel);
 
-                // Add all components to the content box
-                contentBox.getChildren().addAll(headerBox, contentLabel, timeLabel);
+                // Style view button
+                viewButton.setStyle("-fx-background-color: white; " +
+                        "-fx-text-fill: #666666; " +
+                        "-fx-border-color: #dee2e6; " +
+                        "-fx-border-radius: 20; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-font-size: 13; " +
+                        "-fx-cursor: hand;");
 
-                // Add padding to content box
-                contentBox.setPadding(new Insets(5, 0, 5, 0));
+                // Add hover effect
+                viewButton.setOnMouseEntered(e -> 
+                    viewButton.setStyle("-fx-background-color: #f8f9fa; " +
+                        "-fx-text-fill: #666666; " +
+                        "-fx-border-color: #dee2e6; " +
+                        "-fx-border-radius: 20; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-font-size: 13; " +
+                        "-fx-cursor: hand;"));
+                viewButton.setOnMouseExited(e -> 
+                    viewButton.setStyle("-fx-background-color: white; " +
+                        "-fx-text-fill: #666666; " +
+                        "-fx-border-color: #dee2e6; " +
+                        "-fx-border-radius: 20; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-font-size: 13; " +
+                        "-fx-cursor: hand;"));
+
+                // Configure bottom box with spacer for right alignment
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                bottomBox.setAlignment(Pos.CENTER_LEFT);
+                bottomBox.setPadding(new Insets(10, 0, 0, 0)); // Add top padding to bottom box
+                bottomBox.getChildren().addAll(timeLabel, spacer, viewButton);
+
+                // Add all components to the content box with increased padding
+                contentBox.getChildren().addAll(headerBox, contentLabel, bottomBox);
+                contentBox.setPadding(new Insets(20, 30, 20, 30)); // Increase horizontal padding
+                
+                // Set minimum width for content box
+                contentBox.setMinWidth(700); // Increase minimum width
+                contentBox.setPrefWidth(700); // Set preferred width
             }
 
             @Override
@@ -230,7 +272,7 @@ public class ForumMainController implements SearchableController, Initializable 
                     contentBox.setStyle(String.format(
                             "-fx-background-color: white; " +
                                     "-fx-background-radius: 15; " +
-                                    "-fx-padding: 20; " + // Increased padding
+                                    "-fx-padding: 20; " +
                                     "-fx-border-color: %s; " +
                                     "-fx-border-width: 2; " +
                                     "-fx-border-radius: 15; " +
@@ -242,6 +284,49 @@ public class ForumMainController implements SearchableController, Initializable 
                     authorLabel.setText("by " + post.getAuthor());
                     contentLabel.setText(post.getContent());
                     timeLabel.setText(formatTimestamp(post.getCreatedAt()));
+
+                    // Add view button click handler
+                    viewButton.setOnAction(event -> {
+                        try {
+                            // Get the project root directory
+                            String projectRoot = System.getProperty("user.dir");
+                            
+                            // Define the path to the FXML file
+                            String fxmlPath = projectRoot + "/src/main/ressources/post_view.fxml";
+                            File fxmlFile = new File(fxmlPath);
+                            
+                            if (!fxmlFile.exists()) {
+                                System.err.println("FXML file not found at: " + fxmlPath);
+                                // Try loading from resourcess
+                                URL resource = getClass().getResource("/post_view.fxml");
+                                if (resource != null) {
+                                    fxmlFile = new File(resource.toURI());
+                                } else {
+                                    throw new IOException("Cannot find post_view.fxml");
+                                }
+                            }
+
+                            FXMLLoader loader = new FXMLLoader(fxmlFile.toURI().toURL());
+                            Parent root = loader.load();
+
+                            PostViewController controller = loader.getController();
+                            controller.setPostData(
+                                post.getId(),
+                                post.getTitle(),
+                                post.getContent(),
+                                post.getCreatedAt()
+                            );
+
+                            Scene scene = viewButton.getScene();
+                            scene.setRoot(root);
+
+                        } catch (Exception e) {
+                            System.err.println("Error loading post view: " + e.getMessage());
+                            e.printStackTrace();
+                            showError("Could not load post view: " + e.getMessage());
+                        }
+                    });
+
                     setGraphic(contentBox);
                 }
             }

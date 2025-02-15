@@ -14,13 +14,26 @@ public class CategoryService implements IService<Category> {
 
     @Override
     public void ajouter(Category category) throws SQLException {
-        Connection conn = DataSource.getInstance().getConnection();
-        String sql = "INSERT INTO categoriesposts (name, description, created_at) VALUES (?, ?, NOW())";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, category.getName());
-            pstmt.setString(2, category.getDescription());
-            pstmt.executeUpdate();
-            System.out.println("Category added successfully");
+        String query = "INSERT INTO categoriesposts (name, description) VALUES (?, ?)";
+        
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            
+            pst.setString(1, category.getName());
+            pst.setString(2, category.getDescription());
+            
+            // Debug print
+            System.out.println("Adding category: " + category.getName());
+            
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Category added successfully");
+            } else {
+                System.out.println("Failed to add category");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error adding category: " + e.getMessage());
+            throw e;
         }
     }
 

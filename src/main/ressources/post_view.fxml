@@ -16,7 +16,7 @@
             style="-fx-background-color: #faf6f3;">
             
     <left>
-        <fx:include source="Nsavbar.fxml"/>
+        <fx:include source="Navbar.fxml"/>
     </left>
     
     <center>

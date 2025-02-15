@@ -1,13 +1,11 @@
 package com.esprit.controllers;
 
-import com.esprit.controllers.*;
 import com.esprit.models.ChatBot;
 import com.esprit.models.Post;
 import com.esprit.tests.Eutopia;
 import com.esprit.services.*;
 import com.esprit.utils.DataSource;
 import com.esprit.services.ChatService;
-import com.esprit.services.ChatService.UserChatMessage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,10 +19,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -123,7 +117,7 @@ public class AllPostsController extends ForumMainController {
                 int pageCount = (int) Math.ceil((double) originalPosts.size() / POSTS_PER_PAGE);
                 pagination.setPageCount(pageCount);
                 pagination.setCurrentPageIndex(0);
-                pagination.setMaxPageIndicatorCount(5); // Show up to 5 page numbers
+                pagination.setMaxPageIndicatorCount(7);
                 
                 // Add page change listener
                 pagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) -> {
@@ -148,30 +142,24 @@ public class AllPostsController extends ForumMainController {
         }
     }
 
-    private void loadPosts() {
-        try {
-            PostService postService = new PostService();
-            List<Post> posts = postService.getAllPosts();
-            originalPosts = new ArrayList<>(posts);
-            
-            // Clear existing maps
-            postIdMap.clear();
-            postTimestamps.clear();
-            
-            // Populate maps and ListView
-            for (Post post : posts) {
-                postIdMap.put(post.getTitle(), post.getId());
-                postTimestamps.put(post.getTitle(), post.getCreatedAt());
-            }
-            
-            postsListView.getItems().clear();
-            postsListView.getItems().addAll(posts);
-            
-        } catch (SQLException e) {
-            System.err.println("Error loading posts: " + e.getMessage());
-            e.printStackTrace();
-            showError("Could not load posts: " + e.getMessage());
+    private void loadPosts() throws SQLException {
+        PostService postService = new PostService();
+        List<Post> posts = postService.getAllPosts();
+        originalPosts = new ArrayList<>(posts);
+
+        // Clear existing maps
+        postIdMap.clear();
+        postTimestamps.clear();
+
+        // Populate maps and ListView
+        for (Post post : posts) {
+            postIdMap.put(post.getTitle(), post.getId());
+            postTimestamps.put(post.getTitle(), post.getCreatedAt());
         }
+
+        postsListView.getItems().clear();
+        postsListView.getItems().addAll(posts);
+
     }
 
     private void setupListView() {
@@ -184,6 +172,8 @@ public class AllPostsController extends ForumMainController {
             private final Button viewButton = new Button("View");
             private final Button likeButton = new Button("♡");
             private final HBox postBox = new HBox(10);
+            private final LikeService likeService = new LikeService();
+            private boolean isLiked = false;
 
             {
                 postBox.prefWidthProperty().bind(lv.widthProperty().subtract(20));
@@ -193,6 +183,32 @@ public class AllPostsController extends ForumMainController {
                 
                 // Add view button click handler
                 setupViewButton();
+                
+                // Add like button click handler
+                likeButton.setOnAction(event -> {
+                    Post post = getItem();
+                    if (post != null) {
+                        try {
+                            int userId = getCurrentUserId();
+                            if (!isLiked) {
+                                likeService.ajouter(post.getId(), userId);
+                                isLiked = true;
+                                likeButton.setText("♥");
+                                likeButton.setStyle(likeButton.getStyle() + "-fx-text-fill: #FF69B4;");
+                            } else {
+                                likeService.supprimer(post.getId(), userId);
+                                isLiked = false;
+                                likeButton.setText("♡");
+                                likeButton.setStyle(likeButton.getStyle() + "-fx-text-fill: #b0a8a0;");
+                            }
+                            // Update like count in the UI
+                            updateLikeCount(post);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            showError("Could not process like action.");
+                        }
+                    }
+                });
             }
 
             @Override
@@ -204,13 +220,38 @@ public class AllPostsController extends ForumMainController {
                     setStyle("-fx-background-color: transparent;");
                 } else {
                     setupPostCell(post);
+                    // Check if post is liked by current user
+                    try {
+                        isLiked = likeService.isPostLikedByUser(post.getId(), getCurrentUserId());
+                        updateLikeButton();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
+            }
+
+            private void updateLikeButton() {
+                likeButton.setText(isLiked ? "♥" : "♡");
+                likeButton.setStyle(likeButton.getStyle() + 
+                                  "-fx-text-fill: " + (isLiked ? "#FF69B4" : "#b0a8a0") + ";");
+            }
+
+            private void updateLikeCount(Post post) throws SQLException {
+                int likes = likeService.getLikesCount(post.getId());
+                // Find and update the likes label in the post cell
+                postBox.getChildren().stream()
+                    .filter(node -> node instanceof VBox)
+                    .map(node -> (VBox) node)
+                    .flatMap(vbox -> vbox.getChildren().stream())
+                    .filter(node -> node instanceof Label && ((Label) node).getText().contains("likes"))
+                    .findFirst()
+                    .ifPresent(label -> ((Label) label).setText(likes + " likes"));
             }
 
             private void styleButtons() {
                 // Style like button
                 likeButton.setStyle("-fx-background-color: transparent; " +
-                                  "-fx-text-fill: #FF69B4; " +
+                                  "-fx-text-fill: #b0a8a0; " +
                                   "-fx-font-size: 18px; " +
                                   "-fx-cursor: hand; " +
                                   "-fx-padding: 5 10; " +
@@ -279,7 +320,26 @@ public class AllPostsController extends ForumMainController {
                     Post post = getItem();
                     if (post != null) {
                         try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/post-details.fxml"));
+                            // Get the project root directory
+                            String projectRoot = System.getProperty("user.dir");
+
+                            // Define the path to the FXML file
+                            String fxmlPath = projectRoot + "/src/main/ressources/post_view.fxml";
+                            File fxmlFile = new File(fxmlPath);
+
+                            URL url;
+                            if (!fxmlFile.exists()) {
+                                System.err.println("FXML file not found at: " + fxmlPath);
+                                // Try loading from resources
+                                url = getClass().getResource("/post_view.fxml");
+                                if (url == null) {
+                                    throw new IOException("Cannot find post_view.fxml");
+                                }
+                            } else {
+                                url = fxmlFile.toURI().toURL();
+                            }
+
+                            FXMLLoader loader = new FXMLLoader(url);
                             Parent root = loader.load();
                             
                             PostViewController controller = loader.getController();
@@ -292,8 +352,9 @@ public class AllPostsController extends ForumMainController {
                             
                             Scene scene = viewButton.getScene();
                             scene.setRoot(root);
+                            
                         } catch (IOException e) {
-                            System.err.println("Error loading post details: " + e.getMessage());
+                            System.err.println("Error loading post view: " + e.getMessage());
                             e.printStackTrace();
                             showError("Could not load post details: " + e.getMessage());
                         }
@@ -331,6 +392,23 @@ public class AllPostsController extends ForumMainController {
                 );
             }
         });
+    }
+
+    private int getCurrentUserId() {
+        // For testing, let's verify if this userID exists in your database
+        try {
+            String query = "SELECT userID FROM users LIMIT 1";
+            try (Connection conn = DataSource.getInstance().getConnection();
+                 PreparedStatement pst = conn.prepareStatement(query)) {
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("userID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("No valid user found in the database");
     }
 
     private void showError(String message) {

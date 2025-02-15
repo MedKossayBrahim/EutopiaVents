@@ -73,8 +73,13 @@ public class Post {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public boolean isPinned() { return isPinned; }
-    public void setPinned(boolean pinned) { isPinned = pinned; }
+    public boolean isPinned() {
+        return isPinned;
+    }
+
+    public void setPinned(boolean isPinned) {
+        this.isPinned = isPinned;
+    }
 
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }

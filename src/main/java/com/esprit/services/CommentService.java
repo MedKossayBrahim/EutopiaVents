@@ -11,24 +11,56 @@ public class CommentService implements IService<Comment> {
     
     @Override
     public void ajouter(Comment comment) throws SQLException {
-        Connection conn = DataSource.getInstance().getConnection();
-        String sql = "INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, comment.getPostId());
-            pstmt.setInt(2, comment.getUserId());
-            pstmt.setString(3, comment.getContent());
-            pstmt.executeUpdate();
+        String query = "INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)";
+        
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
+            pst.setInt(1, comment.getPostId());
+            pst.setInt(2, comment.getUserId());
+            pst.setString(3, comment.getContent());
+            
+            pst.executeUpdate();
+            
+            // Get the generated ID and created_at timestamp
+            try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    comment.setId(generatedKeys.getInt(1));
+                    
+                    // Get the created_at timestamp from the database
+                    String timeQuery = "SELECT created_at FROM comments WHERE id = ?";
+                    try (PreparedStatement timePst = conn.prepareStatement(timeQuery)) {
+                        timePst.setInt(1, comment.getId());
+                        ResultSet timeRs = timePst.executeQuery();
+                        if (timeRs.next()) {
+                            comment.setCreatedAt(timeRs.getTimestamp("created_at").toLocalDateTime());
+                        }
+                    }
+                }
+            }
+            
+            // Get the username for the comment
+            String userQuery = "SELECT userName FROM users WHERE userID = ?";
+            try (PreparedStatement userPst = conn.prepareStatement(userQuery)) {
+                userPst.setInt(1, comment.getUserId());
+                ResultSet rs = userPst.executeQuery();
+                if (rs.next()) {
+                    comment.setUsername(rs.getString("userName"));
+                }
+            }
         }
     }
 
     @Override
     public void modifier(Comment comment) throws SQLException {
-        Connection conn = DataSource.getInstance().getConnection();
-        String sql = "UPDATE comments SET content = ?, updated_at = NOW() WHERE id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, comment.getContent());
-            pstmt.setInt(2, comment.getId());
-            pstmt.executeUpdate();
+        String query = "UPDATE comments SET content = ? WHERE id = ?";
+        
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            
+            pst.setString(1, comment.getContent());
+            pst.setInt(2, comment.getId());
+            pst.executeUpdate();
         }
     }
 
@@ -77,27 +109,30 @@ public class CommentService implements IService<Comment> {
 
     public List<Comment> getCommentsForPost(int postId) throws SQLException {
         List<Comment> comments = new ArrayList<>();
-        Connection conn = DataSource.getInstance().getConnection();
-        String sql = "SELECT c.*, u.username FROM comments c " +
-                    "LEFT JOIN users u ON c.user_id = u.id " +
-                    "WHERE c.post_id = ? " +
-                    "ORDER BY c.created_at DESC";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, postId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Comment comment = new Comment(
-                        rs.getInt("id"),
-                        rs.getInt("post_id"),
-                        rs.getInt("user_id"),
-                        rs.getString("content"),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                    );
-                    comment.setUsername(rs.getString("username"));
-                    comments.add(comment);
-                }
+        String query = "SELECT c.*, u.userName as username " +
+                       "FROM comments c " +
+                       "LEFT JOIN users u ON c.user_id = u.userID " +
+                       "WHERE c.post_id = ? " +
+                       "ORDER BY c.created_at DESC";
+        
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setInt(1, postId);
+            ResultSet rs = pst.executeQuery();
+            
+            while (rs.next()) {
+                Comment comment = new Comment(
+                    rs.getInt("id"),
+                    rs.getInt("post_id"),
+                    rs.getInt("user_id"),
+                    rs.getString("content"),
+                    rs.getTimestamp("created_at").toLocalDateTime()
+                );
+                comment.setUsername(rs.getString("username"));
+                comments.add(comment);
             }
         }
+        
         return comments;
     }
 

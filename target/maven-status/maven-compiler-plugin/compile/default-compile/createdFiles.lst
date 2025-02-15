@@ -1,0 +1,6 @@
+com\esprit\controllers\CalendarController$DateSelectionCallback.class
+com\esprit\utils\ProfanityFilter.class
+com\esprit\utils\ProfanityFilter$1.class
+com\esprit\services\ChatService.class
+com\esprit\controllers\ForumMainController$2.class
+com\esprit\services\ChatService$UserChatMessage.class

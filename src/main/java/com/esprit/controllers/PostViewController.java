@@ -2,6 +2,8 @@ package com.esprit.controllers;
 
 import com.esprit.services.*;
 import com.esprit.models.*;
+import com.esprit.utils.DataSource;
+import com.esprit.utils.ProfanityFilter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -16,7 +18,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +53,44 @@ public class PostViewController {
     public void initialize() {
         likeButton.setOnAction(event -> handleLikeAction());
         commentField.setOnAction(event -> handleAddComment());
+
+        // Set up delete button with image
+        try {
+            // Get the project root directory
+            String projectRoot = System.getProperty("user.dir");
+            
+            // Define the path to the image file
+            String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
+            File imageFile = new File(imagePath);
+            
+            if (!imageFile.exists()) {
+                System.err.println("Image file not found at: " + imagePath);
+                // Try loading from resources
+                URL resource = getClass().getResource("/Images/delete.png");
+                if (resource != null) {
+                    imageFile = new File(resource.toURI());
+                } else {
+                    throw new IOException("Cannot find delete.png");
+                }
+            }
+
+            Image deleteImage = new Image(imageFile.toURI().toString());
+            ImageView deleteIcon = new ImageView(deleteImage);
+            deleteIcon.setFitHeight(20);
+            deleteIcon.setFitWidth(20);
+            deletePostButton.setGraphic(deleteIcon);
+            deletePostButton.setText(""); // Remove text, show only icon
+            deletePostButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
+            
+            // Add hover effect
+            deletePostButton.setOnMouseEntered(e -> deletePostButton.setStyle("-fx-background-color: #f8f9fa;"));
+            deletePostButton.setOnMouseExited(e -> deletePostButton.setStyle("-fx-background-color: transparent;"));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Could not load delete icon: " + e.getMessage());
+            deletePostButton.setText("Delete"); // Fallback to text if image fails to load
+        }
     }
 
     public void setPostData(int postId, String title, String content, LocalDateTime timestamp) {
@@ -59,8 +104,28 @@ public class PostViewController {
             dateLabel.setText(timestamp.format(formatter));
         }
         
-        // Get author from database (using dummy data for now)
-        authorLabel.setText("Anonymous");
+        // Get author from database
+        try {
+            String query = "SELECT u.userName FROM posts p " +
+                          "LEFT JOIN users u ON p.user_id = u.userID " +
+                          "WHERE p.id = ?";
+            
+            try (Connection conn = DataSource.getInstance().getConnection();
+                 PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setInt(1, postId);
+                ResultSet rs = pst.executeQuery();
+                
+                if (rs.next()) {
+                    String authorName = rs.getString("userName");
+                    authorLabel.setText(authorName != null ? authorName : "Anonymous");
+                } else {
+                    authorLabel.setText("Anonymous");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            authorLabel.setText("Anonymous");
+        }
         
         // Check if post is already liked
         try {
@@ -81,37 +146,41 @@ public class PostViewController {
             if (postService.isPostOwner(postId, getCurrentUserId())) {
                 deletePostButton.setVisible(true);
                 
-                // Load delete icon
-                try {
-                    Image deleteIcon = new Image(getClass().getResourceAsStream("/com/example/demo1/images/delete.png"));
-                    ImageView deleteImageView = new ImageView(deleteIcon);
-                    deleteImageView.setFitHeight(16);
-                    deleteImageView.setFitWidth(16);
-                    deletePostButton.setGraphic(deleteImageView);
-                } catch (Exception e) {
-                    deletePostButton.setText("🗑️");
+                // Get the project root directory
+                String projectRoot = System.getProperty("user.dir");
+                
+                // Define the path to the image file
+                String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
+                File imageFile = new File(imagePath);
+                
+                if (!imageFile.exists()) {
+                    System.err.println("Image file not found at: " + imagePath);
+                    // Try loading from resources
+                    URL resource = getClass().getResource("/Images/delete.png");
+                    if (resource != null) {
+                        imageFile = new File(resource.toURI());
+                    } else {
+                        throw new IOException("Cannot find delete.png");
+                    }
                 }
+
+                Image deleteImage = new Image(imageFile.toURI().toString());
+                ImageView deleteIcon = new ImageView(deleteImage);
+                deleteIcon.setFitHeight(20);
+                deleteIcon.setFitWidth(20);
+                deletePostButton.setGraphic(deleteIcon);
+                deletePostButton.setText(""); // Remove text, show only icon
+                deletePostButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
                 
-                deletePostButton.setStyle("-fx-background-color: transparent; " +
-                                        "-fx-cursor: hand; " +
-                                        "-fx-padding: 2 5;");
-                
-                deletePostButton.setOnMouseEntered(e -> 
-                    deletePostButton.setStyle("-fx-background-color: #ffeeee; " +
-                                            "-fx-cursor: hand; " +
-                                            "-fx-padding: 2 5; " +
-                                            "-fx-background-radius: 3;"));
-                
-                deletePostButton.setOnMouseExited(e -> 
-                    deletePostButton.setStyle("-fx-background-color: transparent; " +
-                                            "-fx-cursor: hand; " +
-                                            "-fx-padding: 2 5;"));
+                // Add hover effect
+                deletePostButton.setOnMouseEntered(e -> deletePostButton.setStyle("-fx-background-color: #f8f9fa;"));
+                deletePostButton.setOnMouseExited(e -> deletePostButton.setStyle("-fx-background-color: transparent;"));
                 
                 deletePostButton.setOnAction(event -> handleDeletePost());
             } else {
                 deletePostButton.setVisible(false);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             deletePostButton.setVisible(false);
         }
@@ -135,17 +204,29 @@ public class PostViewController {
         }
     }
     
+    @FXML
     private void handleAddComment() {
         String content = commentField.getText().trim();
         if (!content.isEmpty()) {
             try {
-                Comment comment = new Comment(postId, getCurrentUserId(), content);
+                // Check for profanity before adding comment
+                if (ProfanityFilter.containsProfanity(content)) {
+                    showError("Please keep comments appropriate.");
+                    return;
+                }
+                
+                Comment comment = new Comment();
+                comment.setPostId(postId);
+                comment.setUserId(getCurrentUserId());
+                comment.setContent(content);
+                
                 commentService.ajouter(comment);
-                addCommentToView(comment);
                 commentField.clear();
+                loadComments();
+                
             } catch (SQLException e) {
                 e.printStackTrace();
-                showError("Could not add comment.");
+                showError("Could not add comment: " + e.getMessage());
             }
         }
     }
@@ -179,11 +260,29 @@ public class PostViewController {
             Button deleteButton = new Button();
             
             try {
-                Image deleteIcon = new Image(getClass().getResourceAsStream("/com/example/demo1/images/delete.png"));
-                ImageView deleteImageView = new ImageView(deleteIcon);
-                deleteImageView.setFitHeight(16);
-                deleteImageView.setFitWidth(16);
-                deleteButton.setGraphic(deleteImageView);
+                // Get the project root directory
+                String projectRoot = System.getProperty("user.dir");
+                
+                // Define the path to the image file
+                String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
+                File imageFile = new File(imagePath);
+                
+                if (!imageFile.exists()) {
+                    System.err.println("Image file not found at: " + imagePath);
+                    // Try loading from resources
+                    URL resource = getClass().getResource("/Images/delete.png");
+                    if (resource != null) {
+                        imageFile = new File(resource.toURI());
+                    } else {
+                        throw new IOException("Cannot find delete.png");
+                    }
+                }
+
+                Image deleteImage = new Image(imageFile.toURI().toString());
+                ImageView deleteIcon = new ImageView(deleteImage);
+                deleteIcon.setFitHeight(16);
+                deleteIcon.setFitWidth(16);
+                deleteButton.setGraphic(deleteIcon);
                 
                 deleteButton.setStyle("-fx-background-color: transparent; " +
                                     "-fx-cursor: hand; " +
@@ -194,16 +293,16 @@ public class PostViewController {
                                         "-fx-cursor: hand; " +
                                         "-fx-padding: 2 5; " +
                                         "-fx-background-radius: 3;");
-                    deleteImageView.setScaleX(1.1);
-                    deleteImageView.setScaleY(1.1);
+                    deleteIcon.setScaleX(1.1);
+                    deleteIcon.setScaleY(1.1);
                 });
                 
                 deleteButton.setOnMouseExited(e -> {
                     deleteButton.setStyle("-fx-background-color: transparent; " +
                                         "-fx-cursor: hand; " +
                                         "-fx-padding: 2 5;");
-                    deleteImageView.setScaleX(1.0);
-                    deleteImageView.setScaleY(1.0);
+                    deleteIcon.setScaleX(1.0);
+                    deleteIcon.setScaleY(1.0);
                 });
 
                 deleteButton.setOnAction(e -> handleDeleteComment(comment.getId(), commentBox));
@@ -233,6 +332,46 @@ public class PostViewController {
         Label contentLabel = new Label(comment.getContent());
         contentLabel.setWrapText(true);
         contentLabel.setStyle("-fx-text-fill: #333333;");
+
+        // Add double-click editing for comment owner
+        if (comment.getUserId() == getCurrentUserId()) {
+            contentLabel.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    // Create a text field with current content
+                    TextField editField = new TextField(comment.getContent());
+                    editField.setStyle("-fx-background-color: white; -fx-padding: 5;");
+                    
+                    // Replace the label with the text field
+                    int contentIndex = commentBox.getChildren().indexOf(contentLabel);
+                    commentBox.getChildren().set(contentIndex, editField);
+                    editField.requestFocus();
+                    
+                    // Handle edit completion
+                    editField.setOnAction(e -> {
+                        String newContent = editField.getText().trim();
+                        if (!newContent.isEmpty() && !newContent.equals(comment.getContent())) {
+                            try {
+                                comment.setContent(newContent);
+                                commentService.modifier(comment); // Pass the entire comment object
+                                contentLabel.setText(newContent);
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                                showError("Could not update comment: " + ex.getMessage());
+                            }
+                        }
+                        // Restore the label
+                        commentBox.getChildren().set(contentIndex, contentLabel);
+                    });
+                    
+                    // Handle focus loss
+                    editField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+                        if (!isNowFocused) {
+                            commentBox.getChildren().set(contentIndex, contentLabel);
+                        }
+                    });
+                }
+            });
+        }
 
         Label timeLabel = new Label(formatTimestamp(comment.getCreatedAt()));
         timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999;");
@@ -277,7 +416,20 @@ public class PostViewController {
     }
 
     private int getCurrentUserId() {
-        return 1; // Temporary solution without user authentication
+        // For testing, let's verify if this userID exists in your database
+        try {
+            String query = "SELECT userID FROM users LIMIT 1";
+            try (Connection conn = DataSource.getInstance().getConnection();
+                 PreparedStatement pst = conn.prepareStatement(query)) {
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("userID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("No valid user found in the database");
     }
     
     private String formatTimestamp(LocalDateTime timestamp) {
@@ -313,13 +465,32 @@ public class PostViewController {
 
     private void goBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo1/forum_main_page.fxml"));
+            // Get the project root directory
+            String projectRoot = System.getProperty("user.dir");
+
+            // Define the path to the FXML file
+            String fxmlPath = projectRoot + "/src/main/ressources/forum_main_page.fxml";
+            File fxmlFile = new File(fxmlPath);
+
+            URL url;
+            if (!fxmlFile.exists()) {
+                System.err.println("FXML file not found at: " + fxmlPath);
+                // Try loading from resources
+                url = getClass().getResource("/forum_main_page.fxml");
+                if (url == null) {
+                    throw new IOException("Cannot find forum_main_page.fxml");
+                }
+            } else {
+                url = fxmlFile.toURI().toURL();
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Scene scene = deletePostButton.getScene();
             scene.setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not return to main view.");
+            showError("Could not return to main view: " + e.getMessage());
         }
     }
 } 

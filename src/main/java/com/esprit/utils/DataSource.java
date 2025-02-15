@@ -7,28 +7,45 @@ import java.sql.SQLException;
 public class DataSource {
 
     private static DataSource instance;
-    private Connection connection;
+    private static final String URL = "jdbc:mysql://localhost:3306/eutopia_db";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
-    private final String URL = "jdbc:mysql://localhost:3306/final_4mod";
-    private final String USERNAME = "root";
-    private final String PASSWORD = "";
+    private Connection connection;
 
     private DataSource() {
         try {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("Connected to DB");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Database connection established successfully!");
+        } catch (ClassNotFoundException | SQLException e) {
+            System.err.println("Error initializing database connection: " + e.getMessage());
+            throw new RuntimeException("Failed to initialize database connection", e);
         }
     }
 
     public static DataSource getInstance() {
-        if(instance == null)
+        if (instance == null) {
             instance = new DataSource();
+        }
         return instance;
     }
 
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        }
         return connection;
+    }
+
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                System.out.println("Connection closed successfully");
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
     }
 }

@@ -1,28 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="15" style="-fx-padding: 20;" 
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.esprit.controllers.PostDialogController">
-    <TextField fx:id="titleField" promptText="Post Title" 
-               style="-fx-padding: 8; -fx-background-radius: 5;"/>
-    
-    <TextArea fx:id="contentArea" promptText="Post Content" 
-              wrapText="true" prefRowCount="6"
-              style="-fx-padding: 8; -fx-background-radius: 5;"/>
-    
-    <ComboBox fx:id="categoryComboBox" promptText="Select Category"
-              style="-fx-padding: 8; -fx-background-radius: 5;"/>
-    
-    <CheckBox fx:id="pinnedCheckBox" text="Pin this post"/>
-    
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="cancelButton" text="Cancel" 
-                style="-fx-padding: 8 15; -fx-background-radius: 5;"/>
-        <Button fx:id="saveButton" text="Save" defaultButton="true"
-                style="-fx-padding: 8 15; -fx-background-radius: 5; 
-                       -fx-background-color: #FFE5EC;"/>
+<VBox xmlns:fx="http://javafx.com/fxml" 
+      fx:controller="com.esprit.controllers.PostDialogController"
+      spacing="20"
+      style="-fx-background-color: #faf6f3;
+             -fx-padding: 25;
+             -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+
+    <!-- Title -->
+    <Label text="New Post" 
+           style="-fx-font-size: 24px;
+                  -fx-font-weight: bold;
+                  -fx-text-fill: #2c3e50;"/>
+
+    <!-- Title Field -->
+    <TextField fx:id="titleField" 
+              promptText="Post Title"
+              style="-fx-background-color: white;
+                     -fx-background-radius: 8;
+                     -fx-border-color: #e0e0e0;
+                     -fx-border-radius: 8;
+                     -fx-border-width: 1;
+                     -fx-padding: 12;
+                     -fx-font-size: 14px;
+                     -fx-prompt-text-fill: #95a5a6;
+                     -fx-focus-color: transparent;
+                     -fx-faint-focus-color: transparent;"/>
+
+    <!-- Content Area -->
+    <TextArea fx:id="contentArea" 
+              wrapText="true"
+              prefRowCount="8"
+              promptText="Post Content"
+              style="-fx-background-color: white;
+                     -fx-background-radius: 8;
+                     -fx-border-color: #e0e0e0;
+                     -fx-border-radius: 8;
+                     -fx-border-width: 1;
+                     -fx-padding: 12;
+                     -fx-font-size: 14px;
+                     -fx-prompt-text-fill: #95a5a6;
+                     -fx-focus-color: transparent;
+                     -fx-faint-focus-color: transparent;"/>
+
+    <!-- Category Selection -->
+    <ComboBox fx:id="categoryComboBox" 
+              editable="true"
+              promptText="Select or type new category"
+              style="-fx-background-color: white !important;
+                     -fx-background-radius: 8 !important;
+                     -fx-border-color: #e0e0e0 !important;
+                     -fx-border-radius: 8 !important;
+                     -fx-border-width: 1 !important;
+                     -fx-padding: 2 !important;
+                     -fx-font-size: 14px !important;
+                     -fx-prompt-text-fill: #95a5a6 !important;
+                     -fx-focus-color: transparent !important;
+                     -fx-faint-focus-color: transparent !important;
+                     -fx-focus-traversable: false !important;"
+              maxWidth="300">
+        <padding>
+            <Insets top="8" right="12" bottom="8" left="12"/>
+        </padding>
+    </ComboBox>
+
+    <!-- Pin Option -->
+    <CheckBox fx:id="pinnedCheckBox" 
+              text="Pin this post"
+              style="-fx-text-fill: #2c3e50;
+                     -fx-font-size: 14px;"/>
+
+    <!-- Buttons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" 
+                text="Cancel"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #95a5a6;
+                       -fx-border-color: #e0e0e0;
+                       -fx-border-radius: 8;
+                       -fx-background-radius: 8;
+                       -fx-padding: 10 20;
+                       -fx-font-size: 14px;
+                       -fx-cursor: hand;"/>
+        <Button fx:id="saveButton" 
+                text="Post"
+                defaultButton="true"
+                style="-fx-background-color: #3498db;
+                       -fx-text-fill: white;
+                       -fx-background-radius: 8;
+                       -fx-padding: 10 20;
+                       -fx-font-size: 14px;
+                       -fx-cursor: hand;
+                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);"/>
     </HBox>
 </VBox> 
