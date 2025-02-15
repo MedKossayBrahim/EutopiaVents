@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
-import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 public class Eutopia extends Application {
@@ -20,25 +20,13 @@ public class Eutopia extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Get the project root directory
-            String projectRoot = System.getProperty("user.dir");
-            System.out.println("Project Root: " + projectRoot);
-            
-            // Define the path to the FXML file
-            String fxmlPath = projectRoot + "/src/main/ressources/forum_main_page.fxml";
-            File fxmlFile = new File(fxmlPath);
-            
-            // Debug information
-            System.out.println("FXML Path: " + fxmlPath);
-            System.out.println("File exists: " + fxmlFile.exists());
-            System.out.println("File absolute path: " + fxmlFile.getAbsolutePath());
-            
-            if (!fxmlFile.exists()) {
-                throw new IllegalStateException("FXML file not found at: " + fxmlPath);
+            URL url = getClass().getResource("/forum_main_page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find forum_main_page.fxml");
             }
 
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(fxmlFile.toURI().toURL());
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             
             // Get the controller and set the application reference
@@ -67,25 +55,7 @@ public class Eutopia extends Application {
             
         } catch (Exception e) {
             System.err.println("Error loading FXML: " + e.getMessage());
-            System.err.println("Stack trace:");
             e.printStackTrace();
-            
-            // Additional debugging information
-            File projectDir = new File(System.getProperty("user.dir"));
-            System.out.println("\nListing contents of project directory:");
-            for (File file : projectDir.listFiles()) {
-                System.out.println(file.getName());
-            }
-            
-            File resourcesDir = new File(System.getProperty("user.dir") + "/src/main/ressources");
-            if (resourcesDir.exists()) {
-                System.out.println("\nListing contents of resources directory:");
-                for (File file : resourcesDir.listFiles()) {
-                    System.out.println(file.getName());
-                }
-            } else {
-                System.out.println("\nResources directory not found at: " + resourcesDir.getAbsolutePath());
-            }
         }
     }
 }
