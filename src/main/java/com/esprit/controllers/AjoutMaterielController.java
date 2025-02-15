@@ -9,6 +9,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 
+import java.util.regex.Pattern;
+
 public class AjoutMaterielController {
     @FXML
     private TextField libelleField;
@@ -22,8 +24,6 @@ public class AjoutMaterielController {
     private TextField prixField;
     @FXML
     private TextField imageUrlField;
-    @FXML
-    private ImageView imagePreview;
 
     private final MaterielService materielService;
     private final CategorieService categorieService;
@@ -35,7 +35,7 @@ public class AjoutMaterielController {
 
     @FXML
     public void initialize() {
-            loadCategories();
+        loadCategories();
     }
 
     private void loadCategories() {
@@ -49,20 +49,69 @@ public class AjoutMaterielController {
 
     @FXML
     private void handleAjouterMateriel(ActionEvent event) {
-        try {
-            Materiel materiel = new Materiel(
-                libelleField.getText(),
-                descriptionArea.getText(),
-                Integer.parseInt(quantiteField.getText()),
-                categorieComboBox.getValue().getId(),
-                Double.parseDouble(prixField.getText()),
-                imageUrlField.getText()
-            );
-            materielService.ajouter(materiel);
-            clearFields();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ajout: " + e.getMessage());
+        if (validateFields()) {
+            try {
+                Materiel materiel = new Materiel(
+                        libelleField.getText(),
+                        descriptionArea.getText(),
+                        Integer.parseInt(quantiteField.getText()),
+                        categorieComboBox.getValue().getId(),
+                        Double.parseDouble(prixField.getText()),
+                        imageUrlField.getText()
+                );
+                materielService.ajouter(materiel);
+                clearFields();
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Matériel ajouté avec succès !");
+            } catch (Exception e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout: " + e.getMessage());
+            }
         }
+    }
+
+    private boolean validateFields() {
+        String libelle = libelleField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String quantiteStr = quantiteField.getText().trim();
+        Categorie categorie = categorieComboBox.getValue();
+        String prixStr = prixField.getText().trim();
+        String imageUrl = imageUrlField.getText().trim();
+
+        if (libelle.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Le champ Libellé est obligatoire.");
+            return false;
+        }
+
+        if (description.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Le champ Description est obligatoire.");
+            return false;
+        }
+
+        if (quantiteStr.isEmpty() || !quantiteStr.matches("\\d+")) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "La quantité doit être un nombre entier positif.");
+            return false;
+        }
+
+        if (categorie == null) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Veuillez sélectionner une catégorie.");
+            return false;
+        }
+
+        if (prixStr.isEmpty() || !prixStr.matches("\\d+(\\.\\d+)?")) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Le prix doit être un nombre positif.");
+            return false;
+        }
+
+        if (!isValidUrl(imageUrl)) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Veuillez entrer une URL valide pour l'image.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isValidUrl(String url) {
+        String urlRegex = "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$";
+        return Pattern.matches(urlRegex, url);
     }
 
     @FXML
@@ -73,5 +122,13 @@ public class AjoutMaterielController {
         categorieComboBox.setValue(null);
         prixField.clear();
         imageUrlField.clear();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

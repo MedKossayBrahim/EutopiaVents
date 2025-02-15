@@ -1,4 +1,5 @@
 package com.esprit.controllers;
+
 import com.esprit.models.Categorie;
 import com.esprit.services.CategorieService;
 import javafx.event.ActionEvent;
@@ -13,12 +14,32 @@ public class Ajoutercateg {
 
     @FXML
     void addcateg(ActionEvent event) {
+        String categorieText = tfcategorie.getText().trim();
+
+        if (!validateCategorie(categorieText)) {
+            return;
+        }
+
         CategorieService cs = new CategorieService();
-        cs.ajouter(new Categorie(tfcategorie.getText()));
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Confirmation");
-        alert.setContentText("categorie  ajoutée");
-        alert.show();
+        cs.ajouter(new Categorie(categorieText));
+
+        showAlert(Alert.AlertType.INFORMATION, "Confirmation", "Catégorie ajoutée avec succès !");
+        tfcategorie.clear(); // Nettoyer le champ après ajout
     }
 
+    private boolean validateCategorie(String text) {
+        if (text.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Le champ Catégorie ne peut pas être vide.");
+            return false;
+        }
+        return true;
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.show();
+    }
 }
