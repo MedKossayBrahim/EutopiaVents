@@ -23,12 +23,14 @@ public class MainProgGUI extends Application {
         // Création des boutons
         Button btnCategories = new Button("Gestion des Catégories");
         Button btnLieux = new Button("Gestion des Lieux");
-        Button btnPhotos = new Button("Voir les Photos"); // Ajout du bouton Voir les Photos
+        Button btnPhotos = new Button("Voir les Photos");
+        Button btnReservations = new Button("Gestion des Réservations"); // Nouveau bouton ajouté
 
         // Stylisation des boutons
         btnCategories.getStyleClass().add("welcome-button");
         btnLieux.getStyleClass().add("welcome-button");
-        btnPhotos.getStyleClass().add("welcome-button"); // Appliquer le même style
+        btnPhotos.getStyleClass().add("welcome-button");
+        btnReservations.getStyleClass().add("welcome-button"); // Appliquer le même style
 
         // Ajout des actions aux boutons
         btnCategories.setOnAction(e -> {
@@ -76,12 +78,27 @@ public class MainProgGUI extends Application {
             }
         });
 
+        btnReservations.setOnAction(e -> { // Action pour le nouveau bouton
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Reservation1View.fxml"));
+                Parent reservationRoot = loader.load();
+                Scene reservationScene = new Scene(reservationRoot);
+                Stage reservationStage = new Stage();
+                reservationStage.setScene(reservationScene);
+                reservationStage.setTitle("Gestion des Réservations");
+                reservationStage.show();
+                primaryStage.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         // Ajout des boutons à l'interface
-        root.getChildren().addAll(btnCategories, btnLieux, btnPhotos); // Ajout du bouton Voir les Photos
+        root.getChildren().addAll(btnCategories, btnLieux, btnPhotos, btnReservations); // Ajout du nouveau bouton
 
         // Configuration de la scène principale
         Scene scene = new Scene(root, 400, 300);
-        scene.getStylesheets().add(getClass().getResource("/styles/categories.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/styles/theme.css").toExternalForm());
 
         // Configuration de la fenêtre principale
         primaryStage.setTitle("Gestion des Salles");

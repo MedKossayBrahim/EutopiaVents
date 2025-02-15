@@ -5,6 +5,7 @@ import com.esprit.utils.DataSource;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 public class ReservationServiceImpl implements IService<reservation1> {
     private Connection connection;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public ReservationServiceImpl() {
         connection = DataSource.getInstance().getConnection();
@@ -33,23 +35,23 @@ public class ReservationServiceImpl implements IService<reservation1> {
                         eventDebut = rs.getTimestamp("date_debut").toLocalDateTime();
                         eventFin = rs.getTimestamp("date_fin").toLocalDateTime();
                     } else {
-                        System.err.println("Erreur : L'événement avec l'ID " + reservation.getIdEvenement() + " n'existe pas.");
-                        return;
+                        throw new RuntimeException("L'événement avec l'ID " + reservation.getIdEvenement() + " n'existe pas.");
                     }
                 }
             }
 
             // Vérifier que l'événement n'est pas terminé
             if (eventFin.isBefore(LocalDateTime.now())) {
-                System.err.println("Erreur : L'événement est déjà terminé.");
-                return;
+                throw new RuntimeException("L'événement est déjà terminé.");
             }
 
             // Vérifier que la réservation se situe dans la période de l'événement
             if (reservation.getDateDebut().isBefore(eventDebut) || reservation.getDateFin().isAfter(eventFin)) {
-                System.err.println("Erreur : La réservation doit être comprise dans la période de l'événement ("
-                        + eventDebut + " à " + eventFin + ").");
-                return;
+                throw new RuntimeException("La réservation doit être comprise dans la période de l'événement (du "
+                        + eventDebut.format(DATE_TIME_FORMATTER)
+                        + " au "
+                        + eventFin.format(DATE_TIME_FORMATTER)
+                        + ").");
             }
 
             // 2. Vérifier l'existence du lieu et récupérer sa capacité
@@ -61,17 +63,15 @@ public class ReservationServiceImpl implements IService<reservation1> {
                     if (rs.next()) {
                         lieuCapacity = rs.getInt("capacite");
                     } else {
-                        System.err.println("Erreur : Le lieu avec l'ID " + reservation.getIdLieu() + " n'existe pas.");
-                        return;
+                        throw new RuntimeException("Le lieu avec l'ID " + reservation.getIdLieu() + " n'existe pas.");
                     }
                 }
             }
 
             // 3. Vérifier que le lieu a une capacité suffisante pour l'événement
             if (eventCapacity > lieuCapacity) {
-                System.err.println("Erreur : La capacité du lieu (" + lieuCapacity
+                throw new RuntimeException("La capacité du lieu (" + lieuCapacity
                         + ") n'est pas suffisante pour l'événement (capacité requise " + eventCapacity + ").");
-                return;
             }
 
             // 4. Vérifier l'absence de chevauchement avec une réservation existante pour ce lieu
@@ -85,9 +85,11 @@ public class ReservationServiceImpl implements IService<reservation1> {
                 checkStmt.setTimestamp(3, newEnd);
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next() && rs.getInt("count") > 0) {
-                        System.err.println("Erreur : Le lieu est déjà réservé pour la période "
-                                + reservation.getDateDebut() + " - " + reservation.getDateFin() + ".");
-                        return;
+                        throw new RuntimeException("Le lieu est déjà réservé pour la période du "
+                                + reservation.getDateDebut().format(DATE_TIME_FORMATTER)
+                                + " au "
+                                + reservation.getDateFin().format(DATE_TIME_FORMATTER)
+                                + ".");
                     }
                 }
             }
@@ -105,51 +107,65 @@ public class ReservationServiceImpl implements IService<reservation1> {
                     try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             reservation.setId(generatedKeys.getInt(1));
-                            System.out.println("Réservation ajoutée avec succès : " + reservation);
                         }
                     }
                 } else {
-                    System.err.println("Erreur : aucune réservation insérée.");
+                    throw new RuntimeException("Aucune réservation insérée.");
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de l'ajout de la réservation : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'ajout de la réservation : " + e.getMessage(), e);
         }
     }
 
     @Override
     public void modifier(reservation1 reservation) {
-        String sql = "UPDATE reservation1 SET evenement_id = ?, lieu_id = ?, date_debut = ?, date_fin = ? WHERE id = ?";
-        try (PreparedStatement pst = connection.prepareStatement(sql)) {
-            pst.setInt(1, reservation.getIdEvenement());
-            pst.setInt(2, reservation.getIdLieu());
-            pst.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
-            pst.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
-            pst.setInt(5, reservation.getId());
+        try {
+            // Vérifier si la réservation existe
+            String checkSql = "SELECT COUNT(*) AS count FROM reservation1 WHERE id = ?";
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, reservation.getId());
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt("count") == 0) {
+                        throw new RuntimeException("La réservation avec l'ID " + reservation.getId() + " n'existe pas.");
+                    }
+                }
+            }
 
-            int rows = pst.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Réservation modifiée : " + reservation);
+            // Vérifier les contraintes comme dans la méthode ajouter
+            // (Vous pouvez extraire ces vérifications dans une méthode séparée pour éviter la duplication de code)
+
+            String sql = "UPDATE reservation1 SET evenement_id = ?, lieu_id = ?, date_debut = ?, date_fin = ? WHERE id = ?";
+            try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                pst.setInt(1, reservation.getIdEvenement());
+                pst.setInt(2, reservation.getIdLieu());
+                pst.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
+                pst.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
+                pst.setInt(5, reservation.getId());
+
+                int rows = pst.executeUpdate();
+                if (rows == 0) {
+                    throw new RuntimeException("La modification de la réservation a échoué, aucune ligne affectée.");
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la modification : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la modification de la réservation : " + e.getMessage(), e);
         }
     }
 
     @Override
     public void supprimer(reservation1 reservation) {
-        String sql = "DELETE FROM reservation1 WHERE id = ?";
-        try (PreparedStatement pst = connection.prepareStatement(sql)) {
-            pst.setInt(1, reservation.getId());
-            int rows = pst.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Réservation supprimée : " + reservation);
+        try {
+            String sql = "DELETE FROM reservation1 WHERE id = ?";
+            try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                pst.setInt(1, reservation.getId());
+                int rows = pst.executeUpdate();
+                if (rows == 0) {
+                    throw new RuntimeException("La suppression de la réservation a échoué, aucune ligne affectée.");
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la suppression : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression de la réservation : " + e.getMessage(), e);
         }
     }
 
@@ -157,9 +173,8 @@ public class ReservationServiceImpl implements IService<reservation1> {
     public List<reservation1> rechercher() {
         List<reservation1> reservations = new ArrayList<>();
         String sql = "SELECT id, evenement_id, lieu_id, date_debut, date_fin FROM reservation1 ORDER BY id";
-        try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 reservation1 reservation = new reservation1(
                         rs.getInt("id"),
@@ -170,37 +185,12 @@ public class ReservationServiceImpl implements IService<reservation1> {
                 );
                 reservations.add(reservation);
             }
-            rs.close();
-            st.close();
         } catch (SQLException e) {
-            System.err.println("Erreur SQL dans rechercher() : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la recherche des réservations : " + e.getMessage(), e);
         }
         return reservations;
     }
 
-    // Méthodes d'affichage et de gestion avec affichage
-    public void ajouterEtAfficher(reservation1 reservation) {
-        ajouter(reservation);
-        afficherReservations();
-    }
-
-    public void modifierEtAfficher(reservation1 reservation) {
-        modifier(reservation);
-        afficherReservations();
-    }
-
-    public void supprimerEtAfficher(reservation1 reservation) {
-        supprimer(reservation);
-        afficherReservations();
-    }
-
-    public void afficherReservations() {
-        System.out.println("Liste des réservations :");
-        for (reservation1 reservation : rechercher()) {
-            System.out.println(reservation);
-        }
-    }
     public List<Map<String, Object>> getAllEvenements() {
         List<Map<String, Object>> evenements = new ArrayList<>();
         String req = "SELECT * FROM events";
@@ -211,18 +201,17 @@ public class ReservationServiceImpl implements IService<reservation1> {
             int columnCount = metaData.getColumnCount();
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                // Pour chaque colonne, on récupère le nom et la valeur
                 for (int i = 1; i <= columnCount; i++) {
                     row.put(metaData.getColumnName(i), rs.getObject(i));
                 }
                 evenements.add(row);
             }
         } catch (SQLException e) {
-            System.err.println("Erreur SQL dans getAllEvenements() : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la récupération des événements : " + e.getMessage(), e);
         }
         return evenements;
     }
+
     public List<Map<String, Object>> getAllLieux() {
         List<Map<String, Object>> lieux = new ArrayList<>();
         String req = "SELECT * FROM lieu";
@@ -233,17 +222,67 @@ public class ReservationServiceImpl implements IService<reservation1> {
             int columnCount = metaData.getColumnCount();
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                // Pour chaque colonne, récupérer le nom et la valeur
                 for (int i = 1; i <= columnCount; i++) {
                     row.put(metaData.getColumnName(i), rs.getObject(i));
                 }
                 lieux.add(row);
             }
         } catch (SQLException e) {
-            System.err.println("Erreur SQL dans getAllLieux() : " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la récupération des lieux : " + e.getMessage(), e);
         }
         return lieux;
     }
 
+    public List<reservation1> getAllReservations() {
+        List<reservation1> reservations = new ArrayList<>();
+        String query = "SELECT * FROM reservation1";
+
+        try (PreparedStatement pst = connection.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int idLieu = rs.getInt("lieu_id");
+                int idEvenement = rs.getInt("evenement_id");
+                LocalDateTime dateDebut = rs.getTimestamp("date_debut").toLocalDateTime();
+                LocalDateTime dateFin = rs.getTimestamp("date_fin").toLocalDateTime();
+
+                reservation1 reservation = new reservation1(id, idLieu, idEvenement, dateDebut, dateFin);
+                reservations.add(reservation);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la récupération de toutes les réservations : " + e.getMessage(), e);
+        }
+        return reservations;
+    }
+
+    public String getNomLieuById(int idLieu) {
+        String sql = "SELECT nom FROM lieu WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(sql)) {
+            pst.setInt(1, idLieu);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nom");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la récupération du nom du lieu : " + e.getMessage(), e);
+        }
+        return "Lieu inconnu";
+    }
+
+    public String getTitreEventById(int idEvenement) {
+        String sql = "SELECT titre FROM events WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(sql)) {
+            pst.setInt(1, idEvenement);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("titre");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la récupération du titre de l'événement : " + e.getMessage(), e);
+        }
+        return "Événement inconnu";
+    }
 }
+
