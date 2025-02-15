@@ -1,113 +1,157 @@
 package com.esprit.controllers;
 
 import com.esprit.models.PhotoLieu;
+import com.esprit.models.Lieu;
 import com.esprit.services.PhotoLieuServiceImpl;
+import com.esprit.services.LieuServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.FileChooser;
+import java.io.File;
 
 public class photo {
 
     @FXML
-    private TableView<PhotoLieu> tablePhotos;
-
-    @FXML
-    private TableColumn<PhotoLieu, Integer> colId;
-
-    @FXML
-    private TableColumn<PhotoLieu, Integer> colLieuId;
-
-    @FXML
-    private TableColumn<PhotoLieu, String> colUrl;
-
-    @FXML
-    private TextField txtLieuId;
-
+    private FlowPane flowPanePhotos;
     @FXML
     private TextField txtUrlImage;
+    @FXML
+    private ImageView imagePreview;
+    @FXML
+    private ComboBox<Lieu> comboBoxLieux;
 
     private PhotoLieuServiceImpl photoService = new PhotoLieuServiceImpl();
+    private LieuServiceImpl lieuService = new LieuServiceImpl();
     private ObservableList<PhotoLieu> photoList;
+    private File selectedFile;
+    private PhotoLieu selectedPhoto; // Nouvelle variable pour tracker la sélection
 
     @FXML
     public void initialize() {
-        // Configuration des colonnes de la TableView
-        colId.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getId()).asObject());
-        colLieuId.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getLieuId()).asObject());
-        colUrl.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getUrlImage()));
-
-        // Charger les photos depuis la base
-        loadPhotos();
-
-        // Lorsqu'une photo est sélectionnée dans le tableau, remplir les champs de saisie
-        tablePhotos.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                txtLieuId.setText(String.valueOf(newSelection.getLieuId()));
-                txtUrlImage.setText(newSelection.getUrlImage());
-            }
-        });
+        loadLieux();
     }
 
-    private void loadPhotos() {
-        photoList = FXCollections.observableArrayList(photoService.rechercher());
-        tablePhotos.setItems(photoList);
+    private void loadLieux() {
+        ObservableList<Lieu> lieux = FXCollections.observableArrayList(lieuService.rechercher());
+        comboBoxLieux.setItems(lieux);
+    }
+
+    @FXML
+    private void afficherPhotosPourLieu() {
+        Lieu selectedLieu = comboBoxLieux.getValue();
+        if (selectedLieu != null) {
+            flowPanePhotos.getChildren().clear();
+            photoList = FXCollections.observableArrayList(photoService.rechercher());
+
+            for (PhotoLieu photo : photoList) {
+                if (photo.getLieuId() == selectedLieu.getId()) {
+                    ImageView imageView = new ImageView(new Image("file:" + photo.getUrlImage()));
+                    imageView.setFitHeight(120);
+                    imageView.setFitWidth(120);
+                    imageView.setPreserveRatio(true);
+                    imageView.getStyleClass().add("image-view");
+
+                    // Gestionnaire de clic amélioré
+                    imageView.setOnMouseClicked(event -> {
+                        selectedPhoto = photo; // Stocker la photo sélectionnée
+                        txtUrlImage.setText(photo.getUrlImage());
+                        imagePreview.setImage(new Image("file:" + photo.getUrlImage()));
+                        showAlert("Information", "Sélectionnez une nouvelle image puis cliquez sur Modifier");
+                    });
+
+                    flowPanePhotos.getChildren().add(imageView);
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void choisirImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            txtUrlImage.setText(selectedFile.getAbsolutePath());
+            afficherImage(selectedFile.getAbsolutePath());
+        }
+    }
+
+    private void afficherImage(String path) {
+        try {
+            Image image = new Image("file:" + path);
+            imagePreview.setImage(image);
+        } catch (Exception e) {
+            showAlert("Erreur", "Impossible de charger l'image : " + e.getMessage());
+        }
     }
 
     @FXML
     private void ajouterPhoto() {
-        try {
-            int lieuId = Integer.parseInt(txtLieuId.getText());
-            String url = txtUrlImage.getText();
-            PhotoLieu photoObj = new PhotoLieu(lieuId, url);
-            photoService.ajouter(photoObj);
-            loadPhotos();
+        if (selectedFile != null && comboBoxLieux.getValue() != null) {
+            PhotoLieu newPhoto = new PhotoLieu(
+                    comboBoxLieux.getValue().getId(),
+                    selectedFile.getAbsolutePath()
+            );
+            photoService.ajouter(newPhoto);
+            afficherPhotosPourLieu();
             clearFields();
-        } catch (NumberFormatException e) {
-            showAlert("Erreur", "Le Lieu ID doit être un nombre.");
+            showAlert("Succès", "Photo ajoutée avec succès !");
+        } else {
+            showAlert("Erreur", "Veuillez sélectionner un lieu et une image !");
         }
     }
 
     @FXML
     private void modifierPhoto() {
-        PhotoLieu selected = tablePhotos.getSelectionModel().getSelectedItem();
-        if (selected != null) {
+        if (selectedPhoto != null && selectedFile != null) {
             try {
-                int lieuId = Integer.parseInt(txtLieuId.getText());
-                String url = txtUrlImage.getText();
-                selected.setLieuId(lieuId);
-                selected.setUrlImage(url);
-                photoService.modifier(selected);
-                loadPhotos();
+                // Mettre à jour avec la nouvelle image
+                selectedPhoto.setUrlImage(selectedFile.getAbsolutePath());
+                photoService.modifier(selectedPhoto);
+                afficherPhotosPourLieu();
+                showAlert("Succès", "Photo modifiée avec succès !");
                 clearFields();
-            } catch (NumberFormatException e) {
-                showAlert("Erreur", "Le Lieu ID doit être un nombre.");
+            } catch (Exception e) {
+                showAlert("Erreur", "Échec de la modification : " + e.getMessage());
             }
         } else {
-            showAlert("Erreur", "Veuillez sélectionner une photo à modifier.");
+            showAlert("Avertissement", "Sélectionnez une photo et choisissez une nouvelle image !");
         }
     }
 
     @FXML
     private void supprimerPhoto() {
-        PhotoLieu selected = tablePhotos.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            photoService.supprimer(selected);
-            loadPhotos();
+        if (selectedPhoto != null) {
+            photoService.supprimer(selectedPhoto);
+            afficherPhotosPourLieu();
             clearFields();
+            showAlert("Succès", "Photo supprimée avec succès !");
         } else {
-            showAlert("Erreur", "Veuillez sélectionner une photo à supprimer.");
+            showAlert("Erreur", "Aucune photo sélectionnée !");
         }
     }
 
+    @FXML
     private void clearFields() {
-        txtLieuId.clear();
+        selectedPhoto = null;
+        selectedFile = null;
         txtUrlImage.clear();
+        imagePreview.setImage(null);
+        comboBoxLieux.getSelectionModel().clearSelection();
+        flowPanePhotos.getChildren().clear();
     }
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
+        alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }

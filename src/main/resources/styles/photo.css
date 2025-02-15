@@ -1,0 +1,86 @@
+/* Couleurs thématiques */
+.root {
+    -fx-primary: #6A1B9A;   /* Violet événementiel */
+    -fx-secondary: #456086; /* Bleu profond */
+    -fx-accent: #F8BD8D;    /* Orange doux */
+    -fx-background: #F4EDF2; /* Fond pastel */
+    -fx-danger: #D32F2F;    /* Rouge pour suppression */
+}
+
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: -fx-background;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: -fx-primary;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 15px 0;
+}
+
+.preview-box {
+    -fx-border-color: derive(-fx-primary, 30%);
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-background-color: white;
+}
+
+.button {
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 16px;
+    -fx-font-weight: 500;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+}
+
+.action-button {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+}
+
+.action-button:hover {
+    -fx-background-color: derive(-fx-primary, 20%);
+}
+
+.delete-button {
+    -fx-background-color: -fx-danger;
+    -fx-text-fill: white;
+}
+
+.reset-button {
+    -fx-background-color: derive(-fx-secondary, 50%);
+    -fx-text-fill: white;
+}
+
+.browse-button {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: white;
+}
+
+.image-view {
+    -fx-border-color: derive(-fx-primary, 80%);
+    -fx-border-radius: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+}
+
+.image-view:hover {
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 2px;
+    -fx-cursor: hand;
+}
+
+.flow-pane {
+    -fx-padding: 15px;
+    -fx-background-color: white;
+    -fx-border-radius: 5px;
+    -fx-border-color: derive(-fx-primary, 90%);
+}
+
+.text-field {
+    -fx-background-radius: 4px;
+    -fx-border-color: #cccccc;
+}
+
+.combo-box {
+    -fx-background-radius: 4px;
+}
