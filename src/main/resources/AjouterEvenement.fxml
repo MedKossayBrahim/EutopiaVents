@@ -4,39 +4,65 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="500.0" prefWidth="600.0" 
+<AnchorPane prefHeight="600.0" prefWidth="600.0"
             stylesheets="@styles.css"
-            xmlns="http://javafx.com/javafx/11" 
-            xmlns:fx="http://javafx.com/fxml/1" 
+            xmlns="http://javafx.com/javafx/11"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.esprit.controllers.AjouterEvenementController">
     <ScrollPane fitToWidth="true" styleClass="scroll-pane"
-                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" 
+                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <VBox spacing="15" styleClass="card">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            
+
             <Label text="Ajouter un événement" styleClass="title-label"/>
-            
+
             <TextField fx:id="titreField" promptText="Titre"/>
             <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
-            
+
             <HBox spacing="10">
                 <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"/>
                 <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"/>
             </HBox>
-            
+
             <TextField fx:id="capaciteField" promptText="Capacité"/>
-            <TextField fx:id="categorieIdField" promptText="ID Catégorie"/>
-            <TextField fx:id="lieuIdField" promptText="ID Lieu"/>
+            <ComboBox fx:id="categorieComboBox" promptText="Sélectionnez une catégorie" maxWidth="Infinity"/>
+
+            <VBox spacing="10">
+                <Label text="Choix du lieu" styleClass="subtitle-label"/>
+                <RadioButton fx:id="lieuExistantRadio" text="Sélectionner un lieu existant"/>
+                <RadioButton fx:id="lieuPersonnaliseRadio" text="Ajouter un lieu personnalisé"/>
+                
+                <VBox fx:id="lieuExistantVBox" spacing="10">
+                    <ComboBox fx:id="lieuComboBox" promptText="Sélectionnez un lieu" maxWidth="Infinity"/>
+                </VBox>
+                
+                <VBox fx:id="lieuPersonnaliseVBox" spacing="10">
+                    <TextField fx:id="lieuProprietaireField" promptText="Nom du lieu"/>
+                </VBox>
+            </VBox>
+
             <TextField fx:id="organisateurIdField" promptText="ID Organisateur"/>
             <TextField fx:id="prixField" promptText="Prix"/>
-            <TextField fx:id="lieuProprietaireField" promptText="Lieu Proprietaire"/>
             <TextField fx:id="imageField" promptText="Image URL"/>
-            
-            <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement" 
+
+            <VBox spacing="10">
+                <Label text="Matériels nécessaires" styleClass="subtitle-label"/>
+                <Button text="Ajouter Matériel" onAction="#ouvrirSelectionMateriel" 
+                        styleClass="secondary-button"/>
+                <TableView fx:id="materielTable" prefHeight="150.0">
+                    <columns>
+                        <TableColumn fx:id="materielColumn" text="Matériel"/>
+                        <TableColumn fx:id="quantiteColumn" text="Quantité"/>
+                        <TableColumn fx:id="actionColumn" text="Action"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement"
                     styleClass="confirm-button"/>
         </VBox>
     </ScrollPane>
-</AnchorPane> 
+</AnchorPane>

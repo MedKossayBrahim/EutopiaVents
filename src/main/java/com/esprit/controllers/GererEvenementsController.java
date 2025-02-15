@@ -1,6 +1,6 @@
 package com.esprit.controllers;
 
-import com.esprit.models.Evenement;
+import com.esprit.models.*;
 import com.esprit.services.EvenementService;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,13 +10,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
+import com.esprit.services.LieuServiceImpl;
+import com.esprit.services.ReservationService;
+import com.esprit.services.ReservationServiceImpl;
 
 import java.net.URL;
+import java.sql.Connection;
 import java.util.List;
 import java.util.ResourceBundle;
-
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import com.esprit.utils.DataSource;
 public class GererEvenementsController implements Initializable {
-
+    private Connection connection;
     @FXML private TableView<Evenement> eventTable;
     @FXML private TableColumn<Evenement, String> titreColumn;
     @FXML private TableColumn<Evenement, String> descriptionColumn;
@@ -31,6 +40,8 @@ public class GererEvenementsController implements Initializable {
     @FXML private TableColumn<Evenement, Void> actionsColumn;
 
     private final EvenementService evenementService = new EvenementService();
+    private final ReservationService reservationMaterielService = new ReservationService();
+    private final ReservationServiceImpl reservationLieuService = new ReservationServiceImpl();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -94,14 +105,86 @@ public class GererEvenementsController implements Initializable {
     }
 
     private void loadEvents() {
-        List<Evenement> events = evenementService.rechercher();
+        List<Evenement> events = evenementService.rechercher()
+                .stream()
+                .filter(event -> "en attente".equals(event.getStatut()))
+                .toList();
+
         eventTable.setItems(FXCollections.observableArrayList(events));
     }
 
+
     private void handleAccept(Evenement evenement) {
-        evenement.setStatut("acceptée");
-        evenementService.modifier(evenement);
-        loadEvents();
+        try {
+            // Si l'événement utilise un lieu existant (lieuId > 0), créer une réservation pour ce lieu
+            if (evenement.getLieuId() > 0) {
+                // Convertir les dates en LocalDateTime
+                LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
+                LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
+                
+                reservation1 reservationLieu = new reservation1(
+                    0, // id sera généré
+                    evenement.getLieuId(),
+                    evenement.getId(),
+                    dateDebut,
+                    dateFin
+                );
+                ReservationServiceImpl reservationLieuService = new ReservationServiceImpl();
+                reservationLieuService.ajouter(reservationLieu);
+            }
+            // Si c'est un lieu_proprietaire, on ne fait rien de spécial
+
+            // Initialiser la connexion
+            this.connection = DataSource.getInstance().getConnection();
+
+            // Créer des réservations pour chaque matériel
+            String req = "SELECT em.materiel_id, em.quantite, m.prix " +
+                        "FROM event_materiel em " +
+                        "JOIN materiel m ON em.materiel_id = m.id " +
+                        "WHERE em.evenement_id = ?";
+            
+            try (PreparedStatement pst = connection.prepareStatement(req)) {
+                pst.setInt(1, evenement.getId());
+                ResultSet rs = pst.executeQuery();
+                
+                ReservationService reservationMaterielService = new ReservationService();
+                while (rs.next()) {
+                    int materielId = rs.getInt("materiel_id");
+                    int quantite = rs.getInt("quantite");
+                    double prix = rs.getDouble("prix");
+                    
+                    Reservation reservationMateriel = new Reservation(
+                        evenement.getId(),
+                        materielId,
+                        quantite,
+                        prix * quantite,
+                        java.sql.Date.valueOf(evenement.getDateDebut().split(" ")[0]),
+                        java.sql.Date.valueOf(evenement.getDateFin().split(" ")[0])
+                    );
+                    reservationMaterielService.ajouter(reservationMateriel);
+                }
+            }
+
+            // Mettre à jour le statut de l'événement
+            evenement.setStatut("acceptée");
+            evenementService.modifier(evenement);
+            
+            // Rafraîchir la table
+            loadEvents();
+            
+            // Afficher un message de succès
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Succès");
+            alert.setContentText("Événement accepté avec succès. Les réservations ont été créées.");
+            alert.showAndWait();
+            
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setContentText("Erreur lors de l'acceptation de l'événement: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace(); // Pour avoir plus de détails sur l'erreur dans la console
+        }
     }
 
     private void handleRefuse(Evenement evenement) {

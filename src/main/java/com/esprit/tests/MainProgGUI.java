@@ -16,7 +16,13 @@ public class MainProgGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/GererEvenements.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/GererEvenements.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterEvenement.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/events-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventDetails.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterCateg.fxml"));
+
         Parent root = loader.load();
         Scene scene = new Scene(root);
         Stage stage = new Stage();

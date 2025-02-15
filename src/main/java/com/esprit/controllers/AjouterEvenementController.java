@@ -1,62 +1,255 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Evenement;
+import com.esprit.models.Materiel;
+import com.esprit.models.MaterielSelection;
+import com.esprit.models.CategoriesEvent;
+import com.esprit.models.Lieu;
 import com.esprit.services.EvenementService;
+import com.esprit.services.MaterielService;
+import com.esprit.services.CategoriesEventService;
+import com.esprit.services.LieuServiceImpl;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.DatePicker;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.StringConverter;
 
-public class AjouterEvenementController {
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ResourceBundle;
+
+public class AjouterEvenementController implements Initializable {
+    private static final String DEFAULT_STATUS ="en attente" ;
     @FXML private TextField titreField;
     @FXML private TextArea descriptionField;
     @FXML private DatePicker dateDebutPicker;
     @FXML private DatePicker dateFinPicker;
     @FXML private TextField capaciteField;
-    @FXML private TextField categorieIdField;
-    @FXML private TextField lieuIdField;
+    @FXML private ComboBox<CategoriesEvent> categorieComboBox;
+    @FXML private ComboBox<Lieu> lieuComboBox;
+    @FXML private TextField lieuProprietaireField;
     @FXML private TextField organisateurIdField;
     @FXML private TextField prixField;
-    @FXML private TextField lieuProprietaireField;
     @FXML private TextField imageField;
+    @FXML private RadioButton lieuExistantRadio;
+    @FXML private RadioButton lieuPersonnaliseRadio;
+    @FXML private VBox lieuExistantVBox;
+    @FXML private VBox lieuPersonnaliseVBox;
+    
+    @FXML private TableView<MaterielSelection> materielTable;
+    @FXML private TableColumn<MaterielSelection, String> materielColumn;
+    @FXML private TableColumn<MaterielSelection, Integer> quantiteColumn;
+    @FXML private TableColumn<MaterielSelection, Void> actionColumn;
 
-    private EvenementService evenementService = new EvenementService();
-    private static final String DEFAULT_STATUS = "en attente";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final EvenementService evenementService = new EvenementService();
+    private final MaterielService materielService = new MaterielService();
+    private final CategoriesEventService categoriesEventService = new CategoriesEventService();
+    private final LieuServiceImpl lieuService = new LieuServiceImpl();
+    private final ObservableList<MaterielSelection> materielSelections = FXCollections.observableArrayList();
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        setupComboBoxes();
+        setupMaterielTable();
+        setupLieuSelection();
+    }
+
+    private void setupLieuSelection() {
+        ToggleGroup lieuToggleGroup = new ToggleGroup();
+        lieuExistantRadio.setToggleGroup(lieuToggleGroup);
+        lieuPersonnaliseRadio.setToggleGroup(lieuToggleGroup);
+
+        // Par défaut, sélectionner "Lieu existant"
+        lieuExistantRadio.setSelected(true);
+        lieuPersonnaliseVBox.setVisible(false);
+        lieuPersonnaliseVBox.setManaged(false);
+
+        // Gérer la visibilité des champs en fonction de la sélection
+        lieuExistantRadio.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            lieuExistantVBox.setVisible(newVal);
+            lieuExistantVBox.setManaged(newVal);
+            lieuPersonnaliseVBox.setVisible(!newVal);
+            lieuPersonnaliseVBox.setManaged(!newVal);
+        });
+
+        lieuPersonnaliseRadio.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            lieuPersonnaliseVBox.setVisible(newVal);
+            lieuPersonnaliseVBox.setManaged(newVal);
+            lieuExistantVBox.setVisible(!newVal);
+            lieuExistantVBox.setManaged(!newVal);
+        });
+    }
+
+    private void setupMaterielTable() {
+        materielColumn.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getMateriel().getLibelle()));
+        
+        quantiteColumn.setCellValueFactory(cellData -> 
+            cellData.getValue().quantiteProperty().asObject());
+        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        quantiteColumn.setOnEditCommit(event -> {
+            event.getRowValue().setQuantite(event.getNewValue());
+        });
+
+        actionColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button deleteButton = new Button("Supprimer");
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    deleteButton.setOnAction(event -> {
+                        materielSelections.remove(getTableRow().getItem());
+                    });
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
+        materielTable.setItems(materielSelections);
+        materielTable.setEditable(true);
+    }
+
+    private void setupComboBoxes() {
+        // Configuration du ComboBox des catégories
+        List<CategoriesEvent> categories = categoriesEventService.rechercher();
+        categorieComboBox.setItems(FXCollections.observableArrayList(categories));
+        categorieComboBox.setConverter(new StringConverter<CategoriesEvent>() {
+            @Override
+            public String toString(CategoriesEvent categorie) {
+                return categorie != null ? categorie.getNom() : "";
+            }
+
+            @Override
+            public CategoriesEvent fromString(String string) {
+                return null;
+            }
+        });
+
+        // Configuration du ComboBox des lieux
+        List<Lieu> lieux = lieuService.rechercher();
+        lieuComboBox.setItems(FXCollections.observableArrayList(lieux));
+        lieuComboBox.setConverter(new StringConverter<Lieu>() {
+            @Override
+            public String toString(Lieu lieu) {
+                return lieu != null ? lieu.getNom() : "";
+            }
+
+            @Override
+            public Lieu fromString(String string) {
+                return null;
+            }
+        });
+    }
+
+    @FXML
+    private void ouvrirSelectionMateriel() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Sélection de Matériel");
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+
+        List<Materiel> materiels = materielService.rechercher();
+        for (Materiel materiel : materiels) {
+            HBox materielRow = new HBox(10);
+            CheckBox checkBox = new CheckBox(materiel.getLibelle());
+            Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, 1);
+            
+            materielRow.getChildren().addAll(checkBox, quantiteSpinner);
+            content.getChildren().add(materielRow);
+
+            // Vérifier si le matériel est déjà sélectionné
+            boolean isAlreadySelected = materielSelections.stream()
+                .anyMatch(ms -> ms.getMateriel().getId() == materiel.getId());
+            checkBox.setSelected(isAlreadySelected);
+        }
+
+        ButtonType confirmButton = new ButtonType("Confirmer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButton, ButtonType.CANCEL);
+        dialog.getDialogPane().setContent(content);
+
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == confirmButton) {
+                materielSelections.clear();
+                for (int i = 0; i < content.getChildren().size(); i++) {
+                    HBox row = (HBox) content.getChildren().get(i);
+                    CheckBox checkBox = (CheckBox) row.getChildren().get(0);
+                    Spinner<Integer> spinner = (Spinner<Integer>) row.getChildren().get(1);
+                    
+                    if (checkBox.isSelected()) {
+                        Materiel materiel = materiels.get(i);
+                        MaterielSelection selection = new MaterielSelection(materiel);
+                        selection.setQuantite(spinner.getValue());
+                        materielSelections.add(selection);
+                    }
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+    }
 
     @FXML
     private void handleAjouterEvenement() {
         try {
-            int capacite = capaciteField.getText().isEmpty() ? 0 : Integer.parseInt(capaciteField.getText());
-            int categorieId = categorieIdField.getText().isEmpty() ? 0 : Integer.parseInt(categorieIdField.getText());
-            int lieuId = lieuIdField.getText().isEmpty() ? 0 : Integer.parseInt(lieuIdField.getText());
-            int organisateurId = organisateurIdField.getText().isEmpty() ? 0 : Integer.parseInt(organisateurIdField.getText());
-            double prix = prixField.getText().isEmpty() ? 0.0 : Double.parseDouble(prixField.getText());
+            int lieuId = 0;
+            String lieuProprietaire = null;
+
+            if (lieuExistantRadio.isSelected()) {
+                Lieu selectedLieu = lieuComboBox.getValue();
+                if (selectedLieu != null) {
+                    lieuId = selectedLieu.getId();
+                }
+            } else {
+                lieuProprietaire = lieuProprietaireField.getText();
+            }
 
             Evenement evenement = new Evenement(
-                0, // ID will be generated by database
+                0, // ID sera généré par la base de données
                 titreField.getText(),
                 descriptionField.getText(),
                 dateDebutPicker.getValue().toString(),
                 dateFinPicker.getValue().toString(),
-                capacite,
-                categorieId,
+                Integer.parseInt(capaciteField.getText()),
+                categorieComboBox.getValue().getId(),
                 lieuId,
-                organisateurId,
-                prix,
-                DEFAULT_STATUS,
-                lieuProprietaireField.getText(),
+                Integer.parseInt(organisateurIdField.getText()),
+                Double.parseDouble(prixField.getText()),
+                "en attente",
+                lieuProprietaire,
                 imageField.getText()
             );
 
             evenementService.ajouter(evenement);
+
+            // Ajouter les matériels sélectionnés
+            for (MaterielSelection selection : materielSelections) {
+                evenementService.ajouterMaterielAEvenement(
+                    evenement.getId(),
+                    selection.getMateriel().getId(),
+                    selection.getQuantite()
+                );
+            }
+
             clearFields();
-            
-        } catch (NumberFormatException e) {
-            // Optionally show an alert here
-            System.out.println("Erreur de format de nombre: " + e.getMessage());
+            showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -66,11 +259,19 @@ public class AjouterEvenementController {
         dateDebutPicker.setValue(null);
         dateFinPicker.setValue(null);
         capaciteField.clear();
-        categorieIdField.clear();
-        lieuIdField.clear();
+        categorieComboBox.setValue(null);
+        lieuComboBox.setValue(null);
+        lieuProprietaireField.clear();
         organisateurIdField.clear();
         prixField.clear();
-        lieuProprietaireField.clear();
         imageField.clear();
+        materielSelections.clear();
     }
-} 
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+}

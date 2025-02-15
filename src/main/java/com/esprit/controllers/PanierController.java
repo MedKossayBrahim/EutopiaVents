@@ -42,7 +42,7 @@ public class PanierController implements Initializable {
             totalPanier += reservation.getPrixTotal();
         }
 
-        totalLabel.setText(String.format("%.2f €", totalPanier));
+        totalLabel.setText(String.format("%.2f TND", totalPanier));
     }
 
     private VBox createReservationCard(Reservations reservation, Evenement event) {
@@ -62,7 +62,7 @@ public class PanierController implements Initializable {
         HBox prixQuantiteBox = new HBox(20);
         prixQuantiteBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label prixLabel = new Label(String.format("Prix unitaire: %.2f €", event.getPrix()));
+        Label prixLabel = new Label(String.format("Prix unitaire: %.2f TND", event.getPrix()));
         
         Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, reservation.getQuantite());
         quantiteSpinner.setMaxWidth(100);
@@ -73,7 +73,7 @@ public class PanierController implements Initializable {
             loadReservations();
         });
 
-        Label totalLabel = new Label(String.format("Total: %.2f €", reservation.getPrixTotal()));
+        Label totalLabel = new Label(String.format("Total: %.2f TND", reservation.getPrixTotal()));
         
         prixQuantiteBox.getChildren().addAll(prixLabel, new Label("Quantité:"), quantiteSpinner, totalLabel);
 
