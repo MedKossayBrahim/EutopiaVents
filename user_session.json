@@ -1,0 +1,12 @@
+{
+  "userID": 11,
+  "nom": "Doe",
+  "prenom": "John",
+  "email": "john.doe@example.com",
+  "passwd": "$2a$10$7G0lmbkm3TbO3.WDwpQfX.tKHGEDAZ7ssNAmsJjZnmKTrhI54bRmG",
+  "userName": "raeff",
+  "image": "null",
+  "phone": 123456789,
+  "isActive": true,
+  "role": "Participant"
+}
