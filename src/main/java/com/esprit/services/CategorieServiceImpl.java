@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategorieServiceImpl implements IService<categorie_salle>{
+    //etablir la connexion a l base de donnes
     Connection connection = DataSource.getInstance().getConnection();
 
 
@@ -111,8 +112,8 @@ public class CategorieServiceImpl implements IService<categorie_salle>{
         return categories;
     }
 
-    //un ajout du code*************************************************************************
-    //cest une methode qui ajoute plusieurs categorie a la fois en utilisant la methode d'ajout principal
+    //un ajout du code*******
+    //cest une methode qui ajoute plusieurs categorie a la fois en utilisant la methode d'ajout principal utilise dans le main
     public void addCategories(String[] noms, String[] descriptions) {
         for (int i = 0; i < noms.length; i++) {
             categorie_salle nouvelleCategorie = new categorie_salle(noms[i], descriptions[i]);

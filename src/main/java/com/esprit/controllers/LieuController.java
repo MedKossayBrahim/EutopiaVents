@@ -74,11 +74,11 @@ public class LieuController {
                 });
     }
 
+
     private void loadCategories() {
         ObservableList<categorie_salle> categories =
                 FXCollections.observableArrayList(categorieService.rechercher());
         cbCategorie.setItems(categories);
-
         // Personnaliser l'affichage des catégories dans le ComboBox
         cbCategorie.setCellFactory(lv -> new ListCell<categorie_salle>() {
             @Override

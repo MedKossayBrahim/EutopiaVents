@@ -20,7 +20,7 @@ public class AjouterCategorie {
     @FXML
     private TableView<categorie_salle> categoriesTable;
     @FXML
-    private TableColumn<categorie_salle, String> nomColumn;
+    private TableColumn<categorie_salle, String> nomColumn; //affiche le nom de chaque categorie
     @FXML
     private TableColumn<categorie_salle, String> descriptionColumn;
 
@@ -35,7 +35,7 @@ public class AjouterCategorie {
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
-        // Chargement des données
+        // Chargement des données Cette méthode est appelée pour récupérer la liste des catégories depuis la base de données pour les affiches
         refreshCategoriesList();
 
         // Double-clic sur une ligne pour voir les détails
@@ -46,11 +46,13 @@ public class AjouterCategorie {
         });
 
         // Validation en temps réel
+        //Un listener est ajouté sur le champ de texte tfNom
+        //À chaque modification du texte dans tfNom, la méthode validateNomUnique(newValue) est appelée.
         tfNom.textProperty().addListener((observable, oldValue, newValue) -> {
             validateNomUnique(newValue);
         });
     }
-
+//Mettre à jour la liste des catégories affichées dans la TableView.
     private void refreshCategoriesList() {
         categoriesList = FXCollections.observableArrayList(categorieService.rechercher());
         categoriesTable.setItems(categoriesList);
@@ -95,6 +97,7 @@ public class AjouterCategorie {
             }
         }
     }
+
 
     @FXML
     void voirCategories() {
@@ -145,10 +148,11 @@ public class AjouterCategorie {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficheCategorie.fxml"));
             Parent root = loader.load();
-
+          //  Récupération du contrôleur associé à la nouvelle vue
             AfficheCategorie ac = loader.getController();
+            // Passage des détails de la catégorie à la nouvelle vue
             ac.setCategorieDetails(categorie);
-
+               //Remplacement de la scène actuelle par la nouvelle vue
             tfNom.getScene().setRoot(root);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur",

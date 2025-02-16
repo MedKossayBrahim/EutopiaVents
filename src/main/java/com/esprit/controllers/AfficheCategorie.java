@@ -18,8 +18,9 @@ public class AfficheCategorie {
     private TextField tfNom;
     @FXML
     private TextField tfDescription;
-
+    //Stocke la catégorie en cours de modification
     private categorie_salle currentCategorie;
+
     private CategorieServiceImpl categorieService;
 
 
@@ -89,7 +90,7 @@ public class AfficheCategorie {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutCategorie.fxml"));
             Parent root = loader.load();
-            tfNom.getScene().setRoot(root);
+            tfNom.getScene().setRoot(root); //change l’interface actuelle en affichant AjoutCategorie.fxml
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur",
                     "Erreur lors du retour: " + e.getMessage());

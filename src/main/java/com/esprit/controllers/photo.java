@@ -49,26 +49,24 @@ public class photo {
         Lieu selectedLieu = comboBoxLieux.getValue();
         if (selectedLieu != null) {
             flowPanePhotos.getChildren().clear();
-            photoList = FXCollections.observableArrayList(photoService.rechercher());
+            // Appel direct au service filtré
+            photoList = FXCollections.observableArrayList(photoService.rechercherParLieuId(selectedLieu.getId()));
 
             for (PhotoLieu photo : photoList) {
-                if (photo.getLieuId() == selectedLieu.getId()) {
-                    ImageView imageView = new ImageView(new Image("file:" + photo.getUrlImage()));
-                    imageView.setFitHeight(120);
-                    imageView.setFitWidth(120);
-                    imageView.setPreserveRatio(true);
-                    imageView.getStyleClass().add("image-view");
+                ImageView imageView = new ImageView(new Image("file:" + photo.getUrlImage()));
+                imageView.setFitHeight(120);
+                imageView.setFitWidth(120);
+                imageView.setPreserveRatio(true);
+                imageView.getStyleClass().add("image-view");
 
-                    // Gestionnaire de clic amélioré
-                    imageView.setOnMouseClicked(event -> {
-                        selectedPhoto = photo; // Stocker la photo sélectionnée
-                        txtUrlImage.setText(photo.getUrlImage());
-                        imagePreview.setImage(new Image("file:" + photo.getUrlImage()));
-                        showAlert("Information", "Sélectionnez une nouvelle image puis cliquez sur Modifier");
-                    });
+                imageView.setOnMouseClicked(event -> {
+                    selectedPhoto = photo;
+                    txtUrlImage.setText(photo.getUrlImage());
+                    imagePreview.setImage(new Image("file:" + photo.getUrlImage()));
+                    showAlert("Information", "Sélectionnez une nouvelle image puis cliquez sur Modifier");
+                });
 
-                    flowPanePhotos.getChildren().add(imageView);
-                }
+                flowPanePhotos.getChildren().add(imageView);
             }
         }
     }

@@ -75,4 +75,26 @@ public class PhotoLieuServiceImpl implements IService<PhotoLieu> {
         }
         return photos;
     }
+    //nouvelle methode
+    public List<PhotoLieu> rechercherParLieuId(int lieuId) {
+        List<PhotoLieu> photos = new ArrayList<>();
+        String sql = "SELECT * FROM photoslieu WHERE lieu_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, lieuId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    PhotoLieu photo = new PhotoLieu(
+                            rs.getInt("id"),
+                            rs.getInt("lieu_id"),
+                            rs.getString("url_image")
+                    );
+                    photos.add(photo);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la recherche par lieu : " + e.getMessage());
+        }
+        return photos;
+    }
 }
