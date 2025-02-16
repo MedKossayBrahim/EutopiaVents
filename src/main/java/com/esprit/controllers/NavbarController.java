@@ -140,15 +140,33 @@ public class NavbarController {
     }
 
     @FXML
-    public void onSettingsButtonClick() {
-        updateButtonStyles("settings");
-        navigateToPage("settings.fxml");
+    public void onSettingsButtonClick(ActionEvent event) {
+        updateButtonStyles("Dashboard");
+        try {
+            URL url = getClass().getResource("/MainNavigation.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find Main.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Scene scene = ((Button) event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("Error loading forum main page: " + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Navigation Error");
+            alert.setContentText("Could not load the Main page: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
     public void onLogoutButtonClick() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) logoutButton.getScene().getWindow();
             stage.setScene(new Scene(root));

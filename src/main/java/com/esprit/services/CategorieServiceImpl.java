@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategorieServiceImpl implements IService<categorie_salle>{
-     Connection connection = DataSource.getInstance().getConnection();
+    //etablir la connexion a l base de donnes
+    Connection connection = DataSource.getInstance().getConnection();
 
     public CategorieServiceImpl() throws SQLException {
     }
@@ -98,8 +99,8 @@ public class CategorieServiceImpl implements IService<categorie_salle>{
     public List<categorie_salle> rechercher() {
         List<categorie_salle> categories = new ArrayList<>();
         String req = "SELECT * FROM categorie_salle";
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
+        try (PreparedStatement pst = connection.prepareStatement(req);
+             ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
                 categorie_salle categoriesalle = new categorie_salle(
                         rs.getInt("id"),
@@ -112,5 +113,45 @@ public class CategorieServiceImpl implements IService<categorie_salle>{
             System.out.println("Erreur lors de la recherche des catégories : " + e.getMessage());
         }
         return categories;
+    }
+
+    //un ajout du code*******
+    //cest une methode qui ajoute plusieurs categorie a la fois en utilisant la methode d'ajout principal utilise dans le main
+    public void addCategories(String[] noms, String[] descriptions) {
+        for (int i = 0; i < noms.length; i++) {
+            categorie_salle nouvelleCategorie = new categorie_salle(noms[i], descriptions[i]);
+            System.out.println("\nTentative d'ajout de la catégorie : " + nouvelleCategorie);
+            this.ajouter(nouvelleCategorie);
+        }
+    }
+
+    // Méthode pour modifier la première catégorie existante
+    public void modifyFirstCategory(String nouveauNom, String nouvelleDescription) {
+        List<categorie_salle> categories = this.rechercher();
+        if (!categories.isEmpty()) {
+            categorie_salle cat = categories.get(0);
+            String ancienNom = cat.getNom();
+            String ancienneDesc = cat.getDescription();
+            cat.setNom(nouveauNom);
+            cat.setDescription(nouvelleDescription);
+            System.out.println("\nModification de la première catégorie :");
+            System.out.println("Ancien nom: " + ancienNom + " → Nouveau nom: " + nouveauNom);
+            System.out.println("Ancienne description: " + ancienneDesc + " → Nouvelle description: " + nouvelleDescription);
+            this.modifier(cat);
+        } else {
+            System.out.println("Aucune catégorie à modifier.");
+        }
+    }
+
+    // Méthode pour supprimer la dernière catégorie (si plusieurs existent)
+    public void deleteLastCategory() {
+        List<categorie_salle> categories = this.rechercher();
+        if (categories.size() > 1) {
+            categorie_salle cat = categories.get(categories.size() - 1);
+            System.out.println("\nSuppression de la catégorie : " + cat);
+            this.supprimer(cat);
+        } else {
+            System.out.println("Impossible de supprimer la catégorie, il doit en rester au moins une.");
+        }
     }
 }

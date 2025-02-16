@@ -33,7 +33,17 @@ public class reservation1 {
 
     public LocalDateTime getDateFin() { return dateFin; }
     public void setDateFin(LocalDateTime dateFin) { this.dateFin = dateFin; }
+    public String getNomLieu() {
+        // Implémentez la logique pour récupérer le nom du lieu via l'ID
+        // Exemple: return reservationService.getNomLieuById(this.idLieu);
+        return "Nom du lieu"; // À adapter
+    }
 
+    public String getTitreEvent() {
+        // Implémentez la logique pour récupérer le titre de l'événement via l'ID
+        // Exemple: return reservationService.getTitreEventById(this.idEvenement);
+        return "Titre de l'événement"; // À adapter
+    }
     @Override
     public String toString() {
         return "Reservation{id=" + id + ", idLieu=" + idLieu + ", idEvenement=" + idEvenement + ", dateDebut=" + dateDebut + ", dateFin=" + dateFin + "}";

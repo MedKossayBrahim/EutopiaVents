@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.MainNavigationController"
+            prefHeight="700.0" prefWidth="1200.0">
+
+    <!-- Left Navbar -->
+    <left>
+        <fx:include source="Navbar.fxml"/>
+    </left>
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox spacing="20" styleClass="main-content">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Header -->
+            <Label text="Navigation" styleClass="main-title"/>
+
+            <!-- Navigation Buttons -->
+            <GridPane hgap="20" vgap="20" alignment="CENTER">
+                <Button text="Gestion des Catégories" 
+                        onAction="#goToCategories"
+                        styleClass="nav-button"
+                        prefWidth="250" prefHeight="100"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+
+                <Button text="Gestion des Lieux" 
+                        onAction="#goToLieux"
+                        styleClass="nav-button"
+                        prefWidth="250" prefHeight="100"
+                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Button text="Gestion des Photos" 
+                        onAction="#goToPhotos"
+                        styleClass="nav-button"
+                        prefWidth="250" prefHeight="100"
+                        GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+                <Button text="Gestion des Réservations" 
+                        onAction="#goToReservations"
+                        styleClass="nav-button"
+                        prefWidth="250" prefHeight="100"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+        </VBox>
+    </center>
+</BorderPane> 
