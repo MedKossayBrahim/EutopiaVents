@@ -25,7 +25,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
@@ -60,18 +59,9 @@ public class AllPostsController extends ForumMainController {
     private int totalPages;
     @FXML private Pagination pagination;
 
-    @FXML private VBox chatArea;
-    @FXML private TextField userInput;
-    private ChatBot chatBot;
-    private ChatService chatService;
-    private VBox messagesContainer;
-
     @FXML
     private ComboBox<String> searchFilterComboBox;
     private String currentSearchFilter = "Title";
-
-    private boolean isAiEnabled = true;
-    private static final String AI_NAME = "Forum Assistant";
 
     public void setApplication(Eutopia application) {
         this.application = application;
@@ -129,7 +119,7 @@ public class AllPostsController extends ForumMainController {
                 updatePageContent();
             }
             
-            // Initialize Calendar and Chat
+            // Initialize Calendar
             if (calendarContainer != null) {
                 initializeCalendar();
             }
@@ -618,135 +608,6 @@ public class AllPostsController extends ForumMainController {
         
         System.out.println("Showing posts " + (fromIndex + 1) + " to " + toIndex + 
                           " of " + originalPosts.size());
-    }
-
-    private String processUserQuery(String userMessage) {
-        try {
-            String messageLower = userMessage.toLowerCase();
-            
-            // Check for search-related queries
-            if (messageLower.contains("search") || messageLower.contains("find") || 
-                messageLower.contains("look for")) {
-                
-                // Extract search terms
-                String searchTerm = extractSearchTerm(messageLower);
-                if (searchTerm != null) {
-                    // Perform search
-                    handleSearch(searchTerm);
-                    return "I've searched for posts containing '" + searchTerm + 
-                           "'. You can see the results in the posts list.";
-                }
-            }
-            
-            // Check for category-related queries
-            if (messageLower.contains("category") || messageLower.contains("categories")) {
-                return handleCategoryQuery(messageLower);
-            }
-            
-            // Check for author-related queries
-            if (messageLower.contains("author") || messageLower.contains("written by")) {
-                return handleAuthorQuery(messageLower);
-            }
-            
-            // Check for date-related queries
-            if (messageLower.contains("date") || messageLower.contains("when") || 
-                messageLower.contains("recent")) {
-                return handleDateQuery(messageLower);
-            }
-
-            // Default response with helpful suggestions
-            return "I can help you:\n" +
-                   "• Search for specific posts (e.g., 'search for gaming posts')\n" +
-                   "• Find posts by category (e.g., 'show technology category')\n" +
-                   "• Find posts by author (e.g., 'find posts by John')\n" +
-                   "• Find recent posts (e.g., 'show recent posts')\n\n" +
-                   "What would you like to know?";
-
-        } catch (Exception e) {
-            System.err.println("Error processing query: " + e.getMessage());
-            e.printStackTrace();
-            return "I apologize, but I encountered an error processing your request.";
-        }
-    }
-
-    private String handleCategoryQuery(String query) throws SQLException {
-        // Get all unique categories
-        Set<String> categories = new HashSet<>();
-        for (Post post : originalPosts) {
-            String categoryName = getCategoryName(post.getCategoryId());
-            if (categoryName != null) {
-                categories.add(categoryName);
-            }
-        }
-        
-        if (query.contains("list") || query.contains("show") || query.contains("what")) {
-            return "Available categories:\n" + 
-                   categories.stream()
-                       .sorted()
-                       .map(cat -> "• " + cat)
-                       .collect(Collectors.joining("\n"));
-        }
-        
-        // Try to extract category name from query
-        String categoryName = categories.stream()
-            .filter(cat -> query.contains(cat.toLowerCase()))
-            .findFirst()
-            .orElse(null);
-            
-        if (categoryName != null) {
-            currentSearchFilter = "Category";
-            searchFilterComboBox.setValue("Category");
-            handleSearch(categoryName);
-            return "I've filtered the posts to show the '" + categoryName + "' category.";
-        }
-        
-        return "I can show you posts from any category. Available categories are:\n" +
-               categories.stream()
-                   .sorted()
-                   .map(cat -> "• " + cat)
-                   .collect(Collectors.joining("\n"));
-    }
-
-    private String handleAuthorQuery(String query) {
-        // Extract author name from query
-        String authorName = extractAuthorName(query);
-        if (authorName != null) {
-            currentSearchFilter = "Author";
-            searchFilterComboBox.setValue("Author");
-            handleSearch(authorName);
-            return "I've searched for posts by author '" + authorName + "'.";
-        }
-        return "Please specify an author name (e.g., 'find posts by John')";
-    }
-
-    private String handleDateQuery(String query) {
-        if (query.contains("recent")) {
-            // Sort by date and show most recent
-            originalPosts.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
-            updatePageContent();
-            return "I've sorted the posts to show the most recent ones first.";
-        }
-        return "I can help you find posts by date. Try asking for 'recent posts'.";
-    }
-
-    private String extractSearchTerm(String query) {
-        // Remove common search phrases
-        String[] searchPhrases = {"search for", "find", "look for", "search"};
-        for (String phrase : searchPhrases) {
-            query = query.replace(phrase, "");
-        }
-        query = query.trim();
-        return query.isEmpty() ? null : query;
-    }
-
-    private String extractAuthorName(String query) {
-        // Remove common author phrases
-        String[] authorPhrases = {"author", "written by", "by", "from"};
-        for (String phrase : authorPhrases) {
-            query = query.replace(phrase, "");
-        }
-        query = query.trim();
-        return query.isEmpty() ? null : query;
     }
 
     @Override
