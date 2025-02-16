@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LikeService implements IService<Like> {
+public class LikeService implements IServiceF<Like> {
 
     @Override
     public void ajouter(Like like) throws SQLException {

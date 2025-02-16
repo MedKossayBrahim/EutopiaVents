@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryService implements IService<Category> {
+public class CategoryService implements IServiceF<Category> {
 
     @Override
     public void ajouter(Category category) throws SQLException {

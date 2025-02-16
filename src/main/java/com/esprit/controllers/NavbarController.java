@@ -69,9 +69,27 @@ public class NavbarController {
     }
 
     @FXML
-    public void onDashboardButtonClick() {
+    public void onDashboardButtonClick(ActionEvent event) {
         updateButtonStyles("dashboard");
-        navigateToPage("dashboard.fxml");
+        try {
+            URL url = getClass().getResource("/Main.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find forum_main_page.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Scene scene = ((Button) event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("Error loading forum main page: " + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Navigation Error");
+            alert.setContentText("Could not load the forum page: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML

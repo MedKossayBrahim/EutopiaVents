@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
 
-public class CommentService implements IService<Comment> {
+public class CommentService implements IServiceF<Comment> {
     
     @Override
     public void ajouter(Comment comment) throws SQLException {

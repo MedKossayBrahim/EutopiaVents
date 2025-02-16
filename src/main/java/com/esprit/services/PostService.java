@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostService implements IService<Post> {
+public class PostService implements IServiceF<Post> {
     
     public PostService() {
         // Empty constructor

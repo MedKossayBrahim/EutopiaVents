@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.ListeReservationController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Liste des Réservations" style="-fx-font-size: 20px;"/>
+    
+    <TableView fx:id="reservationTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="evenementIdColumn" text="Événement" prefWidth="100"/>
+            <TableColumn fx:id="materielIdColumn" text="Matériel" prefWidth="100"/>
+            <TableColumn fx:id="quantiteColumn" text="Quantité" prefWidth="80"/>
+            <TableColumn fx:id="prixTotalColumn" text="Prix Total" prefWidth="100"/>
+            <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120"/>
+            <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox> 
