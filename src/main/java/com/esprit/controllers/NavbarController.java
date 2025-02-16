@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
+import javafx.scene.Node;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,11 +71,11 @@ public class NavbarController {
 
     @FXML
     public void onDashboardButtonClick(ActionEvent event) {
-        updateButtonStyles("dashboard");
+        updateButtonStyles("Dashboard");
         try {
             URL url = getClass().getResource("/Main.fxml");
             if (url == null) {
-                throw new IOException("Cannot find forum_main_page.fxml");
+                throw new IOException("Cannot find Main.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
@@ -87,15 +88,32 @@ public class NavbarController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the forum page: " + e.getMessage());
+            alert.setContentText("Could not load the Main page: " + e.getMessage());
             alert.showAndWait();
         }
     }
 
     @FXML
-    public void onEventsButtonClick() {
-        updateButtonStyles("events");
-        navigateToPage("events.fxml");
+    public void onEventsButtonClick(ActionEvent event) {
+        try {
+            URL url = getClass().getResource("/events-view.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find events-view.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Scene scene = ((Button) event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("Error loading events view: " + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Navigation Error");
+            alert.setContentText("Could not load the events page: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML

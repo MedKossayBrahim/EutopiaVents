@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.Ajoutercategorieevent"
+            style="-fx-background-color: #faf6f3;">
+
+
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0;">
+                <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #e9ecef;">
+                    <Button text="Ajouter Catégorie" onAction="#goToAjouterCateg"/>
+                    <Button text="Ajouter Événement" onAction="#goToAjouterEvenement"/>
+                    <Button text="Modifier Événement" onAction="#goToModifierEvenement"/>
+                    <Button text="Voir Événements" onAction="#goToEventsView"/>
+                    <Button text="Gérer Événements" onAction="#goToGererEvenements"/>
+                </HBox>
+
+                <VBox spacing="10" styleClass="card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <Label text="Ajouter une catégorie" styleClass="title-label"/>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="categ" promptText="Nom de la catégorie"/>
+                        <Button text="Ajouter" onAction="#ajouter" styleClass="confirm-button"/>
+                    </HBox>
+
+                    <TableView fx:id="categorieTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="300"/>
+                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
