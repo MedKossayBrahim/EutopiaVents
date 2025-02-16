@@ -10,6 +10,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -18,6 +21,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -30,6 +34,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
 
 public class PostViewController {
     @FXML private Label postTitleLabel;
@@ -54,43 +67,54 @@ public class PostViewController {
         likeButton.setOnAction(event -> handleLikeAction());
         commentField.setOnAction(event -> handleAddComment());
 
-        // Set up delete button with image
+        // Setup delete post button with image
         try {
-            // Get the project root directory
-            String projectRoot = System.getProperty("user.dir");
+            ImageView deleteIcon = new ImageView(getClass().getResource("/Images/delete.png").toExternalForm());
+            deleteIcon.setFitHeight(16);
+            deleteIcon.setFitWidth(16);
             
-            // Define the path to the image file
-            String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
-            File imageFile = new File(imagePath);
-            
-            if (!imageFile.exists()) {
-                System.err.println("Image file not found at: " + imagePath);
-                // Try loading from resources
-                URL resource = getClass().getResource("/Images/delete.png");
-                if (resource != null) {
-                    imageFile = new File(resource.toURI());
-                } else {
-                    throw new IOException("Cannot find delete.png");
-                }
-            }
-
-            Image deleteImage = new Image(imageFile.toURI().toString());
-            ImageView deleteIcon = new ImageView(deleteImage);
-            deleteIcon.setFitHeight(20);
-            deleteIcon.setFitWidth(20);
             deletePostButton.setGraphic(deleteIcon);
-            deletePostButton.setText(""); // Remove text, show only icon
-            deletePostButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
+            deletePostButton.setStyle("-fx-background-color: transparent;");
             
-            // Add hover effect
-            deletePostButton.setOnMouseEntered(e -> deletePostButton.setStyle("-fx-background-color: #f8f9fa;"));
-            deletePostButton.setOnMouseExited(e -> deletePostButton.setStyle("-fx-background-color: transparent;"));
-            
+            deletePostButton.setOnAction(event -> {
+                int response = showStyledConfirmDialog(
+                    "Are you sure you want to delete this post? This action cannot be undone.",
+                    "Confirm Delete"
+                );
+                
+                if (response == JOptionPane.YES_OPTION) {
+                    try {
+                        postService.supprimer(postId, getCurrentUserId());
+                        goBack();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        showStyledErrorDialog("Error deleting post", "Error");
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Could not load delete icon: " + e.getMessage());
-            deletePostButton.setText("Delete"); // Fallback to text if image fails to load
+            // Fallback to text button if image fails to load
+            deletePostButton.setText("🗑️");
         }
+        
+        // Simplify delete post button
+        deletePostButton.setStyle("-fx-background-color: transparent; " +
+                                "-fx-text-fill: #8B0000; " +
+                                "-fx-font-size: 14px; " +
+                                "-fx-cursor: hand;");
+        
+        // Add hover effect
+        deletePostButton.setOnMouseEntered(e -> 
+            deletePostButton.setStyle("-fx-background-color: #ffeeee; " +
+                                    "-fx-text-fill: #8B0000; " +
+                                    "-fx-font-size: 14px; " +
+                                    "-fx-cursor: hand;"));
+        deletePostButton.setOnMouseExited(e -> 
+            deletePostButton.setStyle("-fx-background-color: transparent; " +
+                                    "-fx-text-fill: #8B0000; " +
+                                    "-fx-font-size: 14px; " +
+                                    "-fx-cursor: hand;"));
     }
 
     public void setPostData(int postId, String title, String content, LocalDateTime timestamp) {
@@ -145,38 +169,6 @@ public class PostViewController {
         try {
             if (postService.isPostOwner(postId, getCurrentUserId())) {
                 deletePostButton.setVisible(true);
-                
-                // Get the project root directory
-                String projectRoot = System.getProperty("user.dir");
-                
-                // Define the path to the image file
-                String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
-                File imageFile = new File(imagePath);
-                
-                if (!imageFile.exists()) {
-                    System.err.println("Image file not found at: " + imagePath);
-                    // Try loading from resources
-                    URL resource = getClass().getResource("/Images/delete.png");
-                    if (resource != null) {
-                        imageFile = new File(resource.toURI());
-                    } else {
-                        throw new IOException("Cannot find delete.png");
-                    }
-                }
-
-                Image deleteImage = new Image(imageFile.toURI().toString());
-                ImageView deleteIcon = new ImageView(deleteImage);
-                deleteIcon.setFitHeight(20);
-                deleteIcon.setFitWidth(20);
-                deletePostButton.setGraphic(deleteIcon);
-                deletePostButton.setText(""); // Remove text, show only icon
-                deletePostButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
-                
-                // Add hover effect
-                deletePostButton.setOnMouseEntered(e -> deletePostButton.setStyle("-fx-background-color: #f8f9fa;"));
-                deletePostButton.setOnMouseExited(e -> deletePostButton.setStyle("-fx-background-color: transparent;"));
-                
-                deletePostButton.setOnAction(event -> handleDeletePost());
             } else {
                 deletePostButton.setVisible(false);
             }
@@ -257,74 +249,34 @@ public class PostViewController {
 
         // Only show delete button for comments made by current user
         if (comment.getUserId() == getCurrentUserId()) {
-            Button deleteButton = new Button();
+            ImageView deleteIcon = new ImageView(getClass().getResource("/Images/delete.png").toExternalForm());
+            deleteIcon.setFitHeight(16);
+            deleteIcon.setFitWidth(16);
             
-            try {
-                // Get the project root directory
-                String projectRoot = System.getProperty("user.dir");
+            Button deleteButton = new Button();
+            deleteButton.setGraphic(deleteIcon);
+            deleteButton.setStyle("-fx-background-color: transparent;");
+            
+            deleteButton.setOnAction(e -> {
+                int response = showStyledConfirmDialog(
+                    "Are you sure you want to delete this comment?",
+                    "Confirm Delete"
+                );
                 
-                // Define the path to the image file
-                String imagePath = projectRoot + "/src/main/ressources/Images/delete.png";
-                File imageFile = new File(imagePath);
-                
-                if (!imageFile.exists()) {
-                    System.err.println("Image file not found at: " + imagePath);
-                    // Try loading from resources
-                    URL resource = getClass().getResource("/Images/delete.png");
-                    if (resource != null) {
-                        imageFile = new File(resource.toURI());
-                    } else {
-                        throw new IOException("Cannot find delete.png");
+                if (response == JOptionPane.YES_OPTION) {
+                    try {
+                        commentService.supprimer(comment.getId(), getCurrentUserId());
+                        commentsContainer.getChildren().remove(commentBox);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        showStyledErrorDialog("Error deleting comment", "Error");
                     }
                 }
-
-                Image deleteImage = new Image(imageFile.toURI().toString());
-                ImageView deleteIcon = new ImageView(deleteImage);
-                deleteIcon.setFitHeight(16);
-                deleteIcon.setFitWidth(16);
-                deleteButton.setGraphic(deleteIcon);
-                
-                deleteButton.setStyle("-fx-background-color: transparent; " +
-                                    "-fx-cursor: hand; " +
-                                    "-fx-padding: 2 5;");
-                
-                deleteButton.setOnMouseEntered(e -> {
-                    deleteButton.setStyle("-fx-background-color: #ffeeee; " +
-                                        "-fx-cursor: hand; " +
-                                        "-fx-padding: 2 5; " +
-                                        "-fx-background-radius: 3;");
-                    deleteIcon.setScaleX(1.1);
-                    deleteIcon.setScaleY(1.1);
-                });
-                
-                deleteButton.setOnMouseExited(e -> {
-                    deleteButton.setStyle("-fx-background-color: transparent; " +
-                                        "-fx-cursor: hand; " +
-                                        "-fx-padding: 2 5;");
-                    deleteIcon.setScaleX(1.0);
-                    deleteIcon.setScaleY(1.0);
-                });
-
-                deleteButton.setOnAction(e -> handleDeleteComment(comment.getId(), commentBox));
-
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-                headerBox.getChildren().addAll(usernameLabel, spacer, deleteButton);
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Fallback to text button if image fails to load
-                Button fallbackButton = new Button("🗑️");
-                fallbackButton.setStyle("-fx-background-color: transparent; " +
-                                      "-fx-text-fill: #8B0000; " +
-                                      "-fx-font-size: 14px; " +
-                                      "-fx-cursor: hand; " +
-                                      "-fx-padding: 2 5;");
-                fallbackButton.setOnAction(e2 -> handleDeleteComment(comment.getId(), commentBox));
-                
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-                headerBox.getChildren().addAll(usernameLabel, spacer, fallbackButton);
-            }
+            });
+            
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            headerBox.getChildren().addAll(usernameLabel, spacer, deleteButton);
         } else {
             headerBox.getChildren().add(usernameLabel);
         }
@@ -381,21 +333,27 @@ public class PostViewController {
     }
 
     private void handleDeleteComment(int commentId, VBox commentBox) {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Delete Comment");
-        confirmDialog.setHeaderText(null);
-        confirmDialog.setContentText("Are you sure you want to delete this comment?");
+        // Simple confirmation using ButtonType
+        ButtonType yes = new ButtonType("Yes");
+        ButtonType no = new ButtonType("No");
         
-        Optional<ButtonType> result = confirmDialog.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                commentService.supprimer(commentId, getCurrentUserId());
-                commentsContainer.getChildren().remove(commentBox);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showError("Could not delete comment.");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Comment");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this comment?");
+        alert.getButtonTypes().setAll(yes, no);
+        
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == yes) {
+                try {
+                    commentService.supprimer(commentId, getCurrentUserId());
+                    commentsContainer.getChildren().remove(commentBox);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showError("Could not delete comment.");
+                }
             }
-        }
+        });
     }
     
     private void updateLikeButton() {
@@ -442,25 +400,7 @@ public class PostViewController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void handleDeletePost() {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Delete Post");
-        confirmDialog.setHeaderText(null);
-        confirmDialog.setContentText("Are you sure you want to delete this post? This action cannot be undone.");
-        
-        Optional<ButtonType> result = confirmDialog.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                postService.supprimer(postId, getCurrentUserId());
-                goBack();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showError("Could not delete post.");
-            }
-        }
+        alert.show();
     }
 
     private void goBack() {
@@ -478,5 +418,114 @@ public class PostViewController {
             e.printStackTrace();
             showError("Could not return to main view: " + e.getMessage());
         }
+    }
+
+    private int showStyledConfirmDialog(String message, String title) {
+        // Create custom buttons with styled look
+        JButton yesButton = new JButton("Yes");
+        JButton noButton = new JButton("No");
+        
+        // Style the buttons
+        String buttonStyle = "background-color: #007bff; " +
+                            "color: white; " +
+                            "border: none; " +
+                            "padding: 8px 20px; " +
+                            "border-radius: 5px; " +
+                            "font-size: 14px; " +
+                            "cursor: pointer;";
+                            
+        yesButton.putClientProperty("style", buttonStyle);
+        noButton.putClientProperty("style", buttonStyle.replace("#007bff", "#6c757d"));
+
+        // Create the panel with rounded corners
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+            }
+        };
+        
+        // Style the panel
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Create and style the message label
+        JLabel messageLabel = new JLabel("<html><body style='width: 200px'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(messageLabel, BorderLayout.CENTER);
+        
+        // Create button panel with spacing
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(yesButton);
+        buttonPanel.add(noButton);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Configure the option pane
+        JOptionPane optionPane = new JOptionPane(
+            panel,
+            JOptionPane.PLAIN_MESSAGE,
+            JOptionPane.DEFAULT_OPTION,
+            null,
+            new Object[]{},
+            null
+        );
+        
+        // Create and style the dialog
+        JDialog dialog = optionPane.createDialog(title);
+        dialog.setBackground(Color.WHITE);
+        
+        // Add button actions
+        yesButton.addActionListener(e -> {
+            optionPane.setValue(JOptionPane.YES_OPTION);
+            dialog.dispose();
+        });
+        
+        noButton.addActionListener(e -> {
+            optionPane.setValue(JOptionPane.NO_OPTION);
+            dialog.dispose();
+        });
+        
+        // Show dialog and return result
+        dialog.setVisible(true);
+        
+        Object value = optionPane.getValue();
+        return (value == null || !(value instanceof Integer)) ? 
+               JOptionPane.CLOSED_OPTION : (Integer) value;
+    }
+
+    private void showStyledErrorDialog(String message, String title) {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+            }
+        };
+        
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        JLabel messageLabel = new JLabel("<html><body style='width: 200px'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(messageLabel, BorderLayout.CENTER);
+        
+        JOptionPane.showMessageDialog(
+            null,
+            panel,
+            title,
+            JOptionPane.PLAIN_MESSAGE
+        );
     }
 } 

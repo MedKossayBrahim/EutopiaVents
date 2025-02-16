@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.json.JSONObject;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 
 public class ProfanityFilter {
     private static final String API_URL = "https://www.purgomalum.com/service/json?text=";
@@ -52,46 +56,75 @@ public class ProfanityFilter {
 
     public static String filter(String text) {
         try {
-            // First check for regex patterns
-            String processedText = text;
-            for (Pattern pattern : PROFANITY_PATTERNS) {
-                processedText = pattern.matcher(processedText)
-                                     .replaceAll(match -> "*".repeat(match.group().length()));
-            }
+            // URL encode the text parameter
+            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8.toString());
+            String urlString = API_URL + encodedText;
             
-            // Then use API as backup
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + processedText.replace(" ", "%20")))
+                .uri(new URI(urlString))
                 .GET()
                 .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             
-            String result = response.body();
-            return result.substring(result.indexOf(":\"") + 2, result.length() - 2);
-            
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            // If API fails, at least we still have the regex filtering
-            String processedText = text;
-            for (Pattern pattern : PROFANITY_PATTERNS) {
-                processedText = pattern.matcher(processedText)
-                                     .replaceAll(match -> "*".repeat(match.group().length()));
+            if (response.statusCode() == 200) {
+                JSONObject json = new JSONObject(response.body());
+                return json.getString("result");
             }
-            return processedText;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return text; // Return original text if filtering fails
+    }
+
+    public static CompletableFuture<String> filterAsync(String text) {
+        try {
+            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8.toString());
+            String urlString = API_URL + encodedText;
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .GET()
+                .build();
+
+            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> {
+                    if (response.statusCode() == 200) {
+                        JSONObject json = new JSONObject(response.body());
+                        return json.getString("result");
+                    }
+                    return text;
+                })
+                .exceptionally(e -> {
+                    e.printStackTrace();
+                    return text;
+                });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(text);
         }
     }
 
     public static boolean containsProfanity(String text) {
-        // Check regex patterns first
-        for (Pattern pattern : PROFANITY_PATTERNS) {
-            if (pattern.matcher(text).find()) {
-                return true;
+        try {
+            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8.toString());
+            String urlString = API_URL + encodedText;
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .GET()
+                .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                JSONObject json = new JSONObject(response.body());
+                String result = json.getString("result");
+                return !result.equals(text);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        // Then check API result
-        String filtered = filter(text);
-        return !filtered.equals(text);
+        return false; // If check fails, assume no profanity
     }
 } 
