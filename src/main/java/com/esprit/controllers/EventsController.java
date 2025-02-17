@@ -15,10 +15,14 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.io.File;
+import java.util.Objects;
 
 public class EventsController {
 
@@ -33,6 +37,120 @@ public class EventsController {
     public EventsController() throws SQLException {
     }
 
+    @FXML
+    public void initialize() {
+        afficherEvenements();
+    }
+
+    private void afficherEvenements() {
+        List<Evenement> evenements = evenementService.rechercher();
+        int column = 0;
+        int row = 0;
+
+        for (Evenement evenement : evenements) {
+            if (evenement.getCapacite() > 0) {
+                VBox eventBox = createEventBox(evenement);
+                eventsGrid.add(eventBox, column, row);
+
+                column++;
+                if (column == 2) {
+                    column = 0;
+                    row++;
+                }
+            }
+        }
+    }
+
+    private VBox createEventBox(Evenement evenement) {
+        VBox eventBox = new VBox();
+        eventBox.setPadding(new Insets(10));
+        eventBox.setSpacing(5);
+        eventBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1px; -fx-background-color: #f9f9f9;");
+
+        // Image handling
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(150);
+        imageView.setFitHeight(100);
+
+        // Try to load image from database
+        String imagePath = evenement.getImage(); // Get the image path from database
+        if (imagePath != null && !imagePath.isEmpty()) {
+            try {
+                Image image = new Image(imagePath);
+                if (!image.isError()) {
+                    imageView.setImage(image);
+                } else {
+                    loadDefaultImage(imageView);
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading image for event: " + evenement.getTitre());
+                loadDefaultImage(imageView);
+            }
+        } else {
+            loadDefaultImage(imageView);
+        }
+
+        // Event information
+        Label titreLabel = new Label(evenement.getTitre());
+        titreLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        
+        Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
+        dateLabel.setStyle("-fx-font-size: 12px;");
+        
+        Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
+        prixLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2196F3;");
+
+        // Add all components to the box
+        eventBox.getChildren().addAll(imageView, titreLabel, dateLabel, prixLabel);
+
+        // Hover effect
+        eventBox.setOnMouseEntered(e -> 
+            eventBox.setStyle("-fx-border-color: #2196F3; -fx-border-width: 1px; -fx-background-color: #f5f5f5;")
+        );
+        eventBox.setOnMouseExited(e -> 
+            eventBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1px; -fx-background-color: #f9f9f9;")
+        );
+
+        // Click handler
+        eventBox.setOnMouseClicked(event -> ouvrirDetailsEvenement(evenement));
+
+        return eventBox;
+    }
+
+    private void loadDefaultImage(ImageView imageView) {
+        try {
+            String defaultImagePath = "/Images/default-event.png";
+            Image defaultImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(defaultImagePath)));
+            imageView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.err.println("Error loading default image: " + e.getMessage());
+            // Create a placeholder rectangle if even default image fails
+            Rectangle placeholder = new Rectangle(150, 100);
+            placeholder.setFill(Color.LIGHTGRAY);
+            imageView.setImage(null);
+            VBox parent = (VBox) imageView.getParent();
+            if (parent != null) {
+                parent.getChildren().set(parent.getChildren().indexOf(imageView), placeholder);
+            }
+        }
+    }
+
+    private void ouvrirDetailsEvenement(Evenement evenement) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventDetails.fxml"));
+            Parent root = loader.load();
+
+            EventDetailsController controller = loader.getController();
+            controller.afficherDetails(evenement.getId());
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Détails de l'événement");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void goToAjouterCateg() {
@@ -65,86 +183,6 @@ public class EventsController {
             Scene scene = rootPane.getScene();
             scene.setRoot(newPage);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
-
-
-
-    @FXML
-    public void initialize() {
-        afficherEvenements();
-    }
-
-    private void afficherEvenements() {
-        List<Evenement> evenements = evenementService.rechercher();
-        int column = 0;
-        int row = 0;
-
-        for (Evenement evenement : evenements) {
-            // Vérifiez si la capacité de l'événement est supérieure à 0
-            if (evenement.getCapacite() > 0) {
-                VBox eventBox = createEventBox(evenement);
-                eventsGrid.add(eventBox, column, row);
-
-                column++;
-                if (column == 2) { // 2 colonnes par ligne
-                    column = 0;
-                    row++;
-                }
-            }
-        }
-    }
-
-    private VBox createEventBox(Evenement evenement) {
-        VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(10));
-        eventBox.setSpacing(5);
-        eventBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1px; -fx-background-color: #f9f9f9;");
-
-        // Image de l'événement
-        ImageView imageView = new ImageView();
-        if (evenement.getImage() != null && !evenement.getImage().isEmpty()) {
-            Image image = new Image(evenement.getImage(), 150, 100, false, true);
-            imageView.setImage(image);
-        }
-        imageView.setFitWidth(150);
-        imageView.setFitHeight(100);
-
-        // Labels des informations
-        Label titreLabel = new Label(evenement.getTitre());
-        titreLabel.setStyle("-fx-font-weight: bold;");
-        Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
-        Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
-
-        eventBox.getChildren().addAll(imageView, titreLabel, dateLabel, prixLabel);
-
-        // Gestion du clic pour naviguer vers la page de détails
-        eventBox.setOnMouseClicked(event -> ouvrirDetailsEvenement(evenement));
-
-        return eventBox;
-    }
-
-    private void ouvrirDetailsEvenement(Evenement evenement) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventDetails.fxml"));
-            Parent root = loader.load();
-
-            // Récupérer le contrôleur et passer l'ID de l'événement
-            EventDetailsController controller = loader.getController();
-            controller.afficherDetails(evenement.getId()); // Passer l'ID de l'événement
-
-            // Ouvrir une nouvelle fenêtre
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Détails de l'événement");
-            stage.show();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
