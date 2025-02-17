@@ -156,11 +156,11 @@ public class EventsController {
     private void goToAjouterCateg() {
         loadPage("/AjouterCategEvent.fxml");
     }
-
     @FXML
     private void goToAjouterEvenement() {
         loadPage("/AjouterEvenement.fxml");
     }
+
 
     @FXML
     private void goToModifierEvenement() {
