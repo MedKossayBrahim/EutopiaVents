@@ -245,8 +245,74 @@ public class AjouterEvenementController implements Initializable {
         dialog.showAndWait();
     }
 
+
+    @FXML
+    private boolean validateFields() {
+        StringBuilder errors = new StringBuilder();
+
+        if (titreField.getText().trim().isEmpty()) {
+            errors.append("Le titre est obligatoire.\n");
+        }
+        if (descriptionField.getText().trim().isEmpty()) {
+            errors.append("La description est obligatoire.\n");
+        }
+        if (dateDebutPicker.getValue() == null) {
+            errors.append("La date de début est obligatoire.\n");
+        }
+        if (dateFinPicker.getValue() == null) {
+            errors.append("La date de fin est obligatoire.\n");
+        }
+        if (dateDebutPicker.getValue() != null && dateFinPicker.getValue() != null &&
+                dateFinPicker.getValue().isBefore(dateDebutPicker.getValue())) {
+            errors.append("La date de fin ne peut pas être avant la date de début.\n");
+        }
+        try {
+            int capacite = Integer.parseInt(capaciteField.getText().trim());
+            if (capacite <= 0) {
+                errors.append("La capacité doit être un nombre positif.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("La capacité doit être un nombre valide.\n");
+        }
+        if (categorieComboBox.getValue() == null) {
+            errors.append("Veuillez sélectionner une catégorie.\n");
+        }
+        if (lieuExistantRadio.isSelected() && lieuComboBox.getValue() == null) {
+            errors.append("Veuillez sélectionner un lieu existant.\n");
+        }
+        if (lieuPersonnaliseRadio.isSelected() && lieuProprietaireField.getText().trim().isEmpty()) {
+            errors.append("Veuillez indiquer le propriétaire du lieu personnalisé.\n");
+        }
+        try {
+            int organisateurId = Integer.parseInt(organisateurIdField.getText().trim());
+            if (organisateurId <= 0) {
+                errors.append("L'ID de l'organisateur doit être valide.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("L'ID de l'organisateur doit être un nombre valide.\n");
+        }
+        try {
+            double prix = Double.parseDouble(prixField.getText().trim());
+            if (prix < 0) {
+                errors.append("Le prix ne peut pas être négatif.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("Le prix doit être un nombre valide.\n");
+        }
+
+        if (errors.length() > 0) {
+            showAlert(Alert.AlertType.ERROR, "Erreurs de saisie", errors.toString());
+            return false;
+        }
+        return true;
+    }
+
     @FXML
     private void handleAjouterEvenement() {
+        if (!validateFields()) {
+            return;
+        }
+
         try {
             int lieuId = 0;
             String lieuProprietaire = null;
@@ -261,7 +327,7 @@ public class AjouterEvenementController implements Initializable {
             }
 
             Evenement evenement = new Evenement(
-                    0, // ID sera généré par la base de données
+                    0,
                     titreField.getText(),
                     descriptionField.getText(),
                     dateDebutPicker.getValue().toString(),
@@ -292,6 +358,8 @@ public class AjouterEvenementController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue: " + e.getMessage());
         }
     }
+
+
 
     private void clearFields() {
         titreField.clear();

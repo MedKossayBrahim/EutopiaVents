@@ -103,11 +103,34 @@ public class Ajoutercategorieevent implements Initializable {
 
     @FXML
     private void ajouter() {
-        CategoriesEvent newCategorie = new CategoriesEvent(categ.getText());
+        String categoryName = categ.getText().trim();
+
+        // Vérification si le champ est vide
+        if (categoryName.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas être vide.");
+            return;
+        }
+
+        // Vérification de la longueur maximale (par exemple, 50 caractères)
+        if (categoryName.length() > 50) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas dépasser 50 caractères.");
+            return;
+        }
+
+        CategoriesEvent newCategorie = new CategoriesEvent(categoryName);
         service.ajouter(newCategorie);
         categ.clear();
         refreshTable();
     }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+
 
     private void handleModify(CategoriesEvent categorie) {
         TextInputDialog dialog = new TextInputDialog(categorie.getNom());
@@ -115,6 +138,19 @@ public class Ajoutercategorieevent implements Initializable {
         dialog.setContentText("Nouveau nom:");
 
         dialog.showAndWait().ifPresent(newName -> {
+            // Vérification si le champ est vide
+            if (newName.trim().isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas être vide.");
+                return;
+            }
+
+            // Vérification de la longueur maximale (par exemple, 50 caractères)
+            if (newName.length() > 50) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas dépasser 50 caractères.");
+                return;
+            }
+
+            // Si les validations passent, modifier la catégorie
             categorie.setNom(newName);
             service.modifier(categorie);
             refreshTable();
