@@ -7,21 +7,21 @@
 <VBox spacing="20" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.esprit.controllers.MainController"
       style="-fx-background-color: #f4f4f4;">
-    
+
     <padding>
         <Insets top="30" right="30" bottom="30" left="30"/>
     </padding>
 
-    <Label text="Gestion des Matériels, Catégories et Réservations" 
+    <Label text="Gestion des Matériels, Catégories et Réservations"
            style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Matériels" style="-fx-font-size: 18px;"/>
         <HBox spacing="10" alignment="CENTER">
-            <Button text="Ajouter un Matériel" 
+            <Button text="Ajouter un Matériel"
                     onAction="#openAjoutMateriel"
                     style="-fx-min-width: 150;"/>
-            <Button text="Liste des Matériels" 
+            <Button text="Liste des Matériels"
                     onAction="#openListeMateriel"
                     style="-fx-min-width: 150;"/>
         </HBox>
@@ -30,10 +30,10 @@
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Catégories" style="-fx-font-size: 18px;"/>
         <HBox spacing="10" alignment="CENTER">
-            <Button text="Ajouter une Catégorie" 
+            <Button text="Ajouter une Catégorie"
                     onAction="#openAjoutCategorie"
                     style="-fx-min-width: 150;"/>
-            <Button text="Liste des Catégories" 
+            <Button text="Liste des Catégories"
                     onAction="#openListeCategorie"
                     style="-fx-min-width: 150;"/>
         </HBox>
@@ -42,9 +42,9 @@
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Réservations" style="-fx-font-size: 18px;"/>
         <HBox spacing="10" alignment="CENTER">
-            <Button text="Liste des Réservations" 
+            <Button text="Liste des Réservations"
                     onAction="#openListeReservation"
                     style="-fx-min-width: 150;"/>
         </HBox>
     </VBox>
-</VBox> 
+</VBox>

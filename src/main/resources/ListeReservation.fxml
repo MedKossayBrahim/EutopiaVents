@@ -5,24 +5,21 @@
 <?import javafx.geometry.Insets?>
 
 <VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.esprit.controllers.ListeReservationController">
-    
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+      fx:controller="com.esprit.controllers.ListeReservationController"
+      style="-fx-background-color: #eef1f6; -fx-padding: 30px;">
 
-    <Label text="Liste des Réservations" style="-fx-font-size: 20px;"/>
-    
-    <TableView fx:id="reservationTable" VBox.vgrow="ALWAYS">
+    <Label text="Liste des Réservations" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <TableView fx:id="reservationTable" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
         <columns>
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="evenementIdColumn" text="Événement" prefWidth="100"/>
-            <TableColumn fx:id="materielIdColumn" text="Matériel" prefWidth="100"/>
-            <TableColumn fx:id="quantiteColumn" text="Quantité" prefWidth="80"/>
-            <TableColumn fx:id="prixTotalColumn" text="Prix Total" prefWidth="100"/>
-            <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120"/>
-            <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120"/>
-            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="100"/>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="50" style="-fx-alignment: CENTER;"/>
+            <TableColumn fx:id="evenementIdColumn" text="Événement" prefWidth="100" style="-fx-alignment: CENTER-LEFT;"/>
+            <TableColumn fx:id="materielIdColumn" text="Matériel" prefWidth="100" style="-fx-alignment: CENTER-LEFT;"/>
+            <TableColumn fx:id="quantiteColumn" text="Quantité" prefWidth="80" style="-fx-alignment: CENTER;"/>
+            <TableColumn fx:id="prixTotalColumn" text="Prix Total" prefWidth="100" style="-fx-alignment: CENTER;"/>
+            <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120" style="-fx-alignment: CENTER;"/>
+            <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120" style="-fx-alignment: CENTER;"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="100" style="-fx-alignment: CENTER;"/>
         </columns>
     </TableView>
-</VBox> 
+</VBox>
