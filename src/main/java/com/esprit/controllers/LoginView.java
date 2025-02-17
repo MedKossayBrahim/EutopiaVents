@@ -93,7 +93,7 @@ public void setApplication(Eutopia application) {
                     System.out.println("user saved");
                 }
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/events-view.fxml"));
                 Parent root = loader.load();
                 loginEmail.getScene().setRoot(root);
                 

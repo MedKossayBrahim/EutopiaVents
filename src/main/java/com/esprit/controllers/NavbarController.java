@@ -12,6 +12,9 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.Node;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Paths;
+import java.util.Map;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,26 +54,46 @@ public class NavbarController {
 
     @FXML
     public void initialize() {
-        updateButtonStyles("forum");
-        if (searchField != null) {
-            searchField.setDisable(true);
+        try {
+            // Read user session
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> userSession = mapper.readValue(Paths.get("user_session.json").toFile(), Map.class);
+            String userRole = (String) userSession.get("role");
 
-            searchField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) {
-                    searchField.setDisable(true);
-                    searchField.setStyle("-fx-background-color: white;");
-                }
-            });
+            // If user is not admin, hide dashboard and settings buttons
+            if (!"Admin".equals(userRole)) {
+                dashboardButton.setVisible(false);
+                dashboardButton.setManaged(false);
+                settingsButton.setVisible(false);
+                settingsButton.setManaged(false);
+            }
 
-            searchField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal) {
-                    searchContainer.setStyle(searchContainer.getStyle() +
-                            "; -fx-effect: dropshadow(three-pass-box, #007bff22, 8, 0, 0, 0);");
-                } else {
-                    searchContainer.setStyle(searchContainer.getStyle().replace(
-                            "; -fx-effect: dropshadow(three-pass-box, #007bff22, 8, 0, 0, 0)", ""));
-                }
-            });
+            // Update button styles for visible buttons
+            updateButtonStyles("forum");
+            
+            if (searchField != null) {
+                searchField.setDisable(true);
+
+                searchField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue) {
+                        searchField.setDisable(true);
+                        searchField.setStyle("-fx-background-color: white;");
+                    }
+                });
+
+                searchField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal) {
+                        searchContainer.setStyle(searchContainer.getStyle() +
+                                "; -fx-effect: dropshadow(three-pass-box, #007bff22, 8, 0, 0, 0);");
+                    } else {
+                        searchContainer.setStyle(searchContainer.getStyle().replace(
+                                "; -fx-effect: dropshadow(three-pass-box, #007bff22, 8, 0, 0, 0)", ""));
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error loading user session: " + e.getMessage());
         }
     }
 

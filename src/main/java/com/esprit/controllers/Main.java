@@ -4,9 +4,48 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import java.io.FileReader;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class Main {
+
+    @FXML
+    private Button btnAjoutCategorie;
+    @FXML
+    private Button btnListeCategorie;
+    @FXML
+    private Button btnAjoutProduit;
+    @FXML
+    private Button btnListeProduit;
+    @FXML
+    private Button btnListeCommande;
+
+    @FXML
+    public void initialize() {
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject userSession = (JSONObject) parser.parse(new FileReader("user_session.json"));
+            String userRole = (String) userSession.get("role");
+
+            if (!"Admin".equals(userRole)) {
+                // Hide admin-only buttons
+                btnAjoutCategorie.setVisible(false);
+                btnAjoutCategorie.setManaged(false);
+                btnListeCategorie.setVisible(false);
+                btnListeCategorie.setManaged(false);
+                btnAjoutProduit.setVisible(false);
+                btnAjoutProduit.setManaged(false);
+            }
+            // btnListeProduit and btnListeCommande remain visible for all users
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error loading user session: " + e.getMessage());
+        }
+    }
 
     @FXML
     private void openAjoutCategorie() {

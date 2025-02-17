@@ -44,26 +44,35 @@ public class EventsController {
 
     public EventsController() throws SQLException {
     }
-
     @FXML
     public void initialize() {
-        List<Evenement> allEvents = evenementService.rechercher();
-        int pageCount = (allEvents.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE; // Calculate total pages
-        eventsPagination.setPageCount(Math.max(1, pageCount)); // Ensure at least 1 page
-        
+        List<Evenement> filteredEvents = evenementService.rechercher()
+                .stream()
+                .filter(evenement -> evenement.getCapacite() > 0 && "acceptée".equals(evenement.getStatut()))
+                .toList();
+                
+        int pageCount = (filteredEvents.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+        eventsPagination.setPageCount(Math.max(1, pageCount));
         eventsPagination.setPageFactory(this::createPage);
     }
-
     private Node createPage(int pageIndex) {
-        List<Evenement> allEvents = evenementService.rechercher();
+        // Get all events and filter them
+        List<Evenement> allEvents = evenementService.rechercher()
+                .stream()
+                .filter(evenement -> evenement.getCapacite() > 0 && "acceptée".equals(evenement.getStatut()))
+                .toList();
+        
+        // Calculate pagination indices
         int fromIndex = pageIndex * ITEMS_PER_PAGE;
         int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, allEvents.size());
         
+        // Get events for current page
         List<Evenement> pageEvents = allEvents.subList(fromIndex, toIndex);
         
         // Clear existing grid
         eventsGrid.getChildren().clear();
         
+        // Add events to grid
         int column = 0;
         int row = 0;
         
