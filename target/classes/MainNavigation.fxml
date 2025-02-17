@@ -3,11 +3,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.Rectangle?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.MainNavigationController"
-            prefHeight="700.0" prefWidth="1200.0">
+            prefHeight="700.0" prefWidth="1200.0"
+            style="-fx-background-color: #f4f4f4;">
 
     <!-- Left Navbar -->
     <left>
@@ -16,39 +20,124 @@
 
     <!-- Main Content Area -->
     <center>
-        <VBox spacing="20" styleClass="main-content">
+        <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
+                <Insets top="30" right="40" bottom="30" left="40"/>
             </padding>
 
             <!-- Header -->
-            <Label text="Navigation" styleClass="main-title"/>
+            <Text text="Gestion des Lieux" 
+                  style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #333333;"/>
 
-            <!-- Navigation Buttons -->
-            <GridPane hgap="20" vgap="20" alignment="CENTER">
+            <!-- Navigation Grid -->
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
                 <Button text="Gestion des Catégories" 
                         onAction="#goToCategories"
-                        styleClass="nav-button"
-                        prefWidth="250" prefHeight="100"
-                        GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/categoriesIcon.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
 
                 <Button text="Gestion des Lieux" 
                         onAction="#goToLieux"
-                        styleClass="nav-button"
-                        prefWidth="250" prefHeight="100"
-                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/lieuIcon.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
 
                 <Button text="Gestion des Photos" 
                         onAction="#goToPhotos"
-                        styleClass="nav-button"
-                        prefWidth="250" prefHeight="100"
-                        GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/photoIcon.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
 
                 <Button text="Gestion des Réservations" 
                         onAction="#goToReservations"
-                        styleClass="nav-button"
-                        prefWidth="250" prefHeight="100"
-                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/reservIcon.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
             </GridPane>
         </VBox>
     </center>
