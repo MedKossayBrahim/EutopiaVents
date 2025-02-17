@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.Listeproduit">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Liste des Produits" style="-fx-font-size: 20px;" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="ajouterAuPanierBtn" text="Ajouter au panier 🛒" 
+                style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+    </HBox>
+
+    <TableView fx:id="produitTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="imageColumn" text="Image" prefWidth="100">
+                <cellFactory>
+                </cellFactory>
+            </TableColumn>
+            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="200"/>
+            <TableColumn fx:id="stockColumn" text="Stock" prefWidth="100"/>
+            <TableColumn fx:id="prixColumn" text="Prix" prefWidth="100"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+</VBox>

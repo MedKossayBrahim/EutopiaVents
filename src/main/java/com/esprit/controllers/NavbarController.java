@@ -34,6 +34,8 @@ public class NavbarController {
     @FXML
     private Button logoutButton;
     @FXML
+    private Button storeButton;
+    @FXML
     private VBox navbar;
     @FXML
     private TextField searchField;
@@ -166,6 +168,29 @@ public class NavbarController {
         }
     }
 
+    public void onStoreButtonClick(ActionEvent event) {
+        updateButtonStyles("Store");
+        try {
+            URL url = getClass().getResource("/MainProduit.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find Main.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Scene scene = ((Button) event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            System.err.println("Error loading forum main page: " + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Navigation Error");
+            alert.setContentText("Could not load the Main page: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
     @FXML
     public void onLogoutButtonClick() {
         try {
@@ -174,7 +199,7 @@ public class NavbarController {
                 // Try to close any open file handles
                 System.gc();
                 Thread.sleep(100); // Give a small delay for resources to be released
-                
+
                 // Try multiple times to delete the file
                 int maxAttempts = 5;
                 for (int i = 0; i < maxAttempts; i++) {

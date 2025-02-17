@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.Main"
+      style="-fx-background-color: #f4f4f4;">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <Label text="Gestion des Catégories, Produits et Commandes"
+           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+        <Label text="Gestion des Catégories" style="-fx-font-size: 18px;"/>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Ajouter une Catégorie"
+                    onAction="#openAjoutCategorie"
+                    style="-fx-min-width: 150;"/>
+            <Button text="Liste des Catégories"
+                    onAction="#openListeCategorie"
+                    style="-fx-min-width: 150;"/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+        <Label text="Gestion des Produits" style="-fx-font-size: 18px;"/>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Ajouter un Produit"
+                    onAction="#openAjoutProduit"
+                    style="-fx-min-width: 150;"/> <!-- Button for adding products -->
+            <Button text="Liste des Produits"
+                    onAction="#openListeProduit"
+                    style="-fx-min-width: 150;"/> <!-- Button for listing products -->
+        </HBox>
+    </VBox>
+
+    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+        <Label text="paniers de produit" style="-fx-font-size: 18px;"/>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Liste des Commandes"
+                    onAction="#openListeCommande"
+                    style="-fx-min-width: 150;"/> <!-- Button for listing commands -->
+        </HBox>
+    </VBox>
+</VBox>
