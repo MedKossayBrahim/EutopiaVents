@@ -4,55 +4,63 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<ScrollPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
-            fx:controller="com.esprit.controllers.LoginView">
-    <AnchorPane prefHeight="400.0" prefWidth="700.0" stylesheets="@styleskossay.css">
-        <TextField id="email" fx:id="loginEmail" layoutX="330.4" prefHeight="38.0" prefWidth="320.0" promptText="Email"
-                   AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="136.0"/>
+<?import javafx.geometry.Insets?>
 
-        <PasswordField id="password" fx:id="loginPasswd" layoutX="331.2" prefHeight="38.0" prefWidth="319.0"
-                       promptText="Password" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"
-                       AnchorPane.topAnchor="200.0"/>
-        <TextField id="password" fx:id="VloginPasswd" visible="false" layoutX="331.2" prefHeight="38.0" prefWidth="319.0"
-                   promptText="visable Password" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0"
-                   AnchorPane.topAnchor="200.0"/>
-        <Button fx:id="login" mnemonicParsing="false" onAction="#login" prefHeight="42.0" prefWidth="300.0" text="Login"
-                AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="315.0">
-            <font>
-                <Font name="System Bold" size="12.0"/>
-            </font>
-        </Button>
-        <Text fx:id="welcome" layoutX="350.4" layoutY="101.6984375" text="Welcome" AnchorPane.leftAnchor="350.4"
-              AnchorPane.topAnchor="75.8"/>
-        <Text layoutX="350.4" layoutY="124.74921875" text="Please login here" AnchorPane.leftAnchor="350.4"
-              AnchorPane.topAnchor="111.8"/>
-        <CheckBox fx:id="rememberMe" layoutX="350.4" layoutY="251.0" text="Remember Me"
-                  AnchorPane.bottomAnchor="127.20000000000002" AnchorPane.leftAnchor="350.4"
-                  AnchorPane.topAnchor="251.0"/>
-        <Text fx:id="forgotPass" layoutX="350.4" layoutY="292.74921875" text="Forgot password"
-              onMouseClicked="#forgetPass"
-              AnchorPane.leftAnchor="350.4"/>
-        <Text fx:id="signUP" id="signUP" layoutX="613.0" layoutY="270.0" text="Don't Have an Account?  SignUP"
-              onMouseClicked="#signUp"
-              AnchorPane.bottomAnchor="127.20000000000002" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="251.0"/>
-        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true"
-                   AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="145.0">
-            <Image url="@icons/mail.png"/>
-        </ImageView>
-        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true"
-                   AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="209.0">
-            <Image url="@icons/padlock.png"/>
-        </ImageView>
-        <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="619.0" layoutY="209.0" pickOnBounds="true"
-                   onMouseClicked="#togglePasswordVisibility"
-                   preserveRatio="true" AnchorPane.rightAnchor="60.0">
-            <Image url="@icons/hide.png"/>
-        </ImageView>
-        <Pane layoutX="-1.0" prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #F5D0C8;">
-            <ImageView fitHeight="259.0" fitWidth="207.0" layoutX="64.0" layoutY="71.0" pickOnBounds="true"
-                       preserveRatio="true">
-                <Image url="@images/eutopia2.png"/>
-            </ImageView>
-        </Pane>
-    </AnchorPane>
+<ScrollPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
+            fx:controller="com.esprit.controllers.LoginView" fitToWidth="true" fitToHeight="true">
+    <StackPane>
+        <!-- Center container -->
+        <AnchorPane maxWidth="900" maxHeight="600" style="-fx-background-color: white;">
+            <!-- Content container -->
+            <HBox alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" 
+                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+                <!-- Left side with logo -->
+                <VBox alignment="CENTER" prefWidth="450" style="-fx-background-color: #F5D0C8;">
+                    <ImageView fitHeight="300.0" fitWidth="300.0" preserveRatio="true">
+                        <Image url="@Images/eutopia2.png"/>
+                    </ImageView>
+                    <Text text="EutopiaVents" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+                </VBox>
+                
+                <!-- Right side with login form -->
+                <VBox alignment="CENTER" spacing="15" prefWidth="450">
+                    <padding>
+                        <Insets left="50" right="50"/>
+                    </padding>
+                    
+                    <Text fx:id="welcome" text="Welcome" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #FF5733;"/>
+                    <Text text="Please login here" style="-fx-font-size: 16;"/>
+                    
+                    <VBox spacing="20">
+                        <HBox alignment="CENTER" spacing="10">
+                            <ImageView fitHeight="20.0" fitWidth="20.0">
+                                <Image url="@icons/mail.png"/>
+                            </ImageView>
+                            <TextField id="email" fx:id="loginEmail" prefHeight="38.0" prefWidth="320.0" promptText="Email"/>
+                        </HBox>
+                        
+                        <HBox fx:id="passwordContainer" alignment="CENTER" spacing="10">
+                            <ImageView fitHeight="20.0" fitWidth="20.0">
+                                <Image url="@icons/padlock.png"/>
+                            </ImageView>
+                            <PasswordField id="password" fx:id="loginPasswd" prefHeight="38.0" prefWidth="320.0" promptText="Password"/>
+                            <ImageView fx:id="togglePasswordIcon" fitHeight="20.0" fitWidth="20.0" onMouseClicked="#togglePasswordVisibility">
+                                <Image url="@icons/hide.png"/>
+                            </ImageView>
+                        </HBox>
+                    </VBox>
+                    
+                    <HBox spacing="100" alignment="CENTER">
+                        <CheckBox fx:id="rememberMe" text="Remember Me"/>
+                        <Text fx:id="signUP" id="signUP" text="Don't Have an Account? SignUP" onMouseClicked="#signUp"/>
+                    </HBox>
+                    
+                    <Text fx:id="forgotPass" text="Forgot password" onMouseClicked="#forgetPass"/>
+                    
+                    <Button fx:id="login" mnemonicParsing="false" onAction="#login" prefHeight="42.0" prefWidth="320.0" 
+                            text="Login" style="-fx-background-color: #F5D0C8; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+        </AnchorPane>
+    </StackPane>
 </ScrollPane>
