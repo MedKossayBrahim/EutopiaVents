@@ -19,7 +19,7 @@ public class ProfanityFilter {
     // Base profanity words
     private static final List<String> CUSTOM_PROFANITY = Arrays.asList(
             "nik", "nikomek", "3asba", "zebi", "wabna", "miboun",
-            "ta7an", "9o7b", "zabbour"
+            "ta7an", "9o7b", "zabbour","kossay"
     );
 
     // Common letter substitutions
