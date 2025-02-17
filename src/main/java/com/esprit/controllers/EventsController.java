@@ -7,16 +7,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
+import javafx.scene.Node;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,48 +36,75 @@ public class EventsController {
     @FXML
     private GridPane eventsGrid;
 
+    @FXML
+    private Pagination eventsPagination;
+
     private EvenementService evenementService = new EvenementService();
+    private static final int ITEMS_PER_PAGE = 8; // Changed to 8 events per page
 
     public EventsController() throws SQLException {
     }
 
     @FXML
     public void initialize() {
-        afficherEvenements();
+        List<Evenement> allEvents = evenementService.rechercher();
+        int pageCount = (allEvents.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE; // Calculate total pages
+        eventsPagination.setPageCount(Math.max(1, pageCount)); // Ensure at least 1 page
+        
+        eventsPagination.setPageFactory(this::createPage);
     }
 
-    private void afficherEvenements() {
-        List<Evenement> evenements = evenementService.rechercher();
+    private Node createPage(int pageIndex) {
+        List<Evenement> allEvents = evenementService.rechercher();
+        int fromIndex = pageIndex * ITEMS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, allEvents.size());
+        
+        List<Evenement> pageEvents = allEvents.subList(fromIndex, toIndex);
+        
+        // Clear existing grid
+        eventsGrid.getChildren().clear();
+        
         int column = 0;
         int row = 0;
-
-        for (Evenement evenement : evenements) {
-            if (evenement.getCapacite() > 0) {
-                VBox eventBox = createEventBox(evenement);
-                eventsGrid.add(eventBox, column, row);
-
-                column++;
-                if (column == 2) {
-                    column = 0;
-                    row++;
-                }
+        
+        for (Evenement evenement : pageEvents) {
+            VBox eventBox = createEventBox(evenement);
+            eventsGrid.add(eventBox, column, row);
+            
+            column++;
+            if (column == 2) { // Two events per row
+                column = 0;
+                row++;
             }
         }
+        
+        return eventsGrid;
     }
 
     private VBox createEventBox(Evenement evenement) {
         VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(10));
-        eventBox.setSpacing(5);
-        eventBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1px; -fx-background-color: #f9f9f9;");
+        eventBox.setPadding(new Insets(15));
+        eventBox.setSpacing(10);
+        eventBox.setMaxWidth(500); // Set maximum width for the card
+        eventBox.setMinWidth(400); // Set minimum width for consistency
+        eventBox.setStyle("-fx-background-color: white; " +
+                          "-fx-border-radius: 8; " +
+                          "-fx-background-radius: 8; " +
+                          "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
 
         // Image handling
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(150);
-        imageView.setFitHeight(100);
+        imageView.setFitWidth(eventBox.getMinWidth() - 30); // Full width minus padding
+        imageView.setFitHeight(200); // Fixed height for consistency
+        imageView.setPreserveRatio(true);
+        imageView.setStyle("-fx-background-radius: 4 4 0 0;"); // Rounded corners on top
+
+        // Center the image
+        StackPane imageContainer = new StackPane(imageView);
+        imageContainer.setAlignment(Pos.CENTER);
 
         // Try to load image from database
-        String imagePath = evenement.getImage(); // Get the image path from database
+        String imagePath = evenement.getImage();
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
                 Image image = new Image(imagePath);
@@ -90,25 +121,44 @@ public class EventsController {
             loadDefaultImage(imageView);
         }
 
-        // Event information
+        // Event information container
+        VBox infoContainer = new VBox(8); // 8px spacing between elements
+        infoContainer.setPadding(new Insets(10, 5, 5, 5));
+
+        // Event information with black text
         Label titreLabel = new Label(evenement.getTitre());
-        titreLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        titreLabel.setStyle("-fx-font-weight: bold; " +
+                            "-fx-font-size: 16px; " +
+                            "-fx-text-fill: #000000;");
+        titreLabel.setWrapText(true);
         
         Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
-        dateLabel.setStyle("-fx-font-size: 12px;");
+        dateLabel.setStyle("-fx-font-size: 14px; " +
+                          "-fx-text-fill: #000000;");
         
         Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
-        prixLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2196F3;");
+        prixLabel.setStyle("-fx-font-size: 14px; " +
+                          "-fx-font-weight: bold; " +
+                          "-fx-text-fill: #000000;");
 
-        // Add all components to the box
-        eventBox.getChildren().addAll(imageView, titreLabel, dateLabel, prixLabel);
+        // Add all components to the info container
+        infoContainer.getChildren().addAll(titreLabel, dateLabel, prixLabel);
+
+        // Add all components to the main box
+        eventBox.getChildren().addAll(imageContainer, infoContainer);
 
         // Hover effect
         eventBox.setOnMouseEntered(e -> 
-            eventBox.setStyle("-fx-border-color: #2196F3; -fx-border-width: 1px; -fx-background-color: #f5f5f5;")
+            eventBox.setStyle("-fx-background-color: white; " +
+                             "-fx-border-radius: 8; " +
+                             "-fx-background-radius: 8; " +
+                             "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 0);")
         );
         eventBox.setOnMouseExited(e -> 
-            eventBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 1px; -fx-background-color: #f9f9f9;")
+            eventBox.setStyle("-fx-background-color: white; " +
+                             "-fx-border-radius: 8; " +
+                             "-fx-background-radius: 8; " +
+                             "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);")
         );
 
         // Click handler
@@ -125,10 +175,11 @@ public class EventsController {
         } catch (Exception e) {
             System.err.println("Error loading default image: " + e.getMessage());
             // Create a placeholder rectangle if even default image fails
-            Rectangle placeholder = new Rectangle(150, 100);
+            Rectangle placeholder = new Rectangle(imageView.getFitWidth(), imageView.getFitHeight());
             placeholder.setFill(Color.LIGHTGRAY);
-            imageView.setImage(null);
-            VBox parent = (VBox) imageView.getParent();
+            placeholder.setArcWidth(8);
+            placeholder.setArcHeight(8);
+            StackPane parent = (StackPane) imageView.getParent();
             if (parent != null) {
                 parent.getChildren().set(parent.getChildren().indexOf(imageView), placeholder);
             }
