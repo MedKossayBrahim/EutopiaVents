@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.ChatBot;
 import com.esprit.models.Post;
+import com.esprit.models.User;
 import com.esprit.tests.Eutopia;
 import com.esprit.services.*;
 import com.esprit.utils.DataSource;
@@ -34,6 +35,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class AllPostsController extends ForumMainController {
     private Eutopia application;
@@ -174,12 +180,12 @@ public class AllPostsController extends ForumMainController {
                 // Add view button click handler
                 setupViewButton();
                 
-                // Add like button click handler
+                // Add like button click handler with current user ID
                 likeButton.setOnAction(event -> {
                     Post post = getItem();
                     if (post != null) {
                         try {
-                            int userId = getCurrentUserId();
+                            int userId = getCurrentUserId(); // Now using the current user's ID
                             if (!isLiked) {
                                 likeService.ajouter(post.getId(), userId);
                                 isLiked = true;
@@ -212,7 +218,8 @@ public class AllPostsController extends ForumMainController {
                     setupPostCell(post);
                     // Check if post is liked by current user
                     try {
-                        isLiked = likeService.isPostLikedByUser(post.getId(), getCurrentUserId());
+                        int userId = getCurrentUserId(); // Using current user's ID
+                        isLiked = likeService.isPostLikedByUser(post.getId(), userId);
                         updateLikeButton();
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -371,20 +378,22 @@ public class AllPostsController extends ForumMainController {
     }
 
     private int getCurrentUserId() {
-        // For testing, let's verify if this userID exists in your database
         try {
-            String query = "SELECT userID FROM users LIMIT 1";
-            try (Connection conn = DataSource.getInstance().getConnection();
-                 PreparedStatement pst = conn.prepareStatement(query)) {
-                ResultSet rs = pst.executeQuery();
-                if (rs.next()) {
-                    return rs.getInt("userID");
-                }
-            }
-        } catch (SQLException e) {
+            // Get the path to user_session.json
+            Path sessionPath = Paths.get("user_session.json");
+            
+            // Parse the JSON file
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            
+            // Get the userID from the session
+            Long userID = (Long) sessionData.get("userID");
+            return userID.intValue();
+            
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Could not get current user ID from session");
         }
-        throw new RuntimeException("No valid user found in the database");
     }
 
     private void showError(String message) {

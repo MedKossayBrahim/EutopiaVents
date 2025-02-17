@@ -9,6 +9,11 @@ import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.sql.*;
 import java.util.List;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class PostDialogController {
     @FXML private TextField titleField;
@@ -24,7 +29,6 @@ public class PostDialogController {
     private boolean saveClicked = false;
     private PostService postService;
     private CategoryService categoryService = new CategoryService();
-    private final int LOGGED_USER_ID = 11;
     
     @FXML
     private void initialize() {
@@ -136,15 +140,15 @@ public class PostDialogController {
             }
             
             // Get the actual username from database
-            String username = getUsernameFromDatabase(LOGGED_USER_ID);
+            String username = getUsernameFromDatabase(getCurrentUserId());
             
-            // Create new post
+            // Create new post with current user ID
             Post newPost = new Post(
-                LOGGED_USER_ID,
+                getCurrentUserId(),
                 titleField.getText().trim(),
                 contentArea.getText().trim(),
                 username,
-                categoryId  // Use the category ID we got above
+                categoryId
             );
             
             // Set additional fields
@@ -268,6 +272,25 @@ public class PostDialogController {
         } catch (SQLException e) {
             System.err.println("Error loading categories: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private int getCurrentUserId() {
+        try {
+            // Get the path to user_session.json
+            Path sessionPath = Paths.get("user_session.json");
+            
+            // Parse the JSON file
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            
+            // Get the userID from the session
+            Long userID = (Long) sessionData.get("userID");
+            return userID.intValue();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not get current user ID from session");
         }
     }
 }

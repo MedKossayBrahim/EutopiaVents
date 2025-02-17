@@ -44,6 +44,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class PostViewController {
     @FXML private Label postTitleLabel;
     @FXML private Label authorLabel;
@@ -165,9 +171,9 @@ public class PostViewController {
         // Load comments after postId is set
         loadComments();
 
-        // Show delete button only for post owner
+        // Show delete button for post owner OR admin
         try {
-            if (postService.isPostOwner(postId, getCurrentUserId())) {
+            if (postService.isPostOwner(postId, getCurrentUserId()) || isCurrentUserAdmin()) {
                 deletePostButton.setVisible(true);
             } else {
                 deletePostButton.setVisible(false);
@@ -242,8 +248,8 @@ public class PostViewController {
         Label usernameLabel = new Label(comment.getUsername());
         usernameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #666666;");
 
-        // Only show delete button for comments made by current user
-        if (comment.getUserId() == getCurrentUserId()) {
+        // Show delete button for comment owner OR admin
+        if (comment.getUserId() == getCurrentUserId() || isCurrentUserAdmin()) {
             ImageView deleteIcon = new ImageView(getClass().getResource("/Images/delete.png").toExternalForm());
             deleteIcon.setFitHeight(16);
             deleteIcon.setFitWidth(16);
@@ -369,20 +375,22 @@ public class PostViewController {
     }
 
     private int getCurrentUserId() {
-        // For testing, let's verify if this userID exists in your database
         try {
-            String query = "SELECT userID FROM users LIMIT 1";
-            try (Connection conn = DataSource.getInstance().getConnection();
-                 PreparedStatement pst = conn.prepareStatement(query)) {
-                ResultSet rs = pst.executeQuery();
-                if (rs.next()) {
-                    return rs.getInt("userID");
-                }
-            }
-        } catch (SQLException e) {
+            // Get the path to user_session.json
+            Path sessionPath = Paths.get("user_session.json");
+            
+            // Parse the JSON file
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            
+            // Get the userID from the session
+            Long userID = (Long) sessionData.get("userID");
+            return userID.intValue();
+            
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Could not get current user ID from session");
         }
-        throw new RuntimeException("No valid user found in the database");
     }
 
     private String formatTimestamp(LocalDateTime timestamp) {
@@ -522,5 +530,19 @@ public class PostViewController {
                 title,
                 JOptionPane.PLAIN_MESSAGE
         );
+    }
+
+    // Add method to check if current user is admin
+    private boolean isCurrentUserAdmin() {
+        try {
+            Path sessionPath = Paths.get("user_session.json");
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            String role = (String) sessionData.get("role");
+            return "Admin".equalsIgnoreCase(role);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 } 

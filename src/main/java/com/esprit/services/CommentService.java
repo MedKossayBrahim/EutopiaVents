@@ -2,10 +2,16 @@ package com.esprit.services;
 
 import com.esprit.models.Comment;
 import com.esprit.utils.DataSource;
+
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.io.FileReader;
+import java.nio.file.Path;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class CommentService implements IServiceF<Comment> {
     
@@ -65,12 +71,32 @@ public class CommentService implements IServiceF<Comment> {
     }
 
     public void supprimer(int commentId, int userId) throws SQLException {
-        Connection conn = DataSource.getInstance().getConnection();
-        String sql = "DELETE FROM comments WHERE id = ? AND user_id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, commentId);
-            pstmt.setInt(2, userId);
-            pstmt.executeUpdate();
+        // First check if user is admin
+        boolean isAdmin = false;
+        try {
+            Path sessionPath = Paths.get("user_session.json");
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            String role = (String) sessionData.get("role");
+            isAdmin = "Admin".equalsIgnoreCase(role);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Allow deletion if user is comment owner OR admin
+        String query = isAdmin ? 
+            "DELETE FROM comments WHERE id = ?" :
+            "DELETE FROM comments WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            
+            pst.setInt(1, commentId);
+            if (!isAdmin) {
+                pst.setInt(2, userId);
+            }
+            
+            pst.executeUpdate();
         }
     }
 

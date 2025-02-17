@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class NavbarController {
     @FXML
@@ -166,14 +169,49 @@ public class NavbarController {
     @FXML
     public void onLogoutButtonClick() {
         try {
+            Path sessionPath = Paths.get("user_session.json");
+            if (Files.exists(sessionPath)) {
+                // Try to close any open file handles
+                System.gc();
+                Thread.sleep(100); // Give a small delay for resources to be released
+                
+                // Try multiple times to delete the file
+                int maxAttempts = 5;
+                for (int i = 0; i < maxAttempts; i++) {
+                    try {
+                        Files.delete(sessionPath);
+                        System.out.println("Session file deleted successfully");
+                        break;
+                    } catch (IOException e) {
+                        if (i == maxAttempts - 1) {
+                            // If all attempts fail, try to delete on exit
+                            sessionPath.toFile().deleteOnExit();
+                            System.out.println("File will be deleted on application exit");
+                        } else {
+                            Thread.sleep(100); // Wait before next attempt
+                        }
+                    }
+                }
+            }
+
+            // Load the login view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) logoutButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            showError("Error during logout: " + e.getMessage());
         }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void setCurrentController(SearchableController controller) {

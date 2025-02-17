@@ -44,6 +44,11 @@ import javafx.scene.layout.VBox;
 import com.esprit.services.ChatService;
 import com.esprit.services.ChatService.UserChatMessage;
 import javafx.application.Platform;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ForumMainController implements SearchableController, Initializable {
 
@@ -154,7 +159,8 @@ public class ForumMainController implements SearchableController, Initializable 
             
             // Set welcome message if label exists
             if (welcomeUsernameLabel != null) {
-                welcomeUsernameLabel.setText("Welcome to Forum");
+                String username = getCurrentUsername();
+                welcomeUsernameLabel.setText("Welcome, " + username);
             }
             
             System.out.println("ForumMainController initialization complete");
@@ -1289,5 +1295,23 @@ public class ForumMainController implements SearchableController, Initializable 
         
         // Add message to container
         messagesContainer.getChildren().add(messageBox);
+    }
+
+    private String getCurrentUsername() {
+        try {
+            // Get the path to user_session.json
+            Path sessionPath = Paths.get("user_session.json");
+            
+            // Parse the JSON file
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            
+            // Get the userName from the session
+            return (String) sessionData.get("userName");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Guest";
+        }
     }
 } 

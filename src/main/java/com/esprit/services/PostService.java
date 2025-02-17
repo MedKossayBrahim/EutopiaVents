@@ -6,6 +6,10 @@ import com.esprit.utils.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Path;
+import java.io.FileReader;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class PostService implements IServiceF<Post> {
     
@@ -127,12 +131,32 @@ public class PostService implements IServiceF<Post> {
     }
 
     public void supprimer(int postId, int userId) throws SQLException {
-        Connection conn = getConnection();
-        String sql = "DELETE FROM posts WHERE id = ? AND user_id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, postId);
-            pstmt.setInt(2, userId);
-            pstmt.executeUpdate();
+        // First check if user is admin
+        boolean isAdmin = false;
+        try {
+            Path sessionPath = Path.of("user_session.json");
+            JSONParser parser = new JSONParser();
+            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+            String role = (String) sessionData.get("role");
+            isAdmin = "Admin".equalsIgnoreCase(role);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Allow deletion if user is post owner OR admin
+        String query = isAdmin ? 
+            "DELETE FROM posts WHERE id = ?" :
+            "DELETE FROM posts WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = DataSource.getInstance().getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            
+            pst.setInt(1, postId);
+            if (!isAdmin) {
+                pst.setInt(2, userId);
+            }
+            
+            pst.executeUpdate();
         }
     }
 
