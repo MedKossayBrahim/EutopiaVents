@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.services.*;
 import com.esprit.models.*;
+import com.esprit.tests.Eutopia;
 import com.esprit.utils.DataSource;
 import com.esprit.utils.ProfanityFilter;
 import javafx.fxml.FXML;
@@ -375,22 +376,23 @@ public class PostViewController {
     }
 
     private int getCurrentUserId() {
-        try {
-            // Get the path to user_session.json
-            Path sessionPath = Paths.get("user_session.json");
-            
-            // Parse the JSON file
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            
-            // Get the userID from the session
-            Long userID = (Long) sessionData.get("userID");
-            return userID.intValue();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not get current user ID from session");
-        }
+        return Eutopia.getCurrentUser().getUserID();
+//        try {
+//            // Get the path to user_session.json
+//            Path sessionPath = Paths.get("user_session.json");
+//
+//            // Parse the JSON file
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//
+//            // Get the userID from the session
+//            Long userID = (Long) sessionData.get("userID");
+//            return userID.intValue();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("Could not get current user ID from session");
+//        }
     }
 
     private String formatTimestamp(LocalDateTime timestamp) {
@@ -534,15 +536,19 @@ public class PostViewController {
 
     // Add method to check if current user is admin
     private boolean isCurrentUserAdmin() {
-        try {
-            Path sessionPath = Paths.get("user_session.json");
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            String role = (String) sessionData.get("role");
-            return "Admin".equalsIgnoreCase(role);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        if (Eutopia.getCurrentUser().getRole() == Role.Admin){
+            return true;
         }
+        return false;
+//        try {
+//            Path sessionPath = Paths.get("user_session.json");
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//            String role = (String) sessionData.get("role");
+//            return "Admin".equalsIgnoreCase(role);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
     }
 } 

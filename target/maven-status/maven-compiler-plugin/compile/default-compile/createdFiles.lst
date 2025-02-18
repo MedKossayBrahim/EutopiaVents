@@ -70,6 +70,7 @@ com\esprit\controllers\photo.class
 com\esprit\controllers\AjouterCategorie.class
 com\esprit\utils\EmailSender.class
 com\esprit\controllers\NewPassView.class
+com\esprit\controllers\editProfile.class
 com\esprit\controllers\PostViewController$2.class
 com\esprit\controllers\Ajoutercategorieevent.class
 com\esprit\models\categorie_salle.class

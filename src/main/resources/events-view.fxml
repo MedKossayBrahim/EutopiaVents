@@ -1,110 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.GridPane?>
+
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="rootPane"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.esprit.controllers.EventsController"
-            style="-fx-background-color: #faf6f3;">
+<BorderPane fx:id="rootPane" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.EventsController">
 
     <left>
-        <VBox style="-fx-background-color: #faf6f3;
-                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
-                     -fx-background-radius: 0 10 10 0;"
-              BorderPane.alignment="TOP_LEFT"
-              VBox.vgrow="ALWAYS">
-            <fx:include source="Navbar.fxml"/>
+        <VBox style="-fx-background-color: #faf6f3;                      -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);                      -fx-background-radius: 0 10 10 0;" BorderPane.alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml" />
         </VBox>
     </left>
 
     <center>
         <VBox spacing="20" style="-fx-background-color: #faf6f3;">
             <!-- Header Section -->
-            <VBox style="-fx-background-color: white; 
-                        -fx-padding: 20; 
-                        -fx-background-radius: 10;
-                        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);">
-                
-                <Text text="Événements à venir" 
-                      style="-fx-font-size: 32px; 
-                             -fx-font-weight: bold; 
-                             -fx-fill: #333333;"/>
+            <VBox style="-fx-background-color: white;                          -fx-padding: 20;                          -fx-background-radius: 10;                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);">
+            <HBox>
+               <children>
+                      
+                      <Text style="-fx-font-size: 32px;                               -fx-font-weight: bold;                               -fx-fill: #333333;" text="Événements à venir" />
+                  <ImageView fx:id="useracc" fitHeight="150.0" fitWidth="50.0" onMouseClicked="#toUserEdit" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@icons/user.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets left="600.0" />
+                     </HBox.margin>
+                  </ImageView>
+               </children>
+            </HBox>
 
                 <!-- Navigation Buttons -->
-                <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 20 0 0 0;">
-                    <Button text="Ajouter Catégorie" 
-                            onAction="#goToAjouterCateg"
-                            style="-fx-background-color: #28a745;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 10 20;
-                                   -fx-background-radius: 5;
-                                   -fx-cursor: hand;"/>
+                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 20 0 0 0;">
+                    <Button onAction="#goToAjouterCateg" style="-fx-background-color: #28a745;                                    -fx-text-fill: white;                                    -fx-font-weight: bold;                                    -fx-padding: 10 20;                                    -fx-background-radius: 5;                                    -fx-cursor: hand;" text="Ajouter Catégorie" />
                     
-                    <Button text="Ajouter Événement" 
-                            onAction="#goToAjouterEvenement"
-                            style="-fx-background-color: #007bff;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 10 20;
-                                   -fx-background-radius: 5;
-                                   -fx-cursor: hand;"/>
+                    <Button onAction="#goToAjouterEvenement" style="-fx-background-color: #007bff;                                    -fx-text-fill: white;                                    -fx-font-weight: bold;                                    -fx-padding: 10 20;                                    -fx-background-radius: 5;                                    -fx-cursor: hand;" text="Ajouter Événement" />
                     
-                    <Button text="Modifier Événement" 
-                            onAction="#goToModifierEvenement"
-                            style="-fx-background-color: #ffc107;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 10 20;
-                                   -fx-background-radius: 5;
-                                   -fx-cursor: hand;"/>
+                    <Button onAction="#goToModifierEvenement" style="-fx-background-color: #ffc107;                                    -fx-text-fill: white;                                    -fx-font-weight: bold;                                    -fx-padding: 10 20;                                    -fx-background-radius: 5;                                    -fx-cursor: hand;" text="Modifier Événement" />
                     
-                    <Button text="Gérer Événements" 
-                            onAction="#goToGererEvenements"
-                            style="-fx-background-color: #dc3545;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-padding: 10 20;
-                                   -fx-background-radius: 5;
-                                   -fx-cursor: hand;"/>
+                    <Button onAction="#goToGererEvenements" style="-fx-background-color: #dc3545;                                    -fx-text-fill: white;                                    -fx-font-weight: bold;                                    -fx-padding: 10 20;                                    -fx-background-radius: 5;                                    -fx-cursor: hand;" text="Gérer Événements" />
                 </HBox>
             </VBox>
 
             <!-- Events Grid Section -->
-            <ScrollPane fitToWidth="true" 
-                       style="-fx-background: transparent; 
-                              -fx-background-color: transparent;
-                              -fx-padding: 0 20 20 20;">
+            <ScrollPane fitToWidth="true" style="-fx-background: transparent;                                -fx-background-color: transparent;                               -fx-padding: 0 20 20 20;">
                 <VBox spacing="20" style="-fx-background-color: transparent;">
                     <!-- Events Grid -->
-                    <GridPane fx:id="eventsGrid"
-                             hgap="30" 
-                             vgap="30" 
-                             style="-fx-padding: 20;">
+                    <GridPane fx:id="eventsGrid" hgap="30" style="-fx-padding: 20;" vgap="30">
                         <columnConstraints>
-                            <ColumnConstraints percentWidth="50"/>
-                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50" />
+                            <ColumnConstraints percentWidth="50" />
                         </columnConstraints>
                     </GridPane>
 
                     <!-- Pagination -->
-                    <Pagination fx:id="eventsPagination" 
-                               pageCount="1"
-                               maxPageIndicatorCount="5"
-                               style="-fx-padding: 20;
-                                      -fx-background-color: white;
-                                      -fx-background-radius: 10;
-                                      -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"/>
+                    <Pagination fx:id="eventsPagination" maxPageIndicatorCount="5" pageCount="1" style="-fx-padding: 20;                                       -fx-background-color: white;                                       -fx-background-radius: 10;                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);" />
                 </VBox>
             </ScrollPane>
         </VBox>

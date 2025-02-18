@@ -1,6 +1,8 @@
 package com.esprit.services;
 
 import com.esprit.models.Comment;
+import com.esprit.models.Role;
+import com.esprit.tests.Eutopia;
 import com.esprit.utils.DataSource;
 
 import java.nio.file.Paths;
@@ -74,11 +76,12 @@ public class CommentService implements IServiceF<Comment> {
         // First check if user is admin
         boolean isAdmin = false;
         try {
-            Path sessionPath = Paths.get("user_session.json");
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            String role = (String) sessionData.get("role");
-            isAdmin = "Admin".equalsIgnoreCase(role);
+//            Path sessionPath = Paths.get("user_session.json");
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//            String role = (String) sessionData.get("role");
+  //          isAdmin = "Admin".equalsIgnoreCase(role);
+            isAdmin = Eutopia.getCurrentUser().getRole() == Role.Admin;
         } catch (Exception e) {
             e.printStackTrace();
         }

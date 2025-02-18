@@ -38,44 +38,50 @@ public class Eutopia extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Initialize SceneManager first
+        sceneManager = new SceneManager(primaryStage);
+        currentUser = UserSession.loadUser();
         try {
-            // Initialize SceneManager first
-            sceneManager = new SceneManager(primaryStage);
-            
-            URL url = getClass().getResource("/login-view.fxml");
-            if (url == null) {
-                throw new IOException("Cannot find login-view.fxml");
+            if (currentUser == null) {
+                sceneManager.switchScene("/login-view.fxml", null); // Start at Page1.fxml
+            } else {
+                sceneManager.switchScene("/events-view.fxml", null); // Start at Page1.fxml
             }
-
-            // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
-            
-            // Get the controller
-            LoginView controller = loader.getController();
-
-            // Get screen dimensions
-            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-            
-            // Set up the scene with full screen dimensions
-            Scene scene = new Scene(root);
-            primaryStage.setScene(scene);
-            
-            // Set stage size to match screen size
-            primaryStage.setX(screenBounds.getMinX());
-            primaryStage.setY(screenBounds.getMinY());
-            primaryStage.setWidth(screenBounds.getWidth());
-            primaryStage.setHeight(screenBounds.getHeight());
-            
-            // Set minimum window size
-            primaryStage.setMinWidth(800);
-            primaryStage.setMinHeight(600);
-            
-            primaryStage.setTitle("EutopiaVents");
-            primaryStage.show();
-            
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+//            URL url = getClass().getResource("/login-view.fxml");
+//            if (url == null) {
+//                throw new IOException("Cannot find login-view.fxml");
+//            }
+//
+//            // Load the FXML file
+//            FXMLLoader loader = new FXMLLoader(url);
+//            Parent root = loader.load();
+//
+//            // Get the controller
+//            LoginView controller = loader.getController();
+//
+//            // Get screen dimensions
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//
+//            // Set up the scene with full screen dimensions
+//            Scene scene = new Scene(root);
+//            primaryStage.setScene(scene);
+
+        // Set stage size to match screen size
+        primaryStage.setX(screenBounds.getMinX());
+        primaryStage.setY(screenBounds.getMinY());
+        primaryStage.setWidth(screenBounds.getWidth());
+        primaryStage.setHeight(screenBounds.getHeight());
+
+        // Set minimum window size
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+
+        primaryStage.setTitle("EutopiaVents");
+        primaryStage.show();
+
     }
 }

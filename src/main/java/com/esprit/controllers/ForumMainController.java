@@ -1298,20 +1298,21 @@ public class ForumMainController implements SearchableController, Initializable 
     }
 
     private String getCurrentUsername() {
-        try {
-            // Get the path to user_session.json
-            Path sessionPath = Paths.get("user_session.json");
-            
-            // Parse the JSON file
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            
-            // Get the userName from the session
-            return (String) sessionData.get("userName");
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Guest";
-        }
+        return Eutopia.getCurrentUser().getUserName();
+//        try {
+//            // Get the path to user_session.json
+//            Path sessionPath = Paths.get("user_session.json");
+//
+//            // Parse the JSON file
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//
+//            // Get the userName from the session
+//            return (String) sessionData.get("userName");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "Guest";
+//        }
     }
 } 

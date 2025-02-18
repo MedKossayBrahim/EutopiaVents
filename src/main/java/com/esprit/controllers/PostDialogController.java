@@ -3,6 +3,7 @@ package com.esprit.controllers;
 import com.esprit.models.*;
 import com.esprit.services.PostService;
 import com.esprit.services.CategoryService;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -276,21 +277,22 @@ public class PostDialogController {
     }
 
     private int getCurrentUserId() {
-        try {
-            // Get the path to user_session.json
-            Path sessionPath = Paths.get("user_session.json");
-            
-            // Parse the JSON file
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            
-            // Get the userID from the session
-            Long userID = (Long) sessionData.get("userID");
-            return userID.intValue();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not get current user ID from session");
-        }
+        return Eutopia.getCurrentUser().getUserID();
+//        try {
+//            // Get the path to user_session.json
+  //         Path sessionPath = Paths.get("user_session.json");
+//
+//            // Parse the JSON file
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//
+//            // Get the userID from the session
+//            Long userID = (Long) sessionData.get("userID");
+//            return userID.intValue();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("Could not get current user ID from session");
+//        }
     }
 }

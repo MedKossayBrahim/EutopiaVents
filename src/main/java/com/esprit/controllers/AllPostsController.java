@@ -378,22 +378,23 @@ public class AllPostsController extends ForumMainController {
     }
 
     private int getCurrentUserId() {
-        try {
-            // Get the path to user_session.json
-            Path sessionPath = Paths.get("user_session.json");
-            
-            // Parse the JSON file
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            
-            // Get the userID from the session
-            Long userID = (Long) sessionData.get("userID");
-            return userID.intValue();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not get current user ID from session");
-        }
+        return Eutopia.getCurrentUser().getUserID();
+//        try {
+//            // Get the path to user_session.json
+//            Path sessionPath = Paths.get("user_session.json");
+//
+//            // Parse the JSON file
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//
+//            // Get the userID from the session
+//            Long userID = (Long) sessionData.get("userID");
+//            return userID.intValue();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("Could not get current user ID from session");
+//        }
     }
 
     private void showError(String message) {

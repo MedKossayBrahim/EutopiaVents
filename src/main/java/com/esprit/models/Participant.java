@@ -11,4 +11,18 @@ public class Participant extends User{
     }
 
 
+    public Participant(User user) {
+        super(
+                user.getUserID(),
+                user.getNom(),
+                user.getPrenom(),
+                user.getEmail(),
+                user.getPasswd(),
+                user.getUserName(),
+                user.getImage(),
+                user.getPhone(),
+                user.getActive(),
+                Role.Participant // Ensures role is set to Participant
+        );
+    }
 }

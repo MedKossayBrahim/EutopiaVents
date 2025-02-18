@@ -86,11 +86,13 @@ public void setApplication(Eutopia application) {
                     file.flush();
                     System.out.println("Session file created successfully");
                 }
-
+                Eutopia.setCurrentUser(user);
                 if (rememberMe.isSelected()) {
-                    Eutopia.setCurrentUser(user);
+                    //Eutopia.setCurrentUser(user);
                     UserSession.saveUser(user);
                     System.out.println("user saved");
+                }else {
+                    UserSession.saveUser(null);
                 }
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/events-view.fxml"));

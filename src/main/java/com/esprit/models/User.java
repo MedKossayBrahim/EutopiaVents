@@ -1,11 +1,14 @@
 package com.esprit.models;
 
+import java.net.URL;
+
 public class User {
     private int userID;
     private String nom, prenom, email, passwd, userName, image;
     private int phone;
     private Boolean isActive;
     private Role role;
+    URL url = getClass().getResource("/Images/default.png");
 
     public User(String nom, String prenom, String userName, String email, String passwd, int phone) {
         this.nom = nom;
@@ -15,6 +18,8 @@ public class User {
         this.passwd = passwd;
         this.phone = phone;
         this.isActive = true;
+        URL url = getClass().getResource("/Images/default.png");
+        this.image = (url != null) ? url.toExternalForm() : null;
     }
 
 

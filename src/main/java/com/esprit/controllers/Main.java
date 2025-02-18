@@ -1,5 +1,7 @@
 package com.esprit.controllers;
 
+import com.esprit.models.Role;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,11 +28,13 @@ public class Main {
     @FXML
     public void initialize() {
         try {
-            JSONParser parser = new JSONParser();
-            JSONObject userSession = (JSONObject) parser.parse(new FileReader("user_session.json"));
-            String userRole = (String) userSession.get("role");
+//            JSONParser parser = new JSONParser();
+//            JSONObject userSession = (JSONObject) parser.parse(new FileReader("user_session.json"));
+//            String userRole = (String) userSession.get("role");
 
-            if (!"Admin".equals(userRole)) {
+         //   if (!"Admin".equals(userRole)) {
+               if (!(Eutopia.getCurrentUser().getRole() == Role.Admin)) {
+
                 // Hide admin-only buttons
                 btnAjoutCategorie.setVisible(false);
                 btnAjoutCategorie.setManaged(false);

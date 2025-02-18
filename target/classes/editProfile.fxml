@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="rootPane" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.editProfile">
+
+
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;" BorderPane.alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml" />
+        </VBox>
+    </left>
+
+    <center>
+
+    </center>
+    <center>
+        <AnchorPane prefHeight="720.0" prefWidth="500.0" BorderPane.alignment="CENTER">
+            <TextField fx:id="nom" layoutX="34.0" layoutY="182.0" prefHeight="26.0" prefWidth="190.0" AnchorPane.leftAnchor="37.0" />
+            <TextField fx:id="prenom" layoutX="250.0" layoutY="183.0" prefHeight="26.0" prefWidth="197.0" AnchorPane.rightAnchor="50.0" />
+            <TextField fx:id="username" layoutX="34.0" layoutY="253.0" prefHeight="26.0" prefWidth="363.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
+            <TextField fx:id="email" layoutX="42.0" layoutY="344.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
+            <TextField fx:id="password" layoutX="43.0" layoutY="418.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
+            <Label layoutX="36.0" layoutY="164.0" text="nom" AnchorPane.leftAnchor="37.0" />
+            <Label layoutX="251.0" layoutY="156.0" text="prenom" />
+            <Label layoutX="35.0" layoutY="236.0" text="user name" AnchorPane.leftAnchor="37.0" />
+            <Label layoutX="43.0" layoutY="323.0" text="email" AnchorPane.leftAnchor="37.0" />
+            <Label layoutX="43.0" layoutY="401.0" text="password" AnchorPane.leftAnchor="37.0" />
+            <Button layoutX="62.0" layoutY="109.0" mnemonicParsing="false" onAction="#chooseImage" prefHeight="26.0" prefWidth="72.0" text="import" AnchorPane.leftAnchor="62.0" AnchorPane.rightAnchor="366.0" />
+            <Button fx:id="save" layoutX="37.0" layoutY="589.0" mnemonicParsing="false" onAction="#save" prefHeight="26.0" prefWidth="406.0" text="Save" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.19999999999999" />
+            <ImageView fx:id="photo" fitHeight="104.0" fitWidth="125.0" layoutX="36.0" layoutY="18.0" pickOnBounds="true" preserveRatio="true" />
+            <Text layoutX="179.0" layoutY="62.0" strokeType="OUTSIDE" strokeWidth="0.0" text="welcome" />
+            <TextField fx:id="phone" layoutX="37.0" layoutY="487.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
+            <Label layoutX="34.0" layoutY="461.0" text="phone" />
+         <Button id="editbtn" onAction="#editbtn" layoutX="339.0" layoutY="110.0" mnemonicParsing="false" text="edit" />
+        </AnchorPane>
+    </center>
+</BorderPane>

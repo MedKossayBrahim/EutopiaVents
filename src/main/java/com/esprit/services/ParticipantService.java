@@ -3,11 +3,17 @@ package com.esprit.services;
 
 import com.esprit.models.Participant;
 import com.esprit.models.Role;
-import com.esprit.utils.DataSource;
+import com.esprit.tests.Eutopia;
 
+import com.esprit.utils.DataSource;
+import org.mindrot.jbcrypt.BCrypt;
+
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class ParticipantService extends UserService implements IService<Participant> {
 
@@ -30,19 +36,23 @@ public class ParticipantService extends UserService implements IService<Particip
             st.setString(3, participant.getUserName());
             st.setInt(4, participant.getphone());
             st.setString(5, participant.getEmail());
-            st.setString(6, participant.getPasswd());
-            st.setString(7, "null"); // Assuming image is optional and can be null
+            st.setString(6, BCrypt.hashpw(participant.getPasswd(), BCrypt.gensalt()));
+            st.setString(7, participant.getImage()); // Assuming image is optional and can be null
             st.setBoolean(8, true); // Assuming isActive is a string (adjust if it's a boolean)
             st.setString(9, "participant"); // Assuming role is a string
 
             int rowsAffected = st.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Participant ajouté avec succès.");
+                Eutopia.getSceneManager().switchScene("/login-view.fxml", null); // Start at Page1.fxml
+
             } else {
                 System.out.println("Échec de l'ajout du participant.");
             }
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout du participant: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -74,6 +84,7 @@ public class ParticipantService extends UserService implements IService<Particip
             // Check if the update was successful
             if (rowsAffected > 0) {
                 System.out.println("Participant modifié avec succès.");
+                Eutopia.getSceneManager().goBack();
             } else {
                 System.out.println("Aucun participant trouvé avec l'ID: " + participant.getUserID());
             }

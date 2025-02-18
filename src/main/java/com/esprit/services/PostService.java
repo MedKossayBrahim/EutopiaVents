@@ -1,6 +1,8 @@
 package com.esprit.services;
 
 import com.esprit.models.Post;
+import com.esprit.models.Role;
+import com.esprit.tests.Eutopia;
 import com.esprit.utils.DataSource;
 
 import java.sql.*;
@@ -134,11 +136,13 @@ public class PostService implements IServiceF<Post> {
         // First check if user is admin
         boolean isAdmin = false;
         try {
-            Path sessionPath = Path.of("user_session.json");
-            JSONParser parser = new JSONParser();
-            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
-            String role = (String) sessionData.get("role");
-            isAdmin = "Admin".equalsIgnoreCase(role);
+//            Path sessionPath = Path.of("user_session.json");
+//            JSONParser parser = new JSONParser();
+//            JSONObject sessionData = (JSONObject) parser.parse(new FileReader(sessionPath.toFile()));
+//            String role = (String) sessionData.get("role");
+//            isAdmin = "Admin".equalsIgnoreCase(role);
+              isAdmin = Eutopia.getCurrentUser().getRole() == Role.Admin;
+
         } catch (Exception e) {
             e.printStackTrace();
         }

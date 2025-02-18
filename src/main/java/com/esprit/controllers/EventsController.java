@@ -2,9 +2,11 @@ package com.esprit.controllers;
 
 import com.esprit.models.Evenement;
 import com.esprit.services.EvenementService;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -245,5 +247,9 @@ public class EventsController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void toUserEdit(MouseEvent mouseEvent) throws IOException {
+        Eutopia.getSceneManager().switchScene("/editProfile.fxml",null);
     }
 }
