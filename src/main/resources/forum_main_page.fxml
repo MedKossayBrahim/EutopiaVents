@@ -30,15 +30,6 @@
                       style="-fx-background-color: #faf6f3;
                              -fx-background-radius: 15;
                              -fx-padding: 15;"/>
-                
-                <!-- Chat below calendar -->
-                <VBox fx:id="chatArea" 
-                      VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: #faf6f3;
-                             -fx-background-radius: 15;
-                             -fx-padding: 15;">
-                    <!-- Chat content here -->
-                </VBox>
             </VBox>
             
             <style>

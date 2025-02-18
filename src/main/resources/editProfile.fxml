@@ -1,45 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane fx:id="rootPane" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.editProfile">
 
-
     <left>
-        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;" BorderPane.alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;" BorderPane.alignment="TOP_LEFT">
             <fx:include source="Navbar.fxml" />
         </VBox>
     </left>
 
     <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+            <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <padding>
+                    <Insets top="30" right="40" bottom="30" left="40"/>
+                </padding>
 
-    </center>
-    <center>
-        <AnchorPane prefHeight="720.0" prefWidth="500.0" BorderPane.alignment="CENTER">
-            <TextField fx:id="nom" layoutX="34.0" layoutY="182.0" prefHeight="26.0" prefWidth="190.0" AnchorPane.leftAnchor="37.0" />
-            <TextField fx:id="prenom" layoutX="250.0" layoutY="183.0" prefHeight="26.0" prefWidth="197.0" AnchorPane.rightAnchor="50.0" />
-            <TextField fx:id="username" layoutX="34.0" layoutY="253.0" prefHeight="26.0" prefWidth="363.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
-            <TextField fx:id="email" layoutX="42.0" layoutY="344.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
-            <TextField fx:id="password" layoutX="43.0" layoutY="418.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
-            <Label layoutX="36.0" layoutY="164.0" text="nom" AnchorPane.leftAnchor="37.0" />
-            <Label layoutX="251.0" layoutY="156.0" text="prenom" />
-            <Label layoutX="35.0" layoutY="236.0" text="user name" AnchorPane.leftAnchor="37.0" />
-            <Label layoutX="43.0" layoutY="323.0" text="email" AnchorPane.leftAnchor="37.0" />
-            <Label layoutX="43.0" layoutY="401.0" text="password" AnchorPane.leftAnchor="37.0" />
-            <Button layoutX="62.0" layoutY="109.0" mnemonicParsing="false" onAction="#chooseImage" prefHeight="26.0" prefWidth="72.0" text="import" AnchorPane.leftAnchor="62.0" AnchorPane.rightAnchor="366.0" />
-            <Button fx:id="save" layoutX="37.0" layoutY="589.0" mnemonicParsing="false" onAction="#save" prefHeight="26.0" prefWidth="406.0" text="Save" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.19999999999999" />
-            <ImageView fx:id="photo" fitHeight="104.0" fitWidth="125.0" layoutX="36.0" layoutY="18.0" pickOnBounds="true" preserveRatio="true" />
-            <Text layoutX="179.0" layoutY="62.0" strokeType="OUTSIDE" strokeWidth="0.0" text="welcome" />
-            <TextField fx:id="phone" layoutX="37.0" layoutY="487.0" AnchorPane.leftAnchor="37.0" AnchorPane.rightAnchor="50.0" />
-            <Label layoutX="34.0" layoutY="461.0" text="phone" />
-         <Button id="editbtn" onAction="#editbtn" layoutX="339.0" layoutY="110.0" mnemonicParsing="false" text="edit" />
-        </AnchorPane>
+                <!-- Header with Welcome Text -->
+                <VBox alignment="CENTER" spacing="20">
+                    <Text text="Edit Profile" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #333333;"/>
+                    
+                    <!-- Profile Image Section -->
+                    <VBox alignment="CENTER" spacing="10">
+                        <ImageView fx:id="photo" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0); -fx-background-radius: 60;"/>
+                        <Button onAction="#chooseImage" styleClass="image-button" 
+                                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 20;">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16">
+                                    <Image url="@Images/upload.png"/>
+                                </ImageView>
+                            </graphic>
+                            <text>Change Photo</text>
+                        </Button>
+                    </VBox>
+                </VBox>
+
+                <!-- Form Fields -->
+                <GridPane vgap="20" hgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+
+                    <!-- Name Fields -->
+                    <VBox spacing="5" GridPane.columnIndex="0">
+                        <Label text="First Name" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="nom" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="1">
+                        <Label text="Last Name" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="prenom" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <!-- Username Field -->
+                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                        <Label text="Username" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="username" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <!-- Email Field -->
+                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                        <Label text="Email" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="email" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <!-- Password Field -->
+                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                        <Label text="Password" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="password" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <!-- Phone Field -->
+                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                        <Label text="Phone" style="-fx-text-fill: #666666; -fx-font-size: 14px;"/>
+                        <TextField fx:id="phone" styleClass="form-field"
+                                 style="-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-padding: 8;"/>
+                    </VBox>
+
+                    <!-- Action Buttons -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                        <!-- Edit button at the top -->
+                        <Button id="editbtn" onAction="#editbtn" 
+                                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 16; -fx-background-radius: 5;"
+                                text="edit" />
+                        
+                        <!-- Save button full width -->
+                        <Button fx:id="save" onAction="#save" 
+                                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-min-width: 400;"
+                                text="Save" />
+                    </VBox>
+                </GridPane>
+            </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

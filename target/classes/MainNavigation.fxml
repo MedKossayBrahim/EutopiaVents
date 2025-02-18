@@ -111,33 +111,6 @@
                         </ImageView>
                     </graphic>
                 </Button>
-
-                <Button text="Gestion des Réservations" 
-                        onAction="#goToReservations"
-                        style="-fx-background-color: white; 
-                               -fx-border-color: #e0e0e0; 
-                               -fx-border-radius: 10; 
-                               -fx-background-radius: 10; 
-                               -fx-pref-width: 250; 
-                               -fx-pref-height: 200; 
-                               -fx-content-display: TOP; 
-                               -fx-padding: 20; 
-                               -fx-font-size: 16px; 
-                               -fx-font-weight: bold; 
-                               -fx-text-fill: #333333; 
-                               -fx-alignment: CENTER; 
-                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                        GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <graphic>
-                        <ImageView fitHeight="64" fitWidth="80" 
-                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                            <Image url="@Images/reservIcon.png"/>
-                            <clip>
-                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                            </clip>
-                        </ImageView>
-                    </graphic>
-                </Button>
             </GridPane>
         </VBox>
     </center>
