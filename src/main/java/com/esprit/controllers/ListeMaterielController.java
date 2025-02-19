@@ -3,6 +3,9 @@ package com.esprit.controllers;
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -33,8 +36,12 @@ public class ListeMaterielController {
     private TableColumn<Materiel, String> imageUrlColumn;
     @FXML
     private TableColumn<Materiel, Void> actionsColumn;
+    @FXML
+    private TextField searchField; // Zone de recherche
 
     private final MaterielService materielService;
+    private ObservableList<Materiel> materielsList; // Liste observable des matériels
+    private FilteredList<Materiel> filteredMateriels; // Liste filtrée
 
     public ListeMaterielController() {
         materielService = new MaterielService();
@@ -44,6 +51,9 @@ public class ListeMaterielController {
     public void initialize() {
         setupColumns();
         loadMateriels();
+
+        // Configurer la zone de recherche
+        setupSearch();
     }
 
     private void setupColumns() {
@@ -94,6 +104,7 @@ public class ListeMaterielController {
             materiel.setLibelle(event.getNewValue());
             materielService.modifier(materiel);
         });
+
         categorieColumn.setCellValueFactory(cellData -> {
             int categorieId = cellData.getValue().getCategorieId();
             String categorieName = null;
@@ -164,15 +175,36 @@ public class ListeMaterielController {
     }
 
     private void loadMateriels() {
-        materielTable.getItems().clear();
-        materielTable.getItems().addAll(materielService.rechercher());
+        materielsList = FXCollections.observableArrayList(materielService.rechercher());
+        filteredMateriels = new FilteredList<>(materielsList, p -> true); // Initialiser la liste filtrée
+        materielTable.setItems(filteredMateriels); // Lier la liste filtrée à la TableView
     }
+
+    private void setupSearch() {
+        // Ajouter un écouteur sur le champ de recherche
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredMateriels.setPredicate(materiel -> {
+                // Si le champ de recherche est vide, afficher tous les matériels
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Convertir le texte saisi et le libellé du matériel en minuscules pour une recherche insensible à la casse
+                String lowerCaseFilter = newValue.toLowerCase();
+                String libelleMateriel = materiel.getLibelle().toLowerCase();
+
+                // Vérifier si le libellé du matériel contient le texte saisi
+                return libelleMateriel.contains(lowerCaseFilter);
+            });
+        });
+    }
+
     private String getCategorieName(int categorieId) throws SQLException {
-         final String URL = "jdbc:mysql://localhost:3306/final_4mod";
-         final String USERNAME = "root";
-         final String PASSWORD = "";
+        final String URL = "jdbc:mysql://localhost:3306/final_4mod";
+        final String USERNAME = "root";
+        final String PASSWORD = "";
         String req = "SELECT nom FROM categorie WHERE id = ?";
-        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);;
+        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
         try (PreparedStatement ps = connection.prepareStatement(req)) {
             ps.setInt(1, categorieId);
             ResultSet rs = ps.executeQuery();

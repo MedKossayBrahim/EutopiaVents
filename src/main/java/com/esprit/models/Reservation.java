@@ -3,7 +3,7 @@ package com.esprit.models;
 import java.util.Date;
 
 public class Reservation {
-    private int id;
+    private transient int id;
     private int evenementId; // Clé étrangère vers Evenement
     private int materielId;  // Clé étrangère vers Materiel
     private int quantite;

@@ -3,6 +3,9 @@ package com.esprit.controllers;
 import com.esprit.models.Reservation;
 import com.esprit.services.ReservationService;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,8 +38,14 @@ public class ListeReservationController {
     private TableColumn<Reservation, Timestamp> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
+    @FXML
+    private TextField filterEventField; // Champ de filtre par événement
+    @FXML
+    private TextField filterMaterialField; // Champ de filtre par matériel
 
     private final ReservationService reservationService;
+    private ObservableList<Reservation> reservationsList; // Liste observable des réservations
+    private FilteredList<Reservation> filteredReservations; // Liste filtrée
 
     public ListeReservationController() {
         reservationService = new ReservationService();
@@ -46,11 +55,13 @@ public class ListeReservationController {
     public void initialize() {
         setupColumns();
         loadReservations();
+
+        // Configurer les filtres
+        setupFilters();
     }
 
     private void setupColumns() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
 
         evenementIdColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
@@ -142,8 +153,45 @@ public class ListeReservationController {
     }
 
     private void loadReservations() {
-        reservationTable.getItems().clear();
-        reservationTable.getItems().addAll(reservationService.rechercher());
+        reservationsList = FXCollections.observableArrayList(reservationService.rechercher());
+        filteredReservations = new FilteredList<>(reservationsList, p -> true); // Initialiser la liste filtrée
+        reservationTable.setItems(filteredReservations); // Lier la liste filtrée à la TableView
+    }
+
+    private void setupFilters() {
+        // Ajouter un écouteur sur le champ de filtre par événement
+        filterEventField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                // Si le champ de filtre par événement est vide, ignorer ce filtre
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Convertir le texte saisi et le nom de l'événement en minuscules pour une recherche insensible à la casse
+                String lowerCaseFilter = newValue.toLowerCase();
+                String eventName = reservationService.getEventName(reservation.getEvenementId()).toLowerCase();
+
+                // Vérifier si le nom de l'événement contient le texte saisi
+                return eventName.contains(lowerCaseFilter);
+            });
+        });
+
+        // Ajouter un écouteur sur le champ de filtre par matériel
+        filterMaterialField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                // Si le champ de filtre par matériel est vide, ignorer ce filtre
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Convertir le texte saisi et le nom du matériel en minuscules pour une recherche insensible à la casse
+                String lowerCaseFilter = newValue.toLowerCase();
+                String materialName = reservationService.getMaterialName(reservation.getMaterielId()).toLowerCase();
+
+                // Vérifier si le nom du matériel contient le texte saisi
+                return materialName.contains(lowerCaseFilter);
+            });
+        });
     }
 
     private void ouvrirModification(Reservation reservation) {

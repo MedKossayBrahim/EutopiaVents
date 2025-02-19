@@ -24,6 +24,9 @@
             <Button text="Liste des Matériels"
                     onAction="#openListeMateriel"
                     style="-fx-min-width: 150;"/>
+            <Button text="Liste des Matériels GRID"
+                    onAction="#openListeMaterielgid"
+                    style="-fx-min-width: 150;"/>
         </HBox>
     </VBox>
 

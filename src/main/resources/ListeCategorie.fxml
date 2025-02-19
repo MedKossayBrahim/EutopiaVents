@@ -6,13 +6,16 @@
 
 <VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.esprit.controllers.ListeCategorieController">
-    
+
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
     <Label text="Liste des Catégories" style="-fx-font-size: 20px;"/>
-    
+
+    <!-- Zone de recherche -->
+    <TextField fx:id="searchField" promptText="Rechercher une catégorie..."  />
+
     <TableView fx:id="categorieTable" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="nomColumn" text="Nom" prefWidth="200"/>
@@ -22,4 +25,4 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
     </TableView>
-</VBox> 
+</VBox>
