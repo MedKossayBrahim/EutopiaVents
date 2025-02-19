@@ -194,18 +194,4 @@ public class ListeReservationController {
         });
     }
 
-    private void ouvrirModification(Reservation reservation) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierReservation.fxml"));
-            Parent root = loader.load();
-            ModifierReservationController controller = loader.getController();
-            controller.setReservation(reservation);
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Réservation");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
-        }
     }
-}
