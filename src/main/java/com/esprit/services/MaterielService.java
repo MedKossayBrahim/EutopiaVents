@@ -63,11 +63,13 @@ public class MaterielService implements IService<Materiel> {
         }
     }
 
-    @Override
     public List<Materiel> rechercher() {
         List<Materiel> materiels = new ArrayList<>();
 
-        String req = "SELECT * FROM materiel";
+        String req = "SELECT M.id, M.libelle, M.description,M.categorie_id, M.quantite, C.nom AS categorie_nom,M.categorie_id, M.prix, M.image_url " +
+                "FROM materiel AS M " +
+                "JOIN categorie AS C ON M.categorie_id = C.id;";
+
         try {
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(req);
@@ -77,15 +79,15 @@ public class MaterielService implements IService<Materiel> {
                         rs.getString("libelle"),
                         rs.getString("description"),
                         rs.getInt("quantite"),
-                        rs.getInt("categorie_id"),
-                        rs.getDouble("prix"),// Ajout du prix
+                        rs.getInt("categorie_id"), // Utilisation du nom de la catégorie
+                        rs.getDouble("prix"),
                         rs.getString("image_url")
                 ));
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println("Erreur lors de la récupération des matériels : " + e.getMessage());
         }
-
         return materiels;
     }
+
 }

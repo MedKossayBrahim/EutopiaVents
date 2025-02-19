@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -10,6 +11,10 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
+
+import java.sql.*;
 
 public class ListeMaterielController {
     @FXML
@@ -47,14 +52,13 @@ public class ListeMaterielController {
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         quantiteColumn.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        categorieColumn.setCellValueFactory(new PropertyValueFactory<>("categorieId"));
         imageUrlColumn.setCellValueFactory(new PropertyValueFactory<>("Image_url"));
 
         // Rendre les colonnes éditables
         libelleColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         descriptionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.IntegerStringConverter()));
-        prixColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.DoubleStringConverter()));
+        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        prixColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
         // Configuration de la colonne imageUrlColumn pour afficher l'image
         imageUrlColumn.setCellFactory(param -> new TableCell<>() {
@@ -77,13 +81,6 @@ public class ListeMaterielController {
                         Image image = new Image(imageUrl, true); // Utiliser le chargement en arrière-plan
                         imageView.setImage(image);
                         setGraphic(hbox);
-
-                        // Optionnel : Ajouter un écouteur pour vérifier si l'image n'a pas pu être chargée
-                        image.errorProperty().addListener((obs, wasError, isNowError) -> {
-                            if (isNowError) {
-                                setGraphic(null); // Masquer l'ImageView si l'image ne peut pas être chargée
-                            }
-                        });
                     } catch (Exception e) {
                         setGraphic(null); // En cas d'erreur de chargement de l'image
                     }
@@ -96,6 +93,16 @@ public class ListeMaterielController {
             Materiel materiel = event.getRowValue();
             materiel.setLibelle(event.getNewValue());
             materielService.modifier(materiel);
+        });
+        categorieColumn.setCellValueFactory(cellData -> {
+            int categorieId = cellData.getValue().getCategorieId();
+            String categorieName = null;
+            try {
+                categorieName = getCategorieName(categorieId);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return new SimpleStringProperty(categorieName);
         });
 
         descriptionColumn.setOnEditCommit(event -> {
@@ -159,5 +166,22 @@ public class ListeMaterielController {
     private void loadMateriels() {
         materielTable.getItems().clear();
         materielTable.getItems().addAll(materielService.rechercher());
+    }
+    private String getCategorieName(int categorieId) throws SQLException {
+         final String URL = "jdbc:mysql://localhost:3306/final_4mod";
+         final String USERNAME = "root";
+         final String PASSWORD = "";
+        String req = "SELECT nom FROM categorie WHERE id = ?";
+        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);;
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, categorieId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("nom");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du nom de la catégorie : " + e.getMessage());
+        }
+        return null;
     }
 }

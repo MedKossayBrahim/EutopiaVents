@@ -56,13 +56,12 @@ public class CategorieService implements IService<Categorie> {
     public List<Categorie> rechercher() {
         List<Categorie> categories = new ArrayList<>();
 
-        String req = "SELECT * FROM categorie";
+        String req = "SELECT nom FROM categorie";
         try {
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(req);
             while (rs.next()) {
                 categories.add(new Categorie(
-                        rs.getInt("id"),
                         rs.getString("nom")
                 ));
             }

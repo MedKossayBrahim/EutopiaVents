@@ -16,8 +16,6 @@ public class ListeCategorieController {
     @FXML
     private TableView<Categorie> categorieTable;
     @FXML
-    private TableColumn<Categorie, Integer> idColumn;
-    @FXML
     private TableColumn<Categorie, String> nomColumn;
     @FXML
     private TableColumn<Categorie, Void> actionsColumn;
@@ -35,7 +33,7 @@ public class ListeCategorieController {
     }
 
     private void setupColumns() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
 
         // Rendre la colonne "nom" éditable

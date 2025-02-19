@@ -32,6 +32,10 @@ public class Materiel {
         this.id = id;
     }
 
+    public Materiel(int id, String libelle, String description, int quantite, String categorieNom, double prix, String imageUrl) {
+    }
+
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
