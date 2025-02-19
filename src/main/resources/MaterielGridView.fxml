@@ -15,5 +15,11 @@
                 <!-- Dynamic content will go here -->
             </GridPane>
         </ScrollPane>
+
+        <!-- Pagination buttons -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="previousButton" text="Précédent" onAction="#handlePreviousButtonAction" />
+            <Button fx:id="nextButton" text="Suivant" onAction="#handleNextButtonAction" />
+        </HBox>
     </VBox>
 </AnchorPane>

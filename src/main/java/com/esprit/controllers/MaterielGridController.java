@@ -3,11 +3,13 @@ package com.esprit.controllers;
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+
 import java.util.List;
 
 public class MaterielGridController {
@@ -15,7 +17,16 @@ public class MaterielGridController {
     @FXML
     private GridPane gridPaneMateriels;
 
+    @FXML
+    private Button previousButton;
+
+    @FXML
+    private Button nextButton;
+
     private final MaterielService materielService;
+    private List<Materiel> allMateriels;
+    private int currentPage = 0;
+    private final int itemsPerPage = 6; // Number of items per page
 
     public MaterielGridController() {
         materielService = new MaterielService();
@@ -23,15 +34,23 @@ public class MaterielGridController {
 
     @FXML
     public void initialize() {
-        loadMateriels();
+        allMateriels = materielService.rechercher(); // Retrieve all materials
+        updateGrid();
+        updateButtons();
     }
 
-    private void loadMateriels() {
-        List<Materiel> materiels = materielService.rechercher(); // Retrieve materials
+    private void updateGrid() {
+        gridPaneMateriels.getChildren().clear(); // Clear the grid
+
+        int startIndex = currentPage * itemsPerPage;
+        int endIndex = Math.min(startIndex + itemsPerPage, allMateriels.size());
+
+        List<Materiel> pageMateriels = allMateriels.subList(startIndex, endIndex);
+
         int col = 0;
         int row = 0;
 
-        for (Materiel materiel : materiels) {
+        for (Materiel materiel : pageMateriels) {
             VBox materielCard = createMaterielCard(materiel);
             gridPaneMateriels.add(materielCard, col, row);
 
@@ -79,5 +98,28 @@ public class MaterielGridController {
         // Add elements to the card
         card.getChildren().addAll(imageView, nameLabel, descriptionLabel, quantiteLabel, prixLabel);
         return card;
+    }
+
+    @FXML
+    private void handlePreviousButtonAction() {
+        if (currentPage > 0) {
+            currentPage--;
+            updateGrid();
+            updateButtons();
+        }
+    }
+
+    @FXML
+    private void handleNextButtonAction() {
+        if ((currentPage + 1) * itemsPerPage < allMateriels.size()) {
+            currentPage++;
+            updateGrid();
+            updateButtons();
+        }
+    }
+
+    private void updateButtons() {
+        previousButton.setDisable(currentPage == 0);
+        nextButton.setDisable((currentPage + 1) * itemsPerPage >= allMateriels.size());
     }
 }
