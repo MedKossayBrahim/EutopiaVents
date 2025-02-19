@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.MaterielGridController">
+    <VBox spacing="10" alignment="CENTER" VBox.vgrow="ALWAYS">
+        <Label text="Liste des Matériels" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+        <!-- ScrollPane to make the GridPane scrollable -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <GridPane fx:id="gridPaneMateriels" hgap="10" vgap="10" style="-fx-background-color: transparent;">
+                <!-- Dynamic content will go here -->
+            </GridPane>
+        </ScrollPane>
+    </VBox>
+</AnchorPane>
