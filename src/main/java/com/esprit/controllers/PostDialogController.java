@@ -4,6 +4,7 @@ import com.esprit.models.*;
 import com.esprit.services.PostService;
 import com.esprit.services.CategoryService;
 import com.esprit.tests.Eutopia;
+import com.esprit.utils.ProfanityFilter;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -110,6 +111,10 @@ public class PostDialogController {
         }
         
         try {
+            // Filter profanity in title and content
+            String filteredTitle = ProfanityFilter.filter(titleField.getText().trim());
+            String filteredContent = ProfanityFilter.filter(contentArea.getText().trim());
+            
             // First, handle the category
             String categoryName = categoryComboBox.getValue();
             int categoryId;
@@ -143,11 +148,11 @@ public class PostDialogController {
             // Get the actual username from database
             String username = getUsernameFromDatabase(getCurrentUserId());
             
-            // Create new post with current user ID
+            // Create new post with filtered content
             Post newPost = new Post(
                 getCurrentUserId(),
-                titleField.getText().trim(),
-                contentArea.getText().trim(),
+                filteredTitle,
+                filteredContent,
                 username,
                 categoryId
             );
@@ -199,6 +204,12 @@ public class PostDialogController {
         
         if (categoryComboBox.getValue() == null || categoryComboBox.getValue().trim().isEmpty()) {
             errorMessage += "Category is required\n";
+        }
+        
+        // Check for profanity before saving
+        if (ProfanityFilter.containsProfanity(titleField.getText()) || 
+            ProfanityFilter.containsProfanity(contentArea.getText())) {
+            errorMessage += "Post contains inappropriate language\n";
         }
         
         if (!errorMessage.isEmpty() && showAlert) {

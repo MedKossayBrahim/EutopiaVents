@@ -26,7 +26,6 @@ com\esprit\models\MaterielSelection.class
 com\esprit\services\CategorieServiceImpl.class
 com\esprit\utils\OTPGenerator.class
 com\esprit\controllers\GererEvenementsController.class
-com\esprit\utils\ProfanityFilter$1.class
 com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
 com\esprit\services\CategoriesEventService.class

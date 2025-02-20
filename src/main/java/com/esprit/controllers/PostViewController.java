@@ -207,12 +207,20 @@ public class PostViewController {
     private void handleAddComment() {
         String content = commentField.getText().trim();
         if (!content.isEmpty()) {
-            try {
+            // First validate for profanity
+            if (ProfanityFilter.containsProfanity(content)) {
+                showError("Comment contains inappropriate language");
+                return;
+            }
 
+            try {
+                // Filter profanity before adding comment
+                String filteredContent = ProfanityFilter.filter(content);
+                
                 Comment comment = new Comment();
                 comment.setPostId(postId);
                 comment.setUserId(getCurrentUserId());
-                comment.setContent(content);
+                comment.setContent(filteredContent);
 
                 commentService.ajouter(comment);
                 commentField.clear();
@@ -291,29 +299,34 @@ public class PostViewController {
         if (comment.getUserId() == getCurrentUserId()) {
             contentLabel.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
-                    // Create a text field with current content
                     TextField editField = new TextField(comment.getContent());
                     editField.setStyle("-fx-background-color: white; -fx-padding: 5;");
 
-                    // Replace the label with the text field
                     int contentIndex = commentBox.getChildren().indexOf(contentLabel);
                     commentBox.getChildren().set(contentIndex, editField);
                     editField.requestFocus();
 
-                    // Handle edit completion
                     editField.setOnAction(e -> {
                         String newContent = editField.getText().trim();
                         if (!newContent.isEmpty() && !newContent.equals(comment.getContent())) {
+                            // First validate for profanity
+                            if (ProfanityFilter.containsProfanity(newContent)) {
+                                showError("Comment contains inappropriate language");
+                                commentBox.getChildren().set(contentIndex, contentLabel);
+                                return;
+                            }
+
                             try {
-                                comment.setContent(newContent);
-                                commentService.modifier(comment); // Pass the entire comment object
-                                contentLabel.setText(newContent);
+                                // Filter profanity in edited comment
+                                String filteredContent = ProfanityFilter.filter(newContent);
+                                comment.setContent(filteredContent);
+                                commentService.modifier(comment);
+                                contentLabel.setText(filteredContent);
                             } catch (SQLException ex) {
                                 ex.printStackTrace();
                                 showError("Could not update comment: " + ex.getMessage());
                             }
                         }
-                        // Restore the label
                         commentBox.getChildren().set(contentIndex, contentLabel);
                     });
 
