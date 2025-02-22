@@ -84,8 +84,8 @@
 
                         <!-- Image URL -->
                         <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
-                            <Label text="Image URL" styleClass="field-label"/>
-                            <TextField fx:id="tfImage" promptText="http://..."/>
+                            <Label text="Image" styleClass="field-label"/>
+                            <TextField fx:id="tfImage" promptText="Cliquez pour choisir une image"/>
                         </VBox>
                     </GridPane>
 
@@ -105,7 +105,7 @@
                 </VBox>
 
                 <!-- Section droite : Liste des lieux -->
-                <VBox spacing="100" styleClass="list-section" HBox.hgrow="ALWAYS">
+                <VBox spacing="10" styleClass="list-section" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>

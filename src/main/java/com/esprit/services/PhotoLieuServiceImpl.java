@@ -2,14 +2,12 @@ package com.esprit.services;
 
 import com.esprit.models.PhotoLieu;
 import com.esprit.utils.DataSource;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoLieuServiceImpl implements IService<PhotoLieu> {
     private Connection connection = DataSource.getInstance().getConnection();
-
     @Override
     public void ajouter(PhotoLieu photo) {
         String sql = "INSERT INTO photoslieu (lieu_id, url_image) VALUES (?, ?)";
@@ -75,7 +73,7 @@ public class PhotoLieuServiceImpl implements IService<PhotoLieu> {
         }
         return photos;
     }
-    //nouvelle methode
+    //nouvelle methode de recherche qui renvoie une liste de photos
     public List<PhotoLieu> rechercherParLieuId(int lieuId) {
         List<PhotoLieu> photos = new ArrayList<>();
         String sql = "SELECT * FROM photoslieu WHERE lieu_id = ?";
@@ -96,5 +94,16 @@ public class PhotoLieuServiceImpl implements IService<PhotoLieu> {
             System.out.println("Erreur lors de la recherche par lieu : " + e.getMessage());
         }
         return photos;
+    }
+    public void updateMainPhoto(int lieuId, String newUrl) {
+        String sql = "UPDATE photoslieu SET url_image = ? WHERE lieu_id = ? AND url_image = (SELECT image FROM lieu WHERE id = ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, newUrl);
+            stmt.setInt(2, lieuId);
+            stmt.setInt(3, lieuId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la mise à jour de la photo principale : " + e.getMessage());
+        }
     }
 }
