@@ -43,7 +43,7 @@ public class LieuController {
     @FXML private Button btnAjouter;
     @FXML private Button btnModifier;
     @FXML private Button btnSupprimer;
-
+    private MainMenuController mainMenuController;
     private LieuServiceImpl lieuService;
     private CategorieServiceImpl categorieService;
     private PhotoLieuServiceImpl photoLieuService;
@@ -123,7 +123,9 @@ public class LieuController {
                 Lieu lieu = createLieuFromFields();
                 lieuService.ajouter(lieu);
 
-
+                if (mainMenuController != null) {
+                    mainMenuController.refreshLieux();
+                }
 
                 refreshLieuxList();
                 clearFields();
@@ -133,34 +135,51 @@ public class LieuController {
             }
         }
     }
-
     @FXML
     private void modifierLieu() {
         if (validateInput()) {
             try {
-                updateLieuFromFields();
-                String imagePath = uploadImage(tfImage.getText());
-                selectedLieu.setImage(imagePath);
-                lieuService.modifier(selectedLieu);
+                updateLieuFromFields(); // Ne modifie pas l'image ici
 
-                // Mettre à jour ou ajouter la photo si nécessaire
-                if (imagePath != null && !imagePath.isEmpty()) {
-                    PhotoLieu existingPhoto = photoLieuService.rechercherParLieuId(selectedLieu.getId())
-                            .stream()
-                            .findFirst()
-                            .orElse(null);
-                    if (existingPhoto != null) {
-                        existingPhoto.setUrlImage(imagePath);
-                        photoLieuService.modifier(existingPhoto);
+                // Si le champ image n'est PAS vide
+                if (!tfImage.getText().trim().isEmpty()) {
+                    // Si le texte dans tfImage commence déjà par IMAGE_URL_PREFIX, l'image a déjà été uploadée
+                    if (tfImage.getText().startsWith(IMAGE_URL_PREFIX)) {
+                        selectedLieu.setImage(tfImage.getText());
                     } else {
-                        PhotoLieu newPhoto = new PhotoLieu(selectedLieu.getId(), imagePath);
-                        photoLieuService.ajouter(newPhoto);
+                        // L'image est un chemin local, on l'upload
+                        String imagePath = uploadImage(tfImage.getText());
+                        selectedLieu.setImage(imagePath != null ? imagePath : "");
+
+                        // Mettre à jour la photo associée
+                        if (imagePath != null && !imagePath.isEmpty()) {
+                            PhotoLieu existingPhoto = photoLieuService.rechercherParLieuId(selectedLieu.getId())
+                                    .stream()
+                                    .findFirst()
+                                    .orElse(null);
+                            if (existingPhoto != null) {
+                                existingPhoto.setUrlImage(imagePath);
+                                photoLieuService.modifier(existingPhoto);
+                            } else {
+                                PhotoLieu newPhoto = new PhotoLieu(selectedLieu.getId(), imagePath);
+                                photoLieuService.ajouter(newPhoto);
+                            }
+                        }
                     }
                 }
 
+                // Mise à jour du lieu dans la base de données
+                lieuService.modifier(selectedLieu);
+
+                // Rafraîchir l'affichage
+                if (mainMenuController != null) {
+                    mainMenuController.refreshLieux();
+                }
                 refreshLieuxList();
                 clearFields();
+
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Lieu modifié avec succès!");
+
             } catch (Exception e) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la modification: " + e.getMessage());
             }
@@ -183,6 +202,9 @@ public class LieuController {
 
                     // Supprimer le lieu
                     lieuService.supprimer(selectedLieu);
+                    if (mainMenuController != null) {
+                        mainMenuController.refreshLieux();
+                    }
                     refreshLieuxList();
                     clearFields();
                     showAlert(Alert.AlertType.INFORMATION, "Succès", "Lieu supprimé avec succès!");
@@ -274,8 +296,8 @@ public class LieuController {
         selectedLieu.setCodePostal(tfCodePostal.getText().trim());
         selectedLieu.setCapacite(Integer.parseInt(tfCapacite.getText().trim()));
         selectedLieu.setPrix(Double.parseDouble(tfPrix.getText().trim()));
-        selectedLieu.setImage(tfImage.getText().trim());
         selectedLieu.setCategorie(cbCategorie.getValue());
+        // On NE modifie PAS l'image ici !
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
@@ -308,7 +330,7 @@ public class LieuController {
 
     private String uploadImage(String imagePath) throws IOException {
         if (imagePath == null || imagePath.trim().isEmpty()) {
-            return null;
+            return selectedLieu.getImage(); // Retourne l'image existante
         }
 
         File sourceFile = new File(imagePath);
@@ -352,5 +374,13 @@ public class LieuController {
         } else {
             throw new RuntimeException("Neither WAMP nor XAMPP directory found");
         }
+    }
+    public void setMainMenuController(MainMenuController controller) {
+        this.mainMenuController = controller;
+    }
+
+    public void setLieu(Lieu lieu) {
+        this.selectedLieu = lieu;
+        showLieuDetails(lieu);
     }
 }

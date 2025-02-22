@@ -53,7 +53,7 @@ public class LieuServiceImpl implements IService<Lieu>{
             updateStmt.setString(3, lieu.getVille());
             updateStmt.setString(4, lieu.getCodePostal());
             updateStmt.setInt(5, lieu.getCapacite());
-            updateStmt.setString(6, lieu.getImage());
+            updateStmt.setString(6, lieu.getImage() != null ? lieu.getImage() : "");
             updateStmt.setInt(7, lieu.getCategorie().getId());
             updateStmt.setDouble(8, lieu.getPrix());
             updateStmt.setInt(9, lieu.getId());
