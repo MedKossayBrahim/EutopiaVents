@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
@@ -13,8 +14,27 @@
 
     <Label text="Liste des Catégories" style="-fx-font-size: 20px;"/>
 
-    <!-- Zone de recherche -->
-    <TextField fx:id="searchField" promptText="Rechercher une catégorie..."  />
+    <!-- Zone de recherche et bouton centré -->
+    <HBox spacing="10" alignment="CENTER">
+        <Region HBox.hgrow="ALWAYS"/> <!-- Pousse le bouton vers le centre -->
+
+        <TextField fx:id="searchField" promptText="Rechercher une catégorie..."
+                   style="-fx-background-color: white; -fx-border-radius: 5px; -fx-padding: 5px;"
+                   maxWidth="300" prefWidth="300"/>
+
+        <Region HBox.hgrow="ALWAYS"/> <!-- Pousse le bouton vers le centre -->
+
+        <Button fx:id="ajouterCategorieBtn" onAction="#ajoutercateg"
+                style="-fx-background-color: rgba(46,204,113,0); -fx-border-radius: 5px; -fx-padding: 5px;">
+            <graphic>
+                <ImageView fitWidth="24" fitHeight="24">
+                    <image>
+                        <Image url="@/icons/plus.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
 
     <TableView fx:id="categorieTable" VBox.vgrow="ALWAYS">
         <columns>
@@ -25,4 +45,5 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>
     </TableView>
+
 </VBox>

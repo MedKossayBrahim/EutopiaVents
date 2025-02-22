@@ -7,16 +7,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class ListeMaterielController {
@@ -216,4 +221,20 @@ public class ListeMaterielController {
         }
         return null;
     }
+    @FXML
+    private void ajouterMateriel() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutMateriel.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Ajout de Matériel");
+            stage.setScene(new Scene(root));
+            stage.show();
+            stage.setOnHidden(event -> loadMateriels());
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
+        }
+    }
+
 }

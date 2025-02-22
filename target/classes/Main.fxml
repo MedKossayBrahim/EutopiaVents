@@ -18,9 +18,6 @@
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Matériels" style="-fx-font-size: 18px;"/>
         <HBox spacing="10" alignment="CENTER">
-            <Button text="Ajouter un Matériel"
-                    onAction="#openAjoutMateriel"
-                    style="-fx-min-width: 150;"/>
             <Button text="Liste des Matériels"
                     onAction="#openListeMateriel"
                     style="-fx-min-width: 150;"/>
@@ -33,9 +30,6 @@
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Catégories" style="-fx-font-size: 18px;"/>
         <HBox spacing="10" alignment="CENTER">
-            <Button text="Ajouter une Catégorie"
-                    onAction="#openAjoutCategorie"
-                    style="-fx-min-width: 150;"/>
             <Button text="Liste des Catégories"
                     onAction="#openListeCategorie"
                     style="-fx-min-width: 150;"/>

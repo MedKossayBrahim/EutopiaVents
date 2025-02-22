@@ -45,7 +45,25 @@ public class AjoutMaterielController {
     @FXML
     public void initialize() {
         loadCategories();
+
+        // Configurer l'affichage de la ComboBox pour montrer uniquement le nom de la catégorie
+        categorieComboBox.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Categorie item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((item == null || empty) ? null : item.getNom());
+            }
+        });
+
+        categorieComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Categorie item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((item == null || empty) ? null : item.getNom());
+            }
+        });
     }
+
 
     private void loadCategories() {
         try {
@@ -101,7 +119,6 @@ public class AjoutMaterielController {
             imagePreview.setImage(image);
         }
     }
-
     private String copyImageToServer() throws IOException {
         if (selectedImageFile == null) {
             throw new IllegalArgumentException("Aucune image sélectionnée.");
@@ -127,6 +144,12 @@ public class AjoutMaterielController {
 
         if (libelle.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Validation", "Le champ Libellé est obligatoire.");
+            return false;
+        }
+
+        // Vérification de l'unicité du libellé
+        if (!materielService.isLibelleUnique(libelle)) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Ce libellé existe déjà. Veuillez en choisir un autre.");
             return false;
         }
 
@@ -157,6 +180,7 @@ public class AjoutMaterielController {
 
         return true;
     }
+
 
     @FXML
     private void clearFields() {

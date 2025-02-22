@@ -16,6 +16,11 @@ public class MaterielService implements IService<Materiel> {
 
     @Override
     public void ajouter(Materiel materiel) {
+        if (!isLibelleUnique(materiel.getLibelle())) {
+            System.out.println("Erreur : Un matériel avec ce nom existe déjà !");
+            return; // Stoppe l'insertion si le nom existe déjà
+        }
+
         String req = "INSERT INTO materiel (libelle, description, quantite, categorie_id, prix, image_url) VALUES ('"
                 + materiel.getLibelle() + "', '"
                 + materiel.getDescription() + "', "
@@ -23,13 +28,29 @@ public class MaterielService implements IService<Materiel> {
                 + materiel.getCategorieId() + ", "
                 + materiel.getPrix() + ", '"
                 + materiel.getImage_url() + "')";
+
         try {
             Statement st = connection.createStatement();
             st.executeUpdate(req);
             System.out.println("Matériel ajouté avec succès.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Erreur lors de l'ajout du matériel : " + e.getMessage());
         }
+    }
+
+
+    public boolean isLibelleUnique(String libelle) {
+        String req = "SELECT COUNT(*) FROM materiel WHERE libelle = '" + libelle + "'";
+        try {
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(req);
+            if (rs.next()) {
+                return rs.getInt(1) == 0; // Retourne true si le libellé n'existe pas encore
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la vérification d'unicité : " + e.getMessage());
+        }
+        return false; // En cas d'erreur, on considère que le libellé n'est pas unique
     }
 
     @Override

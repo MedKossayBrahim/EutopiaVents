@@ -6,10 +6,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class ListeCategorieController {
     @FXML
@@ -113,4 +119,23 @@ public class ListeCategorieController {
             });
         });
     }
+    @FXML
+    private void ajoutercateg() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Ajoutercateg.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Ajout de Catégorie");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            // Rafraîchir la liste après fermeture de la fenêtre d'ajout
+            stage.setOnHidden(event -> loadCategories());
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
+        }
+    }
+
 }
