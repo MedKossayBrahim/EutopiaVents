@@ -4,24 +4,52 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.ModifierEvenementController">
-    <children>
-        <VBox spacing="10" style="-fx-padding: 10;">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.ModifierEvenementController"
+            style="-fx-background-color: #faf6f3;">
+
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10" style="-fx-padding: 20;">
             <Label text="Modifier Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
-            <TableView fx:id="eventTable" editable="true" prefWidth="800" prefHeight="600">
-                <columns>
-                    <TableColumn fx:id="titreColumn" text="Titre" editable="true" />
-                    <TableColumn fx:id="descriptionColumn" text="Description" editable="true" />
-                    <TableColumn fx:id="dateDebutColumn" text="Date Début" editable="true" />
-                    <TableColumn fx:id="dateFinColumn" text="Date Fin" editable="true" />
-                    <TableColumn fx:id="capaciteColumn" text="Capacité" editable="true" />
-                    <TableColumn fx:id="prixColumn" text="Prix" editable="true" />
-                    <TableColumn fx:id="statutColumn" text="Statut" />
-                    <TableColumn fx:id="actionsColumn" text="Actions" />
-                </columns>
-            </TableView>
+
+            <!-- Barre de navigation -->
+            <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0;">
+                <Button text="Ajouter Catégorie" onAction="#goToAjouterCateg"/>
+                <Button text="Ajouter Événement" onAction="#goToAjouterEvenement"/>
+                <Button text="Modifier Événement" onAction="#goToModifierEvenement"/>
+                <Button text="Voir Événements" onAction="#goToEventsView"/>
+                <Button text="Gérer Événements" onAction="#goToGererEvenements"/>
+            </HBox>
+
+            <ScrollPane fx:id="scrollPane" fitToWidth="true" styleClass="scroll-pane">
+                <TableView fx:id="eventTable" editable="true" prefWidth="800" prefHeight="600">
+                    <columns>
+                        <TableColumn fx:id="titreColumn" text="Titre" editable="true" />
+                        <TableColumn fx:id="descriptionColumn" text="Description" editable="true" />
+                        <TableColumn fx:id="categorieColumn" text="Catégorie" editable="true" />
+
+                        <TableColumn fx:id="dateDebutColumn" text="Date Début" editable="true" />
+                        <TableColumn fx:id="dateFinColumn" text="Date Fin" editable="true" />
+                        <TableColumn fx:id="capaciteColumn" text="Capacité" editable="true" />
+                        <TableColumn fx:id="prixColumn" text="Prix" editable="true" />
+                        <TableColumn fx:id="statutColumn" text="Statut" />
+                        <TableColumn fx:id="actionsColumn" text="Actions" />
+
+                    </columns>
+                </TableView>
+            </ScrollPane>
             <Button text="Retour" onAction="#handleRetour"/>
         </VBox>
-    </children>
-</AnchorPane>
+    </center>
+</BorderPane>

@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class EventDetailsController {
 
@@ -25,10 +26,9 @@ public class EventDetailsController {
     private Label descriptionLabel;
     @FXML
     private Label lieuLabel;
-    @FXML
-    private Label lieuInfoLabel;
-    @FXML
-    private Label heureLabel;
+
+
+
     @FXML
     private Label dateLabel;
     @FXML
@@ -43,6 +43,9 @@ public class EventDetailsController {
     private static final int USER_ID = 10; // Remplacez par l'ID de l'utilisateur connecté
     private int evenementId; // ID de l'événement sélectionné
 
+    public EventDetailsController() throws SQLException {
+    }
+
     public void afficherDetails(int evenementId) {
         this.evenementId = evenementId; // Stocker l'ID de l'événement
         Evenement evenement = evenementService.rechercherParId(evenementId);
@@ -52,7 +55,7 @@ public class EventDetailsController {
             descriptionLabel.setText(evenement.getDescription());
             String lieuAffiche = evenement.getLieuId() > 0 ? evenement.getLieuNom() : evenement.getLieu_proprietaire();
             lieuLabel.setText(lieuAffiche);
-            lieuInfoLabel.setText(lieuAffiche);
+
 
             String dateDebut = evenement.getDateDebut().split(" ")[0];
             String dateFin = evenement.getDateFin().split(" ")[0];

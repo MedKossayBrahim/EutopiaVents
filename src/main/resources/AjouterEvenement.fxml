@@ -4,65 +4,93 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="600.0" prefWidth="600.0"
-            stylesheets="@styles.css"
-            xmlns="http://javafx.com/javafx/11"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.esprit.controllers.AjouterEvenementController">
-    <ScrollPane fitToWidth="true" styleClass="scroll-pane"
-                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-        <VBox spacing="15" styleClass="card">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+<?import javafx.scene.image.ImageView?>
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.AjouterEvenementController"
+            style="-fx-background-color: #faf6f3;">
 
-            <Label text="Ajouter un événement" styleClass="title-label"/>
+    <!-- Barre de navigation à gauche -->
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml"/>
+        </VBox>
+    </left>
 
-            <TextField fx:id="titreField" promptText="Titre"/>
-            <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
-
-            <HBox spacing="10">
-                <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"/>
-                <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"/>
+    <!-- Contenu principal au centre -->
+    <center>
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <Label text="Ajouter Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+            <!-- Barre de navigation en haut -->
+            <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0;">
+                <Button text="Ajouter Catégorie" onAction="#goToAjouterCateg"/>
+                <Button text="Ajouter Événement" onAction="#goToAjouterEvenement"/>
+                <Button text="Modifier Événement" onAction="#goToModifierEvenement"/>
+                <Button text="Voir Événements" onAction="#goToEventsView"/>
+                <Button text="Gérer Événements" onAction="#goToGererEvenements"/>
             </HBox>
 
-            <TextField fx:id="capaciteField" promptText="Capacité"/>
-            <ComboBox fx:id="categorieComboBox" promptText="Sélectionnez une catégorie" maxWidth="Infinity"/>
+            <!-- Contenu de la page -->
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+                <VBox spacing="15" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
 
-            <VBox spacing="10">
-                <Label text="Choix du lieu" styleClass="subtitle-label"/>
-                <RadioButton fx:id="lieuExistantRadio" text="Sélectionner un lieu existant"/>
-                <RadioButton fx:id="lieuPersonnaliseRadio" text="Ajouter un lieu personnalisé"/>
-                
-                <VBox fx:id="lieuExistantVBox" spacing="10">
-                    <ComboBox fx:id="lieuComboBox" promptText="Sélectionnez un lieu" maxWidth="Infinity"/>
+                    <Label text="Ajouter un événement" styleClass="title-label"/>
+
+                    <TextField fx:id="titreField" promptText="Titre"/>
+                    <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
+
+                    <HBox spacing="10">
+                        <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"/>
+                        <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <TextField fx:id="capaciteField" promptText="Capacité"/>
+                    <ComboBox fx:id="categorieComboBox" promptText="Sélectionnez une catégorie" maxWidth="Infinity"/>
+
+                    <VBox spacing="10">
+                        <Label text="Choix du lieu" styleClass="subtitle-label"/>
+                        <RadioButton fx:id="lieuExistantRadio" text="Sélectionner un lieu existant"/>
+                        <RadioButton fx:id="lieuPersonnaliseRadio" text="Ajouter un lieu personnalisé"/>
+
+                        <VBox fx:id="lieuExistantVBox" spacing="10">
+                            <ComboBox fx:id="lieuComboBox" promptText="Sélectionnez un lieu" maxWidth="Infinity"/>
+                        </VBox>
+
+                        <VBox fx:id="lieuPersonnaliseVBox" spacing="10">
+                            <TextField fx:id="lieuProprietaireField" promptText="Nom du lieu"/>
+                        </VBox>
+                    </VBox>
+
+                    <TextField fx:id="organisateurIdField" promptText="ID Organisateur"/>
+                    <TextField fx:id="prixField" promptText="Prix"/>
+                    <HBox spacing="10">
+                        <Button text="Choisir une image" onAction="#handleSelectImage"/>
+                        <ImageView fx:id="imagePreview" fitWidth="150" fitHeight="100" preserveRatio="true"/>
+                    </HBox>
+
+
+                    <VBox spacing="10">
+                        <Label text="Matériels nécessaires" styleClass="subtitle-label"/>
+                        <Button text="Ajouter Matériel" onAction="#ouvrirSelectionMateriel"
+                                styleClass="secondary-button"/>
+                        <TableView fx:id="materielTable" prefHeight="150.0">
+                            <columns>
+                                <TableColumn fx:id="materielColumn" text="Matériel"/>
+                                <TableColumn fx:id="quantiteColumn" text="Quantité"/>
+                                <TableColumn fx:id="actionColumn" text="Action"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement"
+                            styleClass="confirm-button"/>
                 </VBox>
-                
-                <VBox fx:id="lieuPersonnaliseVBox" spacing="10">
-                    <TextField fx:id="lieuProprietaireField" promptText="Nom du lieu"/>
-                </VBox>
-            </VBox>
-
-            <TextField fx:id="organisateurIdField" promptText="ID Organisateur"/>
-            <TextField fx:id="prixField" promptText="Prix"/>
-            <TextField fx:id="imageField" promptText="Image URL"/>
-
-            <VBox spacing="10">
-                <Label text="Matériels nécessaires" styleClass="subtitle-label"/>
-                <Button text="Ajouter Matériel" onAction="#ouvrirSelectionMateriel" 
-                        styleClass="secondary-button"/>
-                <TableView fx:id="materielTable" prefHeight="150.0">
-                    <columns>
-                        <TableColumn fx:id="materielColumn" text="Matériel"/>
-                        <TableColumn fx:id="quantiteColumn" text="Quantité"/>
-                        <TableColumn fx:id="actionColumn" text="Action"/>
-                    </columns>
-                </TableView>
-            </VBox>
-
-            <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement"
-                    styleClass="confirm-button"/>
+            </ScrollPane>
         </VBox>
-    </ScrollPane>
-</AnchorPane>
+    </center>
+</BorderPane>

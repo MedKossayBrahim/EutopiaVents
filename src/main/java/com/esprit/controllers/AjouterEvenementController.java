@@ -13,24 +13,39 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.StringConverter;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class AjouterEvenementController implements Initializable {
-    private static final String DEFAULT_STATUS ="en attente" ;
     @FXML private TextField titreField;
     @FXML private TextArea descriptionField;
     @FXML private DatePicker dateDebutPicker;
@@ -41,22 +56,69 @@ public class AjouterEvenementController implements Initializable {
     @FXML private TextField lieuProprietaireField;
     @FXML private TextField organisateurIdField;
     @FXML private TextField prixField;
-    @FXML private TextField imageField;
+
     @FXML private RadioButton lieuExistantRadio;
     @FXML private RadioButton lieuPersonnaliseRadio;
     @FXML private VBox lieuExistantVBox;
     @FXML private VBox lieuPersonnaliseVBox;
-    
+
     @FXML private TableView<MaterielSelection> materielTable;
     @FXML private TableColumn<MaterielSelection, String> materielColumn;
     @FXML private TableColumn<MaterielSelection, Integer> quantiteColumn;
     @FXML private TableColumn<MaterielSelection, Void> actionColumn;
+    @FXML private ImageView imagePreview;
+    @FXML private Button selectImageButton;
+    private File selectedImageFile;
+    private String imageUrl;
+
+
 
     private final EvenementService evenementService = new EvenementService();
     private final MaterielService materielService = new MaterielService();
     private final CategoriesEventService categoriesEventService = new CategoriesEventService();
     private final LieuServiceImpl lieuService = new LieuServiceImpl();
     private final ObservableList<MaterielSelection> materielSelections = FXCollections.observableArrayList();
+
+    @FXML
+    private BorderPane rootPane;
+
+    public AjouterEvenementController() throws SQLException {
+    }
+
+    @FXML
+    private void goToAjouterCateg() {
+        loadPage("/AjouterCateg.fxml");
+    }
+
+    @FXML
+    private void goToAjouterEvenement() {
+        loadPage("/AjouterEvenement.fxml");
+    }
+
+    @FXML
+    private void goToModifierEvenement() {
+        loadPage("/ModifierEvenement.fxml");
+    }
+
+    @FXML
+    private void goToEventsView() {
+        loadPage("/events-view.fxml");
+    }
+
+    @FXML
+    private void goToGererEvenements() {
+        loadPage("/GererEvenements.fxml");
+    }
+
+    private void loadPage(String page) {
+        try {
+            Parent newPage = FXMLLoader.load(getClass().getResource(page));
+            Scene scene = rootPane.getScene();
+            scene.setRoot(newPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,12 +132,10 @@ public class AjouterEvenementController implements Initializable {
         lieuExistantRadio.setToggleGroup(lieuToggleGroup);
         lieuPersonnaliseRadio.setToggleGroup(lieuToggleGroup);
 
-        // Par défaut, sélectionner "Lieu existant"
         lieuExistantRadio.setSelected(true);
         lieuPersonnaliseVBox.setVisible(false);
         lieuPersonnaliseVBox.setManaged(false);
 
-        // Gérer la visibilité des champs en fonction de la sélection
         lieuExistantRadio.selectedProperty().addListener((obs, oldVal, newVal) -> {
             lieuExistantVBox.setVisible(newVal);
             lieuExistantVBox.setManaged(newVal);
@@ -90,13 +150,47 @@ public class AjouterEvenementController implements Initializable {
             lieuExistantVBox.setManaged(!newVal);
         });
     }
+    @FXML
+    private void handleSelectImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner une image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        selectedImageFile = fileChooser.showOpenDialog(null);
+
+        if (selectedImageFile != null) {
+            // Afficher l'aperçu de l'image sélectionnée
+            Image image = new Image(selectedImageFile.toURI().toString());
+            imagePreview.setImage(image);
+        }
+    }
+
+    private String copyImageToServer() throws IOException {
+        if (selectedImageFile == null) {
+            throw new IllegalArgumentException("Aucune image sélectionnée.");
+        }
+
+        // Chemin du dossier de stockage XAMPP
+        String destinationDir = "C:/xampp/htdocs/img/";
+        Path destinationPath = Paths.get(destinationDir + selectedImageFile.getName());
+
+        // Copier l'image vers le serveur local
+        Files.copy(selectedImageFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Retourner l'URL de l'image accessible via XAMPP
+        return "http://localhost/img/" + selectedImageFile.getName();
+    }
+
+
 
     private void setupMaterielTable() {
-        materielColumn.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getMateriel().getLibelle()));
-        
-        quantiteColumn.setCellValueFactory(cellData -> 
-            cellData.getValue().quantiteProperty().asObject());
+        materielColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getMateriel().getLibelle()));
+
+        quantiteColumn.setCellValueFactory(cellData ->
+                cellData.getValue().quantiteProperty().asObject());
         quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         quantiteColumn.setOnEditCommit(event -> {
             event.getRowValue().setQuantite(event.getNewValue());
@@ -124,7 +218,6 @@ public class AjouterEvenementController implements Initializable {
     }
 
     private void setupComboBoxes() {
-        // Configuration du ComboBox des catégories
         List<CategoriesEvent> categories = categoriesEventService.rechercher();
         categorieComboBox.setItems(FXCollections.observableArrayList(categories));
         categorieComboBox.setConverter(new StringConverter<CategoriesEvent>() {
@@ -139,7 +232,6 @@ public class AjouterEvenementController implements Initializable {
             }
         });
 
-        // Configuration du ComboBox des lieux
         List<Lieu> lieux = lieuService.rechercher();
         lieuComboBox.setItems(FXCollections.observableArrayList(lieux));
         lieuComboBox.setConverter(new StringConverter<Lieu>() {
@@ -168,13 +260,12 @@ public class AjouterEvenementController implements Initializable {
             HBox materielRow = new HBox(10);
             CheckBox checkBox = new CheckBox(materiel.getLibelle());
             Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, 1);
-            
+
             materielRow.getChildren().addAll(checkBox, quantiteSpinner);
             content.getChildren().add(materielRow);
 
-            // Vérifier si le matériel est déjà sélectionné
             boolean isAlreadySelected = materielSelections.stream()
-                .anyMatch(ms -> ms.getMateriel().getId() == materiel.getId());
+                    .anyMatch(ms -> ms.getMateriel().getId() == materiel.getId());
             checkBox.setSelected(isAlreadySelected);
         }
 
@@ -189,7 +280,7 @@ public class AjouterEvenementController implements Initializable {
                     HBox row = (HBox) content.getChildren().get(i);
                     CheckBox checkBox = (CheckBox) row.getChildren().get(0);
                     Spinner<Integer> spinner = (Spinner<Integer>) row.getChildren().get(1);
-                    
+
                     if (checkBox.isSelected()) {
                         Materiel materiel = materiels.get(i);
                         MaterielSelection selection = new MaterielSelection(materiel);
@@ -204,8 +295,73 @@ public class AjouterEvenementController implements Initializable {
         dialog.showAndWait();
     }
 
+
+    @FXML
+    private boolean validateFields() {
+        StringBuilder errors = new StringBuilder();
+
+        if (titreField.getText().trim().isEmpty()) {
+            errors.append("Le titre est obligatoire.\n");
+        }
+        if (descriptionField.getText().trim().isEmpty()) {
+            errors.append("La description est obligatoire.\n");
+        }
+        if (dateDebutPicker.getValue() == null) {
+            errors.append("La date de début est obligatoire.\n");
+        }
+        if (dateFinPicker.getValue() == null) {
+            errors.append("La date de fin est obligatoire.\n");
+        }
+        if (dateDebutPicker.getValue() != null && dateFinPicker.getValue() != null &&
+                dateFinPicker.getValue().isBefore(dateDebutPicker.getValue())) {
+            errors.append("La date de fin ne peut pas être avant la date de début.\n");
+        }
+        try {
+            int capacite = Integer.parseInt(capaciteField.getText().trim());
+            if (capacite <= 0) {
+                errors.append("La capacité doit être un nombre positif.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("La capacité doit être un nombre valide.\n");
+        }
+        if (categorieComboBox.getValue() == null) {
+            errors.append("Veuillez sélectionner une catégorie.\n");
+        }
+        if (lieuExistantRadio.isSelected() && lieuComboBox.getValue() == null) {
+            errors.append("Veuillez sélectionner un lieu existant.\n");
+        }
+        if (lieuPersonnaliseRadio.isSelected() && lieuProprietaireField.getText().trim().isEmpty()) {
+            errors.append("Veuillez indiquer le propriétaire du lieu personnalisé.\n");
+        }
+        try {
+            int organisateurId = Integer.parseInt(organisateurIdField.getText().trim());
+            if (organisateurId <= 0) {
+                errors.append("L'ID de l'organisateur doit être valide.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("L'ID de l'organisateur doit être un nombre valide.\n");
+        }
+        try {
+            double prix = Double.parseDouble(prixField.getText().trim());
+            if (prix < 0) {
+                errors.append("Le prix ne peut pas être négatif.\n");
+            }
+        } catch (NumberFormatException e) {
+            errors.append("Le prix doit être un nombre valide.\n");
+        }
+
+        if (errors.length() > 0) {
+            showAlert(Alert.AlertType.ERROR, "Erreurs de saisie", errors.toString());
+            return false;
+        }
+        return true;
+    }
+
+
     @FXML
     private void handleAjouterEvenement() {
+        if (!validateFields()) return;
+
         try {
             int lieuId = 0;
             String lieuProprietaire = null;
@@ -219,30 +375,41 @@ public class AjouterEvenementController implements Initializable {
                 lieuProprietaire = lieuProprietaireField.getText();
             }
 
+            // Vérifier si une image a été sélectionnée
+            if (selectedImageFile == null) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez sélectionner une image !");
+                return;
+            }
+
+            // Copier l'image vers le serveur XAMPP et récupérer son URL
+            imageUrl = copyImageToServer();
+
+            // Création de l'événement avec l'URL de l'image
             Evenement evenement = new Evenement(
-                0, // ID sera généré par la base de données
-                titreField.getText(),
-                descriptionField.getText(),
-                dateDebutPicker.getValue().toString(),
-                dateFinPicker.getValue().toString(),
-                Integer.parseInt(capaciteField.getText()),
-                categorieComboBox.getValue().getId(),
-                lieuId,
-                Integer.parseInt(organisateurIdField.getText()),
-                Double.parseDouble(prixField.getText()),
-                "en attente",
-                lieuProprietaire,
-                imageField.getText()
+                    0,
+                    titreField.getText(),
+                    descriptionField.getText(),
+                    dateDebutPicker.getValue().toString(),
+                    dateFinPicker.getValue().toString(),
+                    Integer.parseInt(capaciteField.getText()),
+                    categorieComboBox.getValue().getId(),
+                    lieuId,
+                    Integer.parseInt(organisateurIdField.getText()),
+                    Double.parseDouble(prixField.getText()),
+                    "en attente",
+                    lieuProprietaire,
+                    imageUrl // ✅ Utilisation de l'URL publique
             );
 
+            // Ajouter l'événement
             evenementService.ajouter(evenement);
 
-            // Ajouter les matériels sélectionnés
+            // Ajouter le matériel sélectionné à l'événement
             for (MaterielSelection selection : materielSelections) {
                 evenementService.ajouterMaterielAEvenement(
-                    evenement.getId(),
-                    selection.getMateriel().getId(),
-                    selection.getQuantite()
+                        evenement.getId(),
+                        selection.getMateriel().getId(),
+                        selection.getQuantite()
                 );
             }
 
@@ -252,6 +419,9 @@ public class AjouterEvenementController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue: " + e.getMessage());
         }
     }
+
+
+
 
     private void clearFields() {
         titreField.clear();
@@ -264,8 +434,11 @@ public class AjouterEvenementController implements Initializable {
         lieuProprietaireField.clear();
         organisateurIdField.clear();
         prixField.clear();
-        imageField.clear();
+
         materielSelections.clear();
+        imagePreview.setImage(null);
+        selectedImageFile = null;
+
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

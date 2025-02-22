@@ -3,13 +3,18 @@ package com.esprit.controllers;
 import com.esprit.models.CategoriesEvent;
 import com.esprit.services.CategoriesEventService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.geometry.Pos;
 
 public class Ajoutercategorieevent implements Initializable {
     @FXML private TextField categ;
@@ -19,30 +24,111 @@ public class Ajoutercategorieevent implements Initializable {
 
     private CategoriesEventService service = new CategoriesEventService();
 
+    @FXML
+    private BorderPane rootPane;
+
+
+    @FXML
+    private void goToAjouterCateg() {
+        loadPage("/AjouterCateg.fxml");
+    }
+
+    @FXML
+    private void goToAjouterEvenement() {
+        loadPage("/AjouterEvenement.fxml");
+    }
+
+    @FXML
+    private void goToModifierEvenement() {
+        loadPage("/ModifierEvenement.fxml");
+    }
+
+    @FXML
+    private void goToEventsView() {
+        loadPage("/events-view.fxml");
+    }
+
+    @FXML
+    private void goToGererEvenements() {
+        loadPage("/GererEvenements.fxml");
+    }
+
+    private void loadPage(String page) {
+        try {
+            Parent newPage = FXMLLoader.load(getClass().getResource(page));
+            Scene scene = rootPane.getScene();
+            scene.setRoot(newPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupTable();
         refreshTable();
+        setupTableStyle();
+    }
+
+    private void setupTableStyle() {
+        // Add row hover effect
+        categorieTable.setRowFactory(tv -> {
+            TableRow<CategoriesEvent> row = new TableRow<>();
+            row.setStyle("-fx-background-color: transparent;");
+
+            row.setOnMouseEntered(event -> {
+                if (!row.isEmpty()) {
+                    row.setStyle("-fx-background-color: #f8f9fa;");
+                }
+            });
+            row.setOnMouseExited(event -> {
+                if (!row.isEmpty()) {
+                    row.setStyle("");
+                }
+            });
+            return row;
+        });
     }
 
     private void setupTable() {
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        
+
         actionsColumn.setCellFactory(col -> new TableCell<>() {
             private final Button modifyBtn = new Button("Modifier");
             private final Button deleteBtn = new Button("Supprimer");
-            private final HBox box = new HBox(5, modifyBtn, deleteBtn);
+            private final HBox box = new HBox(8, modifyBtn, deleteBtn);
 
             {
+                // Modern button styling
+                String modifyBtnStyle = "-fx-background-color: #17a2b8; -fx-text-fill: white; " +
+                        "-fx-background-radius: 6; -fx-font-size: 13; -fx-padding: 8 16;";
+                String deleteBtnStyle = "-fx-background-color: #dc3545; -fx-text-fill: white; " +
+                        "-fx-background-radius: 6; -fx-font-size: 13; -fx-padding: 8 16;";
+
+                modifyBtn.setStyle(modifyBtnStyle);
+                deleteBtn.setStyle(deleteBtnStyle);
+                box.setAlignment(Pos.CENTER);
+
+                // Enhanced hover effects
+                modifyBtn.setOnMouseEntered(e ->
+                        modifyBtn.setStyle(modifyBtnStyle + "-fx-background-color: #138496; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0);"));
+                modifyBtn.setOnMouseExited(e ->
+                        modifyBtn.setStyle(modifyBtnStyle));
+
+                deleteBtn.setOnMouseEntered(e ->
+                        deleteBtn.setStyle(deleteBtnStyle + "-fx-background-color: #c82333; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0);"));
+                deleteBtn.setOnMouseExited(e ->
+                        deleteBtn.setStyle(deleteBtnStyle));
+
+                // Add button actions
                 modifyBtn.setOnAction(e -> {
                     CategoriesEvent categorie = getTableView().getItems().get(getIndex());
                     handleModify(categorie);
                 });
-                
+
                 deleteBtn.setOnAction(e -> {
                     CategoriesEvent categorie = getTableView().getItems().get(getIndex());
-                    service.supprimer(categorie);
-                    refreshTable();
+                    supprimer(categorie);
                 });
             }
 
@@ -56,22 +142,75 @@ public class Ajoutercategorieevent implements Initializable {
 
     @FXML
     private void ajouter() {
-        CategoriesEvent newCategorie = new CategoriesEvent(categ.getText());
+        String categoryName = categ.getText().trim();
+
+        // Vérification si le champ est vide
+        if (categoryName.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas être vide.");
+            return;
+        }
+
+        // Vérification de la longueur maximale (par exemple, 50 caractères)
+        if (categoryName.length() > 50) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas dépasser 50 caractères.");
+            return;
+        }
+
+        CategoriesEvent newCategorie = new CategoriesEvent(categoryName);
+        if (service.isCategoryExists(newCategorie.getNom())) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "La catégorie existe déjà.");
+            return;
+        }
+
         service.ajouter(newCategorie);
         categ.clear();
         refreshTable();
+        showAlert(Alert.AlertType.INFORMATION, "Succès", "Catégorie ajoutée avec succès.");
     }
 
     private void handleModify(CategoriesEvent categorie) {
         TextInputDialog dialog = new TextInputDialog(categorie.getNom());
         dialog.setTitle("Modifier");
         dialog.setContentText("Nouveau nom:");
-        
+
         dialog.showAndWait().ifPresent(newName -> {
+            // Vérification si le champ est vide
+            if (newName.trim().isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas être vide.");
+                return;
+            }
+
+            // Vérification de la longueur maximale (par exemple, 50 caractères)
+            if (newName.length() > 50) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom de la catégorie ne peut pas dépasser 50 caractères.");
+                return;
+            }
+
+            // Si les validations passent, modifier la catégorie
             categorie.setNom(newName);
             service.modifier(categorie);
+            showAlert(Alert.AlertType.INFORMATION, "Succès", "Catégorie modifiée avec succès.");
             refreshTable();
         });
+    }
+
+    @FXML
+    private void supprimer(CategoriesEvent categorie) {
+        if (service.isCategoryLinkedToEvent(categorie.getId())) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "La catégorie ne peut pas être supprimée car elle est liée à un événement.");
+            return;
+        }
+
+        service.supprimer(categorie);
+        refreshTable();
+        showAlert(Alert.AlertType.INFORMATION, "Succès", "Catégorie supprimée avec succès.");
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     private void refreshTable() {

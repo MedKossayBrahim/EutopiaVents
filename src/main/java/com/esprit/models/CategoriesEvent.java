@@ -31,11 +31,10 @@ public class CategoriesEvent {
         this.nom = nom;
     }
 
-    @Override
-    public String toString() {
-        return "CategoriesEvent{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                '}';
-    }
+
+        @Override
+        public String toString() {
+            return this.getNom();
+        }
+
 }
