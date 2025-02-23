@@ -1,7 +1,9 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Lieu;
+import com.esprit.models.categorie_salle;
 import com.esprit.services.LieuServiceImpl;
+import com.esprit.services.CategorieServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,8 +26,10 @@ public class MainMenuController {
     @FXML private GridPane lieuxGrid;
     @FXML private Pagination pagination;
     @FXML private TextField searchField;
+    @FXML private ComboBox<String> categoryFilter;
 
     private LieuServiceImpl lieuService = new LieuServiceImpl();
+    private CategorieServiceImpl categorieService = new CategorieServiceImpl();
     private static final int ITEMS_PER_PAGE = 8;
     private ObservableList<Lieu> allLieux;
     private ObservableList<Lieu> filteredLieux;
@@ -34,6 +38,7 @@ public class MainMenuController {
     public void initialize() {
         loadLieux();
         setupSearch();
+        setupCategoryFilter();
     }
 
     public void loadLieux() {
@@ -44,11 +49,33 @@ public class MainMenuController {
 
     private void setupSearch() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredLieux.setAll(allLieux.stream()
-                    .filter(lieu -> lieu.getNom().toLowerCase().contains(newValue.toLowerCase()))
-                    .collect(Collectors.toList()));
-            updatePagination();
+            filterLieux();
         });
+    }
+
+    private void setupCategoryFilter() {
+        List<String> categoryNames = categorieService.rechercher().stream()
+                .map(categorie_salle::getNom)
+                .collect(Collectors.toList());
+        categoryNames.add(0, "Toutes les catégories");
+
+        categoryFilter.setItems(FXCollections.observableArrayList(categoryNames));
+        categoryFilter.getSelectionModel().selectFirst();
+
+        categoryFilter.setOnAction(e -> filterLieux());
+    }
+
+    private void filterLieux() {
+        String searchText = searchField.getText().toLowerCase();
+        String selectedCategoryName = categoryFilter.getValue();
+
+        filteredLieux.setAll(allLieux.stream()
+                .filter(lieu -> lieu.getNom().toLowerCase().contains(searchText))
+                .filter(lieu -> "Toutes les catégories".equals(selectedCategoryName) ||
+                        lieu.getCategorie().getNom().equals(selectedCategoryName))
+                .collect(Collectors.toList()));
+
+        updatePagination();
     }
 
     private void updatePagination() {
@@ -210,3 +237,4 @@ public class MainMenuController {
         loadLieux();
     }
 }
+

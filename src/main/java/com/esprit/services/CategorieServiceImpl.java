@@ -111,6 +111,24 @@ public class CategorieServiceImpl implements IService<categorie_salle>{
         }
         return categories;
     }
+    public categorie_salle getCategoryByName(String name) {
+        String req = "SELECT * FROM categorie_salle WHERE nom = ?";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setString(1, name);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new categorie_salle(
+                            rs.getInt("id"),
+                            rs.getString("nom"),
+                            rs.getString("description")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la recherche de la catégorie par nom : " + e.getMessage());
+        }
+        return null;
+    }
 
     //un ajout du code*******
     //cest une methode qui ajoute plusieurs categorie a la fois en utilisant la methode d'ajout principal utilise dans le main

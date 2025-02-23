@@ -23,6 +23,7 @@
             <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="10">
                 <TextField fx:id="searchField" promptText="Rechercher un lieu..." styleClass="search-input"/>
                 <Button text="Ajouter Lieu" onAction="#goToAjouterLieu" styleClass="primary-button"/>
+                <ComboBox fx:id="categoryFilter" promptText="Filtrer par catégorie"/>
             </HBox>
         </HBox>
 

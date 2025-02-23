@@ -188,17 +188,16 @@ public class photo {
     @FXML
     private void modifierPhoto() {
         if (selectedFile == null || comboBoxLieux.getValue() == null) return;
-
         try {
             String newUrl = uploadImage(selectedFile.getAbsolutePath());
             Lieu lieu = comboBoxLieux.getValue();
 
-            // Cas 1 : Modification de l'image principale
+            // Cas 1 : Modification de la photo principale
             if (selectedMainImageUrl != null) {
                 lieu.setImage(newUrl);
                 lieuService.modifier(lieu);
             }
-            // Cas 2 : Modification d'une photo normale
+            // Cas 2 : Modification d'une photo secondaire
             else if (selectedPhoto != null) {
                 selectedPhoto.setUrlImage(newUrl);
                 photoService.modifier(selectedPhoto);
@@ -211,24 +210,19 @@ public class photo {
         }
     }
 
-
     @FXML
     private void supprimerPhoto() {
-        Lieu selectedLieu = comboBoxLieux.getValue();
-        if (selectedLieu == null) return;
+        Lieu lieu = comboBoxLieux.getValue();
+        if (lieu == null) return;
 
-        // Cas 1 : Suppression de l'image principale
+        // Cas 1 : Suppression de la photo principale
         if (selectedMainImageUrl != null) {
-            try {
-                selectedLieu.setImage(null);
-                lieuService.modifier(selectedLieu);
-                showAlert("Succès", "Image principale supprimée !");
-                afficherPhotosPourLieu();
-            } catch (Exception e) {
-                showAlert("Erreur", e.getMessage());
-            }
+            lieu.setImage(null);
+            lieuService.modifier(lieu);
+            showAlert("Succès", "Image principale supprimée !");
+            afficherPhotosPourLieu();
         }
-        // Cas 2 : Suppression d'une photo normale
+        // Cas 2 : Suppression d'une photo secondaire
         else if (selectedPhoto != null) {
             photoService.supprimer(selectedPhoto);
             showAlert("Succès", "Photo supprimée !");
