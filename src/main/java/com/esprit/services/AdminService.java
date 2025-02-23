@@ -18,21 +18,20 @@ public class AdminService implements IService<Admin> {
     @Override
     public void ajouter(Admin admin) {
 
-        String req = "INSERT INTO users (nom, prenom, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters to prevent SQL injection
-            st.setString(1, admin.getNom());
-            st.setString(2, admin.getPrenom());
-            st.setString(3, admin.getUserName());
-            st.setInt(4, admin.getphone());
-            st.setString(5, admin.getEmail());
-            st.setString(6, admin.getPasswd());
-            st.setString(7, "null"); // Assuming image is optional and can be null
-            st.setBoolean(8, true); // Assuming isActive is a string (adjust if it's a boolean)
-            st.setString(9, "admin"); // Assuming role is a string
+            st.setString(1, admin.getFullname());
+            st.setString(2, admin.getUserName());
+            st.setInt(3, admin.getphone());
+            st.setString(4, admin.getEmail());
+            st.setString(5, admin.getPasswd());
+            st.setString(6, "http://localhost/img/default.png"); // Assuming image is optional and can be null
+            st.setBoolean(7, true); // Assuming isActive is a string (adjust if it's a boolean)
+            st.setString(8, "admin"); // Assuming role is a string
 
             int rowsAffected = st.executeUpdate();
             if (rowsAffected > 0) {
@@ -50,22 +49,21 @@ public class AdminService implements IService<Admin> {
     public void modifier(Admin admin) {
 
         // SQL query to update the admin's details
-        String req = "UPDATE users SET nom = ?, prenom = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
+        String req = "UPDATE users SET fullName = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters for the update query
-            st.setString(1, admin.getNom());
-            st.setString(2, admin.getPrenom());
-            st.setString(3, admin.getUserName());
-            st.setInt(4, admin.getphone());
-            st.setString(5, admin.getEmail());
-            st.setString(6, admin.getPasswd());
-            st.setString(7, admin.getImage()); // Assuming image is a string (can be null)
-            st.setBoolean(8, admin.getActive()); // Assuming isActive is a boolean
-            st.setString(9, admin.getRole().toString()); // Assuming role is an enum
-            st.setInt(10, admin.getUserID()); // userID is used to identify the admin to update
+            st.setString(1, admin.getFullname());
+            st.setString(2, admin.getUserName());
+            st.setInt(3, admin.getphone());
+            st.setString(4, admin.getEmail());
+            st.setString(5, admin.getPasswd());
+            st.setString(6, admin.getImage()); // Assuming image is a string (can be null)
+            st.setBoolean(7, admin.getActive()); // Assuming isActive is a boolean
+            st.setString(8, admin.getRole().toString()); // Assuming role is an enum
+            st.setInt(9, admin.getUserID()); // userID is used to identify the admin to update
 
             // Execute the update query
             int rowsAffected = st.executeUpdate();
@@ -122,7 +120,7 @@ public class AdminService implements IService<Admin> {
             // Iterate through the result set and create admin objects
             while (rs.next()) {
                 // Create a admin object using the parameterized constructor
-                Admin adminTEMP = new Admin(rs.getInt("userID"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
+                Admin adminTEMP = new Admin(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
                         rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")) // Assuming Role is an enum
                 );
 

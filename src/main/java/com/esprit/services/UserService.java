@@ -33,7 +33,7 @@ public class UserService {
                     // Compare the input password with the stored hashed password
                     if (BCrypt.checkpw(passwd, storedHashedPassword)) {
                         // Passwords match, create the User object
-                        user = new User(rs.getInt("userID"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), storedHashedPassword, rs.getString("userName"), rs.getString("image"),
+                        user = new User(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), storedHashedPassword, rs.getString("userName"), rs.getString("image"),
                                 // Use the stored hashed password
                                 rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")));
                         System.out.println("User logged in: " + user);
@@ -50,25 +50,39 @@ public class UserService {
 
         return user; // Return the user object (or null if login fails)
     }
+    public boolean userExistsByEmail(String email) {
+        String req = "SELECT COUNT(*) FROM users WHERE email = ?;";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // If count > 0, user exists
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking user existence: " + e.getMessage());
+        }
+        return false;
+    }
 
-    public void updatePass(int userID, String password) {
+    public void updatePass(String email, String password) {
         // Hash the password before storing it (use a secure hashing algorithm like BCrypt)
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-        String req = "UPDATE users SET password = ? WHERE userID = ?;";
+        String req = "UPDATE users SET password = ? WHERE email = ?;";
 
         try (PreparedStatement st = connection.prepareStatement(req)) {
             // Set parameters to prevent SQL injection
             st.setString(1, hashedPassword); // Use the hashed password
-            st.setInt(2, userID);
+            st.setString(2, email);
 
             // Execute the update
             int rowsUpdated = st.executeUpdate(); // Use executeUpdate() for UPDATE queries
 
             if (rowsUpdated > 0) {
-                System.out.println("Password updated successfully for userID: " + userID);
+                System.out.println("Password updated successfully for email: " + email);
             } else {
-                System.out.println("No user found with userID: " + userID);
+                System.out.println("No user found with email: " + email);
             }
         } catch (SQLException e) {
             System.out.println("Error updating password: " + e.getMessage());

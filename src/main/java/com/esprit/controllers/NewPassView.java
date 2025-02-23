@@ -4,25 +4,28 @@ import com.esprit.models.User;
 import com.esprit.services.ParticipantService;
 import com.esprit.services.UserService;
 import com.esprit.tests.Eutopia;
+import com.esprit.utils.DataReceiver;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
-public class NewPassView {
+public class NewPassView implements DataReceiver<String> {
     public TextField newPass;
     public TextField confNewPass;
     UserService us = new ParticipantService();
-    User currentUser = Eutopia.getCurrentUser();
+    String email;
+    //User currentUser = Eutopia.getCurrentUser();
 
     public NewPassView() throws SQLException {
     }
 
 
-    public void passUpdate() {
+    public void passUpdate() throws IOException {
 
-        System.out.println(currentUser);
-        if (newPass.getText().equals(confNewPass.getText())){
+//        System.out.println(currentUser);
+        if (newPass.getText().equals(confNewPass.getText()) && newPass.getLength() > 5){
             System.out.println("equals pass");
 //            if (currentUser.getRole() == Role.Participant) {
 //                System.out.println("role is Participant");
@@ -42,14 +45,21 @@ public class NewPassView {
 //                ));
 //                System.out.println("passwd updated ");
 //            }
-            us.updatePass(currentUser.getUserID(), newPass.getText());
+            us.updatePass(email, newPass.getText());
+            Eutopia.getSceneManager().switchScene("/login-view.fxml",null);
 
 
         }
         System.out.println("aaa chbik");
     }
 
-    public void back(MouseEvent mouseEvent) {
-        Eutopia.getSceneManager().goBack();
+    public void back(MouseEvent mouseEvent) throws IOException {
+        Eutopia.getSceneManager().switchScene("/login-view.fxml",null);
+    }
+
+    @Override
+    public void setData(String data) {
+        email=data;
+
     }
 }

@@ -4,15 +4,14 @@ package com.esprit.services;
 import com.esprit.models.Participant;
 import com.esprit.models.Role;
 import com.esprit.tests.Eutopia;
-
 import com.esprit.utils.DataSource;
+import javafx.scene.control.Alert;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class ParticipantService extends UserService implements IService<Participant> {
@@ -25,35 +24,45 @@ public class ParticipantService extends UserService implements IService<Particip
     @Override
     public void ajouter(Participant participant) {
 
-        String req = "INSERT INTO users (nom, prenom, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters to prevent SQL injection
-            st.setString(1, participant.getNom());
-            st.setString(2, participant.getPrenom());
-            st.setString(3, participant.getUserName());
-            st.setInt(4, participant.getphone());
-            st.setString(5, participant.getEmail());
-            st.setString(6, BCrypt.hashpw(participant.getPasswd(), BCrypt.gensalt()));
-            st.setString(7, participant.getImage()); // Assuming image is optional and can be null
-            st.setBoolean(8, true); // Assuming isActive is a string (adjust if it's a boolean)
-            st.setString(9, "participant"); // Assuming role is a string
+            st.setString(1, participant.getFullname());
+            st.setString(2, participant.getUserName());
+            st.setInt(3, participant.getphone());
+            st.setString(4, participant.getEmail());
+            st.setString(5, BCrypt.hashpw(participant.getPasswd(), BCrypt.gensalt()));
+            st.setString(6, participant.getImage()); // Assuming image is optional and can be null
+            st.setBoolean(7, true); // Assuming isActive is a string (adjust if it's a boolean)
+            st.setString(8, "participant"); // Assuming role is a string
 
             int rowsAffected = st.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Participant ajouté avec succès.");
+                showAlert("success ", "user created");
+
                 Eutopia.getSceneManager().switchScene("/login-view.fxml", null); // Start at Page1.fxml
 
             } else {
                 System.out.println("Échec de l'ajout du participant.");
             }
         } catch (SQLException e) {
+            if (e.getMessage().contains("userName")) {
+                showAlert("Error", "UserName already exists");
+
+            } else if (e.getMessage().contains("email")) {
+                showAlert("Error", "email already exists");
+
+
+            }
             System.out.println("Erreur lors de l'ajout du participant: " + e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
     }
 
@@ -61,22 +70,21 @@ public class ParticipantService extends UserService implements IService<Particip
     public void modifier(Participant participant) {
 
         // SQL query to update the participant's details
-        String req = "UPDATE users SET nom = ?, prenom = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
+        String req = "UPDATE users SET fullName = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters for the update query
-            st.setString(1, participant.getNom());
-            st.setString(2, participant.getPrenom());
-            st.setString(3, participant.getUserName());
-            st.setInt(4, participant.getphone());
-            st.setString(5, participant.getEmail());
-            st.setString(6, participant.getPasswd());
-            st.setString(7, participant.getImage()); // Assuming image is a string (can be null)
-            st.setBoolean(8, participant.getActive()); // Assuming isActive is a boolean
-            st.setString(9, participant.getRole().toString()); // Assuming role is an enum
-            st.setInt(10, participant.getUserID()); // userID is used to identify the participant to update
+            st.setString(1, participant.getFullname());
+            st.setString(2, participant.getUserName());
+            st.setInt(3, participant.getphone());
+            st.setString(4, participant.getEmail());
+            st.setString(5, participant.getPasswd());
+            st.setString(6, participant.getImage()); // Assuming image is a string (can be null)
+            st.setBoolean(7, participant.getActive()); // Assuming isActive is a boolean
+            st.setString(8, participant.getRole().toString()); // Assuming role is an enum
+            st.setInt(9, participant.getUserID()); // userID is used to identify the participant to update
 
             // Execute the update query
             int rowsAffected = st.executeUpdate();
@@ -134,7 +142,7 @@ public class ParticipantService extends UserService implements IService<Particip
             // Iterate through the result set and create Participant objects
             while (rs.next()) {
                 // Create a Participant object using the parameterized constructor
-                Participant participantTEMP = new Participant(rs.getInt("userID"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
+                Participant participantTEMP = new Participant(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
                         rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")) // Assuming Role is an enum
                 );
 
@@ -147,5 +155,13 @@ public class ParticipantService extends UserService implements IService<Particip
 
         // Return the list of participants
         return participants;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

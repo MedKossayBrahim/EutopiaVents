@@ -57,9 +57,9 @@ public class EvenementService implements IService<Evenement> {
     @Override
     public void modifier(Evenement evenement) {
         String req = "UPDATE events SET titre=?, description=?, date_debut=?, date_fin=?, " +
-                     "capacite=?, categorie_id=?, lieu_id=?, organisateur_id=?, prix=?, " +
-                     "statut=?, lieu_proprietaire=?, image=? WHERE id=?";
-        
+                "capacite=?, categorie_id=?, lieu_id=?, organisateur_id=?, prix=?, " +
+                "statut=?, lieu_proprietaire=?, image=? WHERE id=?";
+
         try (PreparedStatement pst = connection.prepareStatement(req)) {
             pst.setString(1, evenement.getTitre());
             pst.setString(2, evenement.getDescription());
@@ -67,7 +67,7 @@ public class EvenementService implements IService<Evenement> {
             pst.setString(4, evenement.getDateFin());
             pst.setInt(5, evenement.getCapacite());
             pst.setInt(6, evenement.getCategorieId());
-            
+
             // Gestion du lieu_id et lieu_proprietaire
             if (evenement.getLieuId() > 0) {
                 pst.setInt(7, evenement.getLieuId());
@@ -76,7 +76,7 @@ public class EvenementService implements IService<Evenement> {
                 pst.setNull(7, Types.INTEGER);
                 pst.setString(11, evenement.getLieu_proprietaire());
             }
-            
+
             pst.setInt(8, evenement.getOrganisateurId());
             pst.setDouble(9, evenement.getPrix());
             pst.setString(10, evenement.getStatut());
@@ -85,7 +85,7 @@ public class EvenementService implements IService<Evenement> {
 
             pst.executeUpdate();
             System.out.println("Événement modifié avec succès");
-            
+
         } catch (SQLException e) {
             System.out.println("Erreur lors de la modification de l'événement: " + e.getMessage());
             throw new RuntimeException("Erreur lors de la modification de l'événement", e);
@@ -114,7 +114,8 @@ public class EvenementService implements IService<Evenement> {
 
 
         String req = "SELECT e.*, " +
-                "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
+//                "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
+                "u.fullname AS organisateur_nom, " +
                 "c.nom AS categorie_nom, " +
                 "l.nom AS lieu_nom " +
                 "FROM events e " +
@@ -126,19 +127,19 @@ public class EvenementService implements IService<Evenement> {
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
                 Evenement evt = new Evenement(
-                    rs.getInt("id"),
-                    rs.getString("titre"),
-                    rs.getString("description"),
-                    rs.getString("date_debut"),
-                    rs.getString("date_fin"),
-                    rs.getInt("capacite"),
-                    rs.getInt("categorie_id"),
-                    rs.getInt("lieu_id"),
-                    rs.getInt("organisateur_id"),
-                    rs.getDouble("prix"),
-                    rs.getString("statut"),
-                    rs.getString("lieu_proprietaire"),
-                    rs.getString("image")
+                        rs.getInt("id"),
+                        rs.getString("titre"),
+                        rs.getString("description"),
+                        rs.getString("date_debut"),
+                        rs.getString("date_fin"),
+                        rs.getInt("capacite"),
+                        rs.getInt("categorie_id"),
+                        rs.getInt("lieu_id"),
+                        rs.getInt("organisateur_id"),
+                        rs.getDouble("prix"),
+                        rs.getString("statut"),
+                        rs.getString("lieu_proprietaire"),
+                        rs.getString("image")
                 );
                 evt.setOrganisateurNom(rs.getString("organisateur_nom"));
                 evt.setCategorieNom(rs.getString("categorie_nom"));
@@ -154,14 +155,15 @@ public class EvenementService implements IService<Evenement> {
     public Evenement rechercherParId(int id) {
         Evenement evenement = null;
         String req = "SELECT e.*, " +
-                     "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
-                     "c.nom AS categorie_nom, " +
-                     "l.nom AS lieu_nom " +
-                     "FROM events e " +
-                     "LEFT JOIN users u ON e.organisateur_id = u.userID " +
-                     "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
-                     "LEFT JOIN lieu l ON e.lieu_id = l.id " +
-                     "WHERE e.id = ?";
+//                     "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
+                "u.fullname AS organisateur_nom, " +
+                "c.nom AS categorie_nom, " +
+                "l.nom AS lieu_nom " +
+                "FROM events e " +
+                "LEFT JOIN users u ON e.organisateur_id = u.userID " +
+                "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
+                "LEFT JOIN lieu l ON e.lieu_id = l.id " +
+                "WHERE e.id = ?";
 
 
 
@@ -173,19 +175,19 @@ public class EvenementService implements IService<Evenement> {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     evenement = new Evenement(
-                        rs.getInt("id"),
-                        rs.getString("titre"),
-                        rs.getString("description"),
-                        rs.getString("date_debut"),
-                        rs.getString("date_fin"),
-                        rs.getInt("capacite"),
-                        rs.getInt("categorie_id"),
-                        rs.getInt("lieu_id"),
-                        rs.getInt("organisateur_id"),
-                        rs.getDouble("prix"),
-                        rs.getString("statut"),
-                        rs.getString("lieu_proprietaire"),
-                        rs.getString("image")
+                            rs.getInt("id"),
+                            rs.getString("titre"),
+                            rs.getString("description"),
+                            rs.getString("date_debut"),
+                            rs.getString("date_fin"),
+                            rs.getInt("capacite"),
+                            rs.getInt("categorie_id"),
+                            rs.getInt("lieu_id"),
+                            rs.getInt("organisateur_id"),
+                            rs.getDouble("prix"),
+                            rs.getString("statut"),
+                            rs.getString("lieu_proprietaire"),
+                            rs.getString("image")
                     );
                     evenement.setOrganisateurNom(rs.getString("organisateur_nom"));
                     evenement.setCategorieNom(rs.getString("categorie_nom"));

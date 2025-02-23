@@ -4,29 +4,28 @@ import java.net.URL;
 
 public class User {
     private int userID;
-    private String nom, prenom, email, passwd, userName, image;
+    private String fullname, email, passwd, userName, image;
     private int phone;
     private Boolean isActive;
     private Role role;
-    URL url = getClass().getResource("/Images/default.png");
+    //URL url = getClass().getResource("/Images/default.png");
 
-    public User(String nom, String prenom, String userName, String email, String passwd, int phone) {
-        this.nom = nom;
-        this.prenom = prenom;
+    public User(String fullname, String userName, String email, String passwd, int phone) {
+        this.fullname = fullname;
         this.userName = userName;
         this.email = email;
         this.passwd = passwd;
         this.phone = phone;
         this.isActive = true;
-        URL url = getClass().getResource("/Images/default.png");
-        this.image = (url != null) ? url.toExternalForm() : null;
+        this.image = "http://localhost/img/default.png";
+//        URL url = getClass().getResource("/Images/default.png");
+//        this.image = (url != null) ? url.toExternalForm() : null;
     }
 
 
-    public User(int userID, String nom, String prenom, String email, String passwd, String userName, String image, int phone, Boolean isActive, Role role) {
+    public User(int userID, String fullname, String email, String passwd, String userName, String image, int phone, Boolean isActive, Role role) {
         this.userID = userID;
-        this.nom = nom;
-        this.prenom = prenom;
+        this.fullname = fullname;
         this.email = email;
         this.passwd = passwd;
         this.userName = userName;
@@ -54,7 +53,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "userID=" + userID + ", nom='" + nom + '\'' + ", prenom='" + prenom + '\'' + ", email='" + email + '\'' + ", passwd='" + passwd + '\'' + ", userName='" + userName + '\'' + ", image='" + image + '\'' + ", phone=" + phone + ", isActive=" + isActive + ", role=" + role + '}';
+        return "User{" + "userID=" + userID + ", nom='" + fullname   + '\'' + ", email='" + email + '\'' + ", passwd='" + passwd + '\'' + ", userName='" + userName + '\'' + ", image='" + image + '\'' + ", phone=" + phone + ", isActive=" + isActive + ", role=" + role + '}';
     }
 
     public int getUserID() {
@@ -65,20 +64,12 @@ public class User {
         this.userID = userID;
     }
 
-    public String getNom() {
-        return nom;
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
     }
 
     public String getEmail() {

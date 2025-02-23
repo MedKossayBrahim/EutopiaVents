@@ -1,48 +1,92 @@
+/* Modern Button */
 .button {
-    -fx-background-color: #F5D0C8; /* Green */
-    -fx-text-fill: black;
-    -fx-font-size: 14px;
-    -fx-padding: 10px 20px;
-    -fx-border-radius: 20px;
-}
-#welcome{
-    -fx-font-size: 24px;
-        -fx-font-weight: bold;
-        -fx-fill: #FF5733;
+    -fx-background-color: linear-gradient(to right, #FF6B6B, #FF8E53);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 28px;
+    -fx-border-radius: 30px;
+    -fx-background-radius: 30px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.3, 2, 2);
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s ease-in-out;
 }
 
+.button:hover {
+    -fx-background-color: linear-gradient(to right, #FF8E53, #FF6B6B);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Stylish Heading */
+#welcome {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #FF6B6B;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0.4, 1, 1);
+}
+
+/* Modern Input Fields */
 .text-field {
-    /*-fx-pref-width: 300px;*/
-    -fx-padding: 8px;
+    -fx-padding: 12px;
     -fx-font-size: 14px;
-    -fx-border-color: #000000; /* Light border */
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
-    -fx-focus-color: transparent; /* Remove blue border on focus */
-    -fx-faint-focus-color: transparent;
+    -fx-border-color: #FF6B6B;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-background-color: #FAFAFA;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.1), 4, 0.3, 0, 1);
+    -fx-transition: all 0.3s ease-in-out;
 }
 
+.text-field:focused {
+    -fx-border-color: #FF8E53;
+    -fx-background-color: #FFF3E0;
+}
+
+/* Sleek Checkboxes */
 .check-box {
-    -fx-font-size: 10px;
-    -fx-text-fill: #222; /* Dark text color */
+    -fx-font-size: 12px;
+    -fx-text-fill: #333;
     -fx-font-weight: bold;
 }
 
 .check-box .box {
     -fx-background-color: white;
-    -fx-border-color: #ccc;
-    -fx-border-radius: 5px;
-    -fx-padding: 5px;
-    -fx-pref-width: 18px;
-    -fx-pref-height: 18px;
+    -fx-border-color: #FF6B6B;
+    -fx-border-radius: 6px;
+    -fx-padding: 6px;
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-transition: all 0.3s ease-in-out;
 }
 
 .check-box:selected .box {
-    -fx-background-color: #222; /* Dark color when checked */
-    -fx-border-color: #222;
+    -fx-background-color: #FF6B6B;
+    -fx-border-color: #FF8E53;
 }
 
 .check-box:selected .mark {
-    -fx-background-color: white; /* White checkmark */
+    -fx-background-color: white;
     -fx-stroke-width: 2px;
+}
+
+/* OTP Field - Minimal & Modern */
+.otp-field {
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+    -fx-alignment: center;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-border-color: #FF6B6B;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-background-color: #FFF;
+    -fx-text-fill: #FF6B6B;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.3, 1, 1);
+}
+
+.otp-field:focused {
+    -fx-border-color: #FF8E53;
+    -fx-background-color: #FFF3E0;
 }

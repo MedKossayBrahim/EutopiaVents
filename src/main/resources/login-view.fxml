@@ -1,66 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<ScrollPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
-            fx:controller="com.esprit.controllers.LoginView" fitToWidth="true" fitToHeight="true">
-    <StackPane>
-        <!-- Center container -->
-        <AnchorPane maxWidth="900" maxHeight="600" style="-fx-background-color: white;">
-            <!-- Content container -->
-            <HBox alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" 
-                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
-                <!-- Left side with logo -->
-                <VBox alignment="CENTER" prefWidth="450" style="-fx-background-color: #F5D0C8;">
-                    <ImageView fitHeight="300.0" fitWidth="300.0" preserveRatio="true">
-                        <Image url="@Images/eutopia2.png"/>
+<StackPane stylesheets="styleskossay.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.LoginView">
+    <children>
+        <HBox stylesheets="@styleskossay.css">
+            <children>
+                <Pane prefHeight="400.0" prefWidth="450.0" style="-fx-background-color: #F5D0C8;">
+                    <ImageView fitHeight="259.0" fitWidth="207.0" layoutX="140.0" layoutY="171.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@Images/eutopia2.png" />
                     </ImageView>
-                    <Text text="EutopiaVents" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
-                </VBox>
-                
-                <!-- Right side with login form -->
-                <VBox alignment="CENTER" spacing="15" prefWidth="450">
-                    <padding>
-                        <Insets left="50" right="50"/>
-                    </padding>
-                    
-                    <Text fx:id="welcome" text="Welcome" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #FF5733;"/>
-                    <Text text="Please login here" style="-fx-font-size: 16;"/>
-                    
-                    <VBox spacing="20">
-                        <HBox alignment="CENTER" spacing="10">
-                            <ImageView fitHeight="20.0" fitWidth="20.0">
-                                <Image url="@icons/mail.png"/>
-                            </ImageView>
-                            <TextField id="email" fx:id="loginEmail" prefHeight="38.0" prefWidth="320.0" promptText="Email"/>
-                        </HBox>
-                        
-                        <HBox fx:id="passwordContainer" alignment="CENTER" spacing="10">
-                            <ImageView fitHeight="20.0" fitWidth="20.0">
-                                <Image url="@icons/padlock.png"/>
-                            </ImageView>
-                            <PasswordField id="password" fx:id="loginPasswd" prefHeight="38.0" prefWidth="320.0" promptText="Password"/>
-                            <ImageView fx:id="togglePasswordIcon" fitHeight="20.0" fitWidth="20.0" onMouseClicked="#togglePasswordVisibility">
-                                <Image url="@icons/hide.png"/>
-                            </ImageView>
-                        </HBox>
-                    </VBox>
-                    
-                    <HBox spacing="100" alignment="CENTER">
-                        <CheckBox fx:id="rememberMe" text="Remember Me"/>
-                        <Text fx:id="signUP" id="signUP" text="Don't Have an Account? SignUP" onMouseClicked="#signUp"/>
-                    </HBox>
-                    
-                    <Text fx:id="forgotPass" text="Forgot password" onMouseClicked="#forgetPass"/>
-                    
-                    <Button fx:id="login" mnemonicParsing="false" onAction="#login" prefHeight="42.0" prefWidth="320.0" 
-                            text="Login" style="-fx-background-color: #F5D0C8; -fx-font-weight: bold;"/>
-                </VBox>
-            </HBox>
-        </AnchorPane>
-    </StackPane>
-</ScrollPane>
+                </Pane>
+                <Pane prefHeight="600.0" prefWidth="600.0">
+                    <children>
+                        <TextField id="email" fx:id="loginEmail" layoutX="91.0" layoutY="182.0" prefHeight="38.0" prefWidth="500.0" promptText="Email" />
+
+                        <PasswordField id="password" fx:id="loginPasswd" layoutX="91.0" layoutY="277.0" prefHeight="38.0" prefWidth="500.0" promptText="Password" />
+                        <TextField id="password" fx:id="VloginPasswd" layoutX="92.0" layoutY="277.0" prefHeight="38.0" prefWidth="500.0" promptText="Password" visible="false" />
+                        <Button fx:id="login" layoutX="90.0" layoutY="465.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="42.0" prefWidth="500.0" text="Login">
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                        </Button>
+                        <Text fx:id="welcome" layoutX="85.0" layoutY="99.0" text="Welcome">
+                            <font>
+                                <Font />
+                            </font></Text>
+                        <Text layoutX="90.0" layoutY="138.0" text="Please login here">
+                            <font>
+                                <Font size="15.0" />
+                            </font></Text>
+                        <CheckBox fx:id="rememberMe" layoutX="91.0" layoutY="335.0" prefHeight="17.0" prefWidth="133.0" text="Remember Me" />
+                        <Text fx:id="forgotPass" layoutX="91.0" layoutY="400.0" onMouseClicked="#handleForgotPassword" text="Forgot password" />
+                        <Text id="signUP" fx:id="signUP" layoutX="416.0" layoutY="348.0" onMouseClicked="#handleSignUp" text="Don't Have an Account?  SignUP" />
+                        <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="61.0" layoutY="191.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@icons/mail.png" />
+                        </ImageView>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="61.0" layoutY="286.0" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@icons/padlock.png" />
+                        </ImageView>
+                        <ImageView fx:id="togglePasswordIcon" fitHeight="20.0" fitWidth="20.0" layoutX="566.0" layoutY="291.0" onMouseClicked="#togglePasswordVisibility" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@icons/hide.png" />
+                        </ImageView>
+                    </children>
+                </Pane>
+            </children>
+        </HBox>
+    </children>
+</StackPane>

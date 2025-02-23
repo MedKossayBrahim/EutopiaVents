@@ -1,17 +1,11 @@
 package com.esprit.tests;
 
 import com.esprit.controllers.*;
-import com.esprit.controllers.LoginView;
 import com.esprit.utils.SceneManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
-import java.io.IOException;
-import java.net.URL;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import com.esprit.models.*;
 import com.esprit.utils.*;
 
@@ -38,50 +32,39 @@ public class Eutopia extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Initialize SceneManager first
+        // Initialize SceneManager
         sceneManager = new SceneManager(primaryStage);
         currentUser = UserSession.loadUser();
+
         try {
             if (currentUser == null) {
-                sceneManager.switchScene("/login-view.fxml", null); // Start at Page1.fxml
+                sceneManager.switchScene("/login-view.fxml", null);
             } else {
-                sceneManager.switchScene("/events-view.fxml", null); // Start at Page1.fxml
+                sceneManager.switchScene("/events-view.fxml", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-//            URL url = getClass().getResource("/login-view.fxml");
-//            if (url == null) {
-//                throw new IOException("Cannot find login-view.fxml");
-//            }
-//
-//            // Load the FXML file
-//            FXMLLoader loader = new FXMLLoader(url);
-//            Parent root = loader.load();
-//
-//            // Get the controller
-//            LoginView controller = loader.getController();
-//
-//            // Get screen dimensions
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-//
-//            // Set up the scene with full screen dimensions
-//            Scene scene = new Scene(root);
-//            primaryStage.setScene(scene);
+        // Ensure stage is maximized
+        primaryStage.setMaximized(true);
 
-        // Set stage size to match screen size
-        primaryStage.setX(screenBounds.getMinX());
-        primaryStage.setY(screenBounds.getMinY());
-        primaryStage.setWidth(screenBounds.getWidth());
-        primaryStage.setHeight(screenBounds.getHeight());
-
-        // Set minimum window size
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
+        // Set stage to full screen dimensions
+        centerStageOnScreen(primaryStage);
 
         primaryStage.setTitle("EutopiaVents");
         primaryStage.show();
+    }
 
+    /**
+     * Centers the stage on the screen and ensures it's full size.
+     */
+    private void centerStageOnScreen(Stage stage) {
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        stage.setX(bounds.getMinX());
+        stage.setY(bounds.getMinY());
+        stage.setWidth(bounds.getWidth());
+        stage.setHeight(bounds.getHeight());
     }
 }

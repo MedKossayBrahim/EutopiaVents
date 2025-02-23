@@ -18,21 +18,20 @@ public class OrganisateurService implements IService<Organisateur> {
     @Override
     public void ajouter(Organisateur organisateur) {
 
-        String req = "INSERT INTO users (nom, prenom, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters to prevent SQL injection
-            st.setString(1, organisateur.getNom());
-            st.setString(2, organisateur.getPrenom());
-            st.setString(3, organisateur.getUserName());
-            st.setInt(4, organisateur.getphone());
-            st.setString(5, organisateur.getEmail());
-            st.setString(6, organisateur.getPasswd());
-            st.setString(7, "null"); // Assuming image is optional and can be null
-            st.setBoolean(8, true); // Assuming isActive is a string (adjust if it's a boolean)
-            st.setString(9, "organisateur"); // Assuming role is a string
+            st.setString(1, organisateur.getFullname());
+            st.setString(2, organisateur.getUserName());
+            st.setInt(3, organisateur.getphone());
+            st.setString(4, organisateur.getEmail());
+            st.setString(5, organisateur.getPasswd());
+            st.setString(6, "null"); // Assuming image is optional and can be null
+            st.setBoolean(7, true); // Assuming isActive is a string (adjust if it's a boolean)
+            st.setString(8, "organisateur"); // Assuming role is a string
 
             int rowsAffected = st.executeUpdate();
             if (rowsAffected > 0) {
@@ -44,28 +43,28 @@ public class OrganisateurService implements IService<Organisateur> {
             System.out.println("Erreur lors de l'ajout du organisateur: " + e.getMessage());
         }
 
+
     }
 
     @Override
     public void modifier(Organisateur organisateur) {
 
         // SQL query to update the organisateur's details
-        String req = "UPDATE users SET nom = ?, prenom = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
+        String req = "UPDATE users SET fullName = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
               PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters for the update query
-            st.setString(1, organisateur.getNom());
-            st.setString(2, organisateur.getPrenom());
-            st.setString(3, organisateur.getUserName());
-            st.setInt(4, organisateur.getphone());
-            st.setString(5, organisateur.getEmail());
-            st.setString(6, organisateur.getPasswd());
-            st.setString(7, organisateur.getImage()); // Assuming image is a string (can be null)
-            st.setBoolean(8, organisateur.getActive()); // Assuming isActive is a boolean
-            st.setString(9, organisateur.getRole().toString()); // Assuming role is an enum
-            st.setInt(10, organisateur.getUserID()); // userID is used to identify the organisateur to update
+            st.setString(1, organisateur.getFullname());
+            st.setString(2, organisateur.getUserName());
+            st.setInt(3, organisateur.getphone());
+            st.setString(4, organisateur.getEmail());
+            st.setString(5, organisateur.getPasswd());
+            st.setString(6, organisateur.getImage()); // Assuming image is a string (can be null)
+            st.setBoolean(7, organisateur.getActive()); // Assuming isActive is a boolean
+            st.setString(8, organisateur.getRole().toString()); // Assuming role is an enum
+            st.setInt(9, organisateur.getUserID()); // userID is used to identify the organisateur to update
 
             // Execute the update query
             int rowsAffected = st.executeUpdate();
