@@ -27,14 +27,7 @@
         </HBox>
     </VBox>
 
-    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
-        <Label text="Gestion des Catégories" style="-fx-font-size: 18px;"/>
-        <HBox spacing="10" alignment="CENTER">
-            <Button text="Liste des Catégories"
-                    onAction="#openListeCategorie"
-                    style="-fx-min-width: 150;"/>
-        </HBox>
-    </VBox>
+
 
     <VBox spacing="15" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
         <Label text="Gestion des Réservations" style="-fx-font-size: 18px;"/>

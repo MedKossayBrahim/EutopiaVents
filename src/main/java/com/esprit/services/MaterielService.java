@@ -84,7 +84,7 @@ public class MaterielService implements IService<Materiel> {
         }
     }
 
-    public List<Materiel> rechercher() {
+    public  List<Materiel> rechercher() {
         List<Materiel> materiels = new ArrayList<>();
 
         String req = "SELECT M.id, M.libelle, M.description,M.categorie_id, M.quantite, C.nom AS categorie_nom,M.categorie_id, M.prix, M.image_url " +

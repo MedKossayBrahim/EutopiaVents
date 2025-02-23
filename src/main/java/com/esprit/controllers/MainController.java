@@ -25,21 +25,6 @@ public class MainController {
     }
 
 
-
-    @FXML
-    private void openListeCategorie() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeCategorie.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Liste des Catégories");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur: " + e.getMessage());
-        }
-    }
-
     @FXML
     private void openListeReservation() {
         try {
