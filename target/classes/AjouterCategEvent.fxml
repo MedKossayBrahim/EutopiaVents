@@ -11,7 +11,7 @@
             style="-fx-background-color: #faf6f3;">
 
     <left>
-        <VBox style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 4, 0);"
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
               BorderPane.alignment="TOP_LEFT"
               VBox.vgrow="ALWAYS">
             <fx:include source="Navbar.fxml"/>
