@@ -2,10 +2,15 @@ package com.esprit.controllers;
 
 import com.esprit.models.Reservations;
 import com.esprit.models.Evenement;
+import com.esprit.models.User;
 import com.esprit.services.ReservationsService;
 import com.esprit.services.EvenementService;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
@@ -13,37 +18,63 @@ import javafx.geometry.Pos;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import javafx.scene.control.TextInputDialog;
+import com.esprit.services.EmailService;
 
 public class PanierController implements Initializable {
 
-    @FXML private VBox reservationsContainer;
-    @FXML private Label totalLabel;
+    @FXML
+    private VBox reservationsContainer;
+    @FXML
+    private Label totalLabel;
+    @FXML
+    private Button retourButton;
 
     private ReservationsService reservationsService = new ReservationsService();
     private EvenementService evenementService = new EvenementService();
-    private static final int USER_ID = 10;
+    private EmailService emailService = new EmailService();
 
     public PanierController() throws SQLException {
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        loadReservations();
+        User currentUser = Eutopia.getCurrentUser();
+        if (currentUser == null) {
+            // Si aucun utilisateur n'est connecté, afficher un message et retourner
+            showNoUserMessage();
+            return;
+        }
+        loadReservations(currentUser.getUserID());
     }
 
-    private void loadReservations() {
+    private void showNoUserMessage() {
+        reservationsContainer.getChildren().clear();
+        Label messageLabel = new Label("Veuillez vous connecter pour voir votre panier");
+        messageLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+        reservationsContainer.getChildren().add(messageLabel);
+        totalLabel.setText("0.00 TND");
+    }
+
+    private void loadReservations(int userId) {
         reservationsContainer.getChildren().clear();
         double totalPanier = 0;
 
-        var reservations = reservationsService.rechercher().stream()
-                .filter(r -> r.getUtilisateurId() == USER_ID && "en_attente".equals(r.getStatut())) // Filtrer par statut
+        var reservations = reservationsService.rechercherParUtilisateur(userId).stream()
+                .filter(r -> "en_attente".equals(r.getStatut()))
                 .toList();
 
-        for (Reservations reservation : reservations) {
-            Evenement event = evenementService.rechercherParId(reservation.getEvenementId());
-            VBox card = createReservationCard(reservation, event);
-            reservationsContainer.getChildren().add(card);
-            totalPanier += reservation.getPrixTotal();
+        if (reservations.isEmpty()) {
+            Label emptyLabel = new Label("Votre panier est vide");
+            emptyLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+            reservationsContainer.getChildren().add(emptyLabel);
+        } else {
+            for (Reservations reservation : reservations) {
+                Evenement event = evenementService.rechercherParId(reservation.getEvenementId());
+                VBox card = createReservationCard(reservation, event);
+                reservationsContainer.getChildren().add(card);
+                totalPanier += reservation.getPrixTotal();
+            }
         }
 
         totalLabel.setText(String.format("%.2f TND", totalPanier));
@@ -74,7 +105,7 @@ public class PanierController implements Initializable {
             reservation.setQuantite(newValue);
             reservation.setPrixTotal(event.getPrix() * newValue);
             reservationsService.modifier(reservation);
-            loadReservations();
+            loadReservations(reservation.getUtilisateurId());
         });
 
         Label totalLabel = new Label(String.format("Total: %.2f TND", reservation.getPrixTotal()));
@@ -92,14 +123,41 @@ public class PanierController implements Initializable {
         annulerBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
 
         confirmerBtn.setOnAction(e -> {
-            reservationsService.confirmerAchat(reservation.getId(), reservation.getQuantite());
-            loadReservations();
+            // Demander l'email
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Email pour le billet");
+            dialog.setHeaderText("Entrez votre adresse email");
+            dialog.setContentText("Email:");
+
+            dialog.showAndWait().ifPresent(email -> {
+                try {
+                    // Confirmer la réservation
+                    reservationsService.confirmerAchat(reservation.getId(), reservation.getQuantite());
+
+                    // Envoyer le billet par email
+                    emailService.envoyerBillet(email, reservation, event);
+
+                    // Afficher un message de succès
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Succès");
+                    alert.setContentText("Réservation confirmée ! Le billet a été envoyé à " + email);
+                    alert.showAndWait();
+
+                    // Recharger les réservations
+                    loadReservations(reservation.getUtilisateurId());
+                } catch (Exception ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setContentText("Erreur lors de l'envoi du billet: " + ex.getMessage());
+                    alert.showAndWait();
+                }
+            });
         });
 
         annulerBtn.setOnAction(e -> {
             reservation.setStatut("annulé");
             reservationsService.modifier(reservation);
-            loadReservations();
+            loadReservations(reservation.getUtilisateurId());
         });
 
         // Statut
@@ -117,5 +175,18 @@ public class PanierController implements Initializable {
         );
 
         return card;
+    }
+
+    @FXML
+    private void handleRetour() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/events-view.fxml"));
+            Parent newPage = loader.load();
+            Scene scene = retourButton.getScene();
+            scene.setRoot(newPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Erreur : Impossible de charger la page /events-view.fxml");
+        }
     }
 }

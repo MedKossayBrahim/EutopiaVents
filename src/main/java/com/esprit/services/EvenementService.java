@@ -114,8 +114,7 @@ public class EvenementService implements IService<Evenement> {
 
 
         String req = "SELECT e.*, " +
-//                "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
-                "u.fullname AS organisateur_nom, " +
+                "u.userName AS organisateur_nom, " +
                 "c.nom AS categorie_nom, " +
                 "l.nom AS lieu_nom " +
                 "FROM events e " +
@@ -155,8 +154,7 @@ public class EvenementService implements IService<Evenement> {
     public Evenement rechercherParId(int id) {
         Evenement evenement = null;
         String req = "SELECT e.*, " +
-//                     "CONCAT(u.nom, ' ', u.prenom) AS organisateur_nom, " +
-                "u.fullname AS organisateur_nom, " +
+                "u.userName AS organisateur_nom, " +
                 "c.nom AS categorie_nom, " +
                 "l.nom AS lieu_nom " +
                 "FROM events e " +
@@ -233,6 +231,49 @@ public class EvenementService implements IService<Evenement> {
             System.err.println("Erreur lors de la récupération des matériels pour l'événement: " + e.getMessage());
         }
         return materiels;
+    }
+
+    public List<Evenement> rechercherParOrganisateur(int organisateurId) {
+        List<Evenement> evenements = new ArrayList<>();
+        String req = "SELECT e.*, " +
+                "u.userName AS organisateur_nom, " +
+                "c.nom AS categorie_nom, " +
+                "l.nom AS lieu_nom " +
+                "FROM events e " +
+                "LEFT JOIN users u ON e.organisateur_id = u.userID " +
+                "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
+                "LEFT JOIN lieu l ON e.lieu_id = l.id " +
+                "WHERE e.organisateur_id = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setInt(1, organisateurId);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Evenement evt = new Evenement(
+                            rs.getInt("id"),
+                            rs.getString("titre"),
+                            rs.getString("description"),
+                            rs.getString("date_debut"),
+                            rs.getString("date_fin"),
+                            rs.getInt("capacite"),
+                            rs.getInt("categorie_id"),
+                            rs.getInt("lieu_id"),
+                            rs.getInt("organisateur_id"),
+                            rs.getDouble("prix"),
+                            rs.getString("statut"),
+                            rs.getString("lieu_proprietaire"),
+                            rs.getString("image")
+                    );
+                    evt.setOrganisateurNom(rs.getString("organisateur_nom"));
+                    evt.setCategorieNom(rs.getString("categorie_nom"));
+                    evt.setLieuNom(rs.getString("lieu_nom"));
+                    evenements.add(evt);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des événements: " + e.getMessage());
+        }
+        return evenements;
     }
 
 }

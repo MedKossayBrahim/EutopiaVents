@@ -2,11 +2,10 @@ package com.esprit.controllers;
 
 import com.esprit.models.Evenement;
 import com.esprit.services.EvenementService;
-import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -23,6 +22,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import com.esprit.models.CategoriesEvent;
+import com.esprit.services.CategoriesEventService;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Button;
+import com.esprit.models.User;
+import com.esprit.tests.Eutopia;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -40,55 +45,161 @@ public class EventsController {
 
     @FXML
     private Pagination eventsPagination;
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private ComboBox<CategoriesEvent> categoryFilter;
+
+    @FXML
+    private Button btnAjouterCateg;
+    @FXML
+    private Button btnAjouterEvenement;
+    @FXML
+    private Button btnModifierEvenement;
+    @FXML
+    private Button btnGererEvenements;
 
     private EvenementService evenementService = new EvenementService();
+    private CategoriesEventService categoriesEventService = new CategoriesEventService();
     private static final int ITEMS_PER_PAGE = 8; // Changed to 8 events per page
+
+    private static final String CREAM_BG = "#faf6f3";
+    private static final String ACCENT_COLOR = "#007bff";
+    private static final String TEXT_COLOR = "#2c3e50";
+    private static final String SECONDARY_TEXT = "#6c757d";
 
     public EventsController() throws SQLException {
     }
     @FXML
+
     public void initialize() {
-        List<Evenement> filteredEvents = evenementService.rechercher()
-                .stream()
-                .filter(evenement -> evenement.getCapacite() > 0 && "acceptée".equals(evenement.getStatut()))
-                .toList();
-                
-        int pageCount = (filteredEvents.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
-        eventsPagination.setPageCount(Math.max(1, pageCount));
-        eventsPagination.setPageFactory(this::createPage);
-    }
-    private Node createPage(int pageIndex) {
-        // Get all events and filter them
-        List<Evenement> allEvents = evenementService.rechercher()
-                .stream()
-                .filter(evenement -> evenement.getCapacite() > 0 && "acceptée".equals(evenement.getStatut()))
-                .toList();
-        
-        // Calculate pagination indices
-        int fromIndex = pageIndex * ITEMS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, allEvents.size());
-        
-        // Get events for current page
-        List<Evenement> pageEvents = allEvents.subList(fromIndex, toIndex);
-        
-        // Clear existing grid
-        eventsGrid.getChildren().clear();
-        
-        // Add events to grid
-        int column = 0;
-        int row = 0;
-        
-        for (Evenement evenement : pageEvents) {
-            VBox eventBox = createEventBox(evenement);
-            eventsGrid.add(eventBox, column, row);
-            
-            column++;
-            if (column == 2) { // Two events per row
-                column = 0;
-                row++;
+        setupSearchField();
+        setupCategoryFilter();
+        setupPagination();
+        setupCartIcon();
+        User currentUser = Eutopia.getCurrentUser();
+        if (currentUser != null) {
+            // Vérifier le type de service en fonction du rôle de l'utilisateur
+            switch (currentUser.getRole()) {
+                case Admin:
+                    // Admin peut voir tous les boutons
+                    break;
+
+                case Organisateur:
+                    // Organisateur peut voir tous les boutons sauf GererEvenements et AjouterCateg
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                case Participant:
+                    // Participant ne peut voir aucun bouton de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                default:
+                    // Par défaut, cacher tous les boutons de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
             }
         }
-        
+    }
+
+    private void setupSearchField() {
+        // Real-time search implementation
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updatePaginationWithSearch(newValue);
+        });
+    }
+
+    private void setupCartIcon() {
+        ImageView cartIcon = (ImageView) rootPane.lookup("#cartIcon");
+        if (cartIcon != null) {
+            // Add hover effect
+            cartIcon.setOnMouseEntered(e -> cartIcon.setOpacity(0.8));
+            cartIcon.setOnMouseExited(e -> cartIcon.setOpacity(1.0));
+        }
+    }
+
+    private void setupCategoryFilter() {
+        // Load categories
+        List<CategoriesEvent> categories = categoriesEventService.rechercher();
+        categoryFilter.getItems().add(new CategoriesEvent("Toutes les catégories")); // Add "All" option
+        categoryFilter.getItems().addAll(categories);
+
+        // Set default value
+        categoryFilter.setValue(categoryFilter.getItems().get(0));
+
+        // Add listener for category changes
+        categoryFilter.valueProperty().addListener((obs, oldVal, newVal) -> {
+            updatePaginationWithSearch(searchField.getText());
+        });
+    }
+
+    private void setupPagination() {
+        updatePaginationWithSearch("");
+    }
+
+    private void updatePaginationWithSearch(String searchText) {
+        CategoriesEvent selectedCategory = categoryFilter.getValue();
+
+        List<Evenement> filteredEvents = evenementService.rechercher()
+                .stream()
+                .filter(evenement -> {
+                    boolean matchesSearch = searchText.isEmpty() ||
+                            evenement.getTitre().toLowerCase().contains(searchText.toLowerCase()) ||
+                            evenement.getDescription().toLowerCase().contains(searchText.toLowerCase());
+
+                    boolean matchesCategory = selectedCategory == null ||
+                            selectedCategory.getNom().equals("Toutes les catégories") ||
+                            evenement.getCategorieId() == selectedCategory.getId();
+
+                    return (evenement.getCapacite() > 0 &&
+                            "acceptée".equals(evenement.getStatut()) &&
+                            matchesSearch &&
+                            matchesCategory);
+                })
+                .toList();
+
+        int pageCount = (filteredEvents.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+        eventsPagination.setPageCount(Math.max(1, pageCount));
+        eventsPagination.setCurrentPageIndex(0);
+        eventsPagination.setPageFactory(pageIndex -> createPage(pageIndex, filteredEvents));
+    }
+
+    private Node createPage(int pageIndex, List<Evenement> filteredEvents) {
+        int fromIndex = pageIndex * ITEMS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredEvents.size());
+        List<Evenement> pageEvents = filteredEvents.subList(fromIndex, toIndex);
+
+        eventsGrid.getChildren().clear();
+
+        // Calculate number of columns based on grid width
+        int numColumns = 2; // Fixed to 2 columns for consistency
+
+        for (int i = 0; i < pageEvents.size(); i++) {
+            VBox eventBox = createEventBox(pageEvents.get(i));
+            int row = i / numColumns;
+            int column = i % numColumns;
+            eventsGrid.add(eventBox, column, row);
+        }
+
         return eventsGrid;
     }
 
@@ -99,9 +210,9 @@ public class EventsController {
         eventBox.setMaxWidth(500); // Set maximum width for the card
         eventBox.setMinWidth(400); // Set minimum width for consistency
         eventBox.setStyle("-fx-background-color: white; " +
-                          "-fx-border-radius: 8; " +
-                          "-fx-background-radius: 8; " +
-                          "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+                "-fx-border-radius: 8; " +
+                "-fx-background-radius: 8; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
 
         // Image handling
         ImageView imageView = new ImageView();
@@ -139,18 +250,18 @@ public class EventsController {
         // Event information with black text
         Label titreLabel = new Label(evenement.getTitre());
         titreLabel.setStyle("-fx-font-weight: bold; " +
-                            "-fx-font-size: 16px; " +
-                            "-fx-text-fill: #000000;");
+                "-fx-font-size: 16px; " +
+                "-fx-text-fill: #000000;");
         titreLabel.setWrapText(true);
-        
+
         Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
         dateLabel.setStyle("-fx-font-size: 14px; " +
-                          "-fx-text-fill: #000000;");
-        
+                "-fx-text-fill: #000000;");
+
         Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
         prixLabel.setStyle("-fx-font-size: 14px; " +
-                          "-fx-font-weight: bold; " +
-                          "-fx-text-fill: #000000;");
+                "-fx-font-weight: bold; " +
+                "-fx-text-fill: #000000;");
 
         // Add all components to the info container
         infoContainer.getChildren().addAll(titreLabel, dateLabel, prixLabel);
@@ -159,17 +270,17 @@ public class EventsController {
         eventBox.getChildren().addAll(imageContainer, infoContainer);
 
         // Hover effect
-        eventBox.setOnMouseEntered(e -> 
-            eventBox.setStyle("-fx-background-color: white; " +
-                             "-fx-border-radius: 8; " +
-                             "-fx-background-radius: 8; " +
-                             "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 0);")
+        eventBox.setOnMouseEntered(e ->
+                eventBox.setStyle("-fx-background-color: white; " +
+                        "-fx-border-radius: 8; " +
+                        "-fx-background-radius: 8; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 0);")
         );
-        eventBox.setOnMouseExited(e -> 
-            eventBox.setStyle("-fx-background-color: white; " +
-                             "-fx-border-radius: 8; " +
-                             "-fx-background-radius: 8; " +
-                             "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);")
+        eventBox.setOnMouseExited(e ->
+                eventBox.setStyle("-fx-background-color: white; " +
+                        "-fx-border-radius: 8; " +
+                        "-fx-background-radius: 8; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);")
         );
 
         // Click handler
@@ -213,6 +324,26 @@ public class EventsController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleSearch() {
+        String searchText = searchField.getText().trim();
+
+        // Récupérer tous les événements
+        List<Evenement> allEvents = evenementService.rechercher();
+
+        // Filtrer les événements en fonction de searchText
+        List<Evenement> filteredEvents = allEvents.stream()
+                .filter(evenement -> evenement.getTitre().toLowerCase().contains(searchText.toLowerCase()) ||
+                        evenement.getDescription().toLowerCase().contains(searchText.toLowerCase()))
+                .toList();
+
+        // Mettre à jour l'affichage avec les événements filtrés
+        eventsGrid.getChildren().clear(); // Clear existing grid
+        for (Evenement evenement : filteredEvents) {
+            VBox eventBox = createEventBox(evenement);
+            eventsGrid.getChildren().add(eventBox);
+        }
+    }
 
     @FXML
     private void goToAjouterCateg() {
@@ -238,6 +369,9 @@ public class EventsController {
     private void goToGererEvenements() {
         loadPage("/GererEvenements.fxml");
     }
+    @FXML private void goToPanier() {
+        loadPage("/Panier.fxml");
+    }
 
     private void loadPage(String page) {
         try {
@@ -249,7 +383,5 @@ public class EventsController {
         }
     }
 
-    public void toUserEdit(MouseEvent mouseEvent) throws IOException {
-        Eutopia.getSceneManager().switchScene("/editProfile.fxml",null);
-    }
+
 }

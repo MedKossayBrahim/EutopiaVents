@@ -7,46 +7,68 @@
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml" 
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.ModifierEvenementController"
             style="-fx-background-color: #faf6f3;">
 
     <left>
         <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
-              BorderPane.alignment="TOP_LEFT" 
+              BorderPane.alignment="TOP_LEFT"
               VBox.vgrow="ALWAYS">
             <fx:include source="Navbar.fxml"/>
         </VBox>
     </left>
 
     <center>
-        <VBox spacing="10" style="-fx-padding: 20;">
+        <VBox spacing="20" style="-fx-padding: 20;">
             <Label text="Modifier Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
 
-            <!-- Barre de navigation -->
-            <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0;">
-                <Button text="Ajouter Catégorie" onAction="#goToAjouterCateg"/>
-                <Button text="Ajouter Événement" onAction="#goToAjouterEvenement"/>
-                <Button text="Modifier Événement" onAction="#goToModifierEvenement"/>
-                <Button text="Voir Événements" onAction="#goToEventsView"/>
-                <Button text="Gérer Événements" onAction="#goToGererEvenements"/>
+            <!-- Message pour aucun événement -->
+            <Label fx:id="noEventsLabel"
+                   text="Aucun événement trouvé pour cet organisateur"
+                   style="-fx-font-size: 16; -fx-text-fill: #666;"
+                   visible="false"/>
+
+            <!-- Barre de navigation en haut -->
+            <HBox spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie" onAction="#goToAjouterCateg"
+                        style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnAjouterEvenement" text="Ajouter Événement" onAction="#goToAjouterEvenement"
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnModifierEvenement" text="Modifier Événement" onAction="#goToModifierEvenement"
+                        style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnGererEvenements" text="Gérer Événements" onAction="#goToGererEvenements"
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
             </HBox>
 
-            <ScrollPane fx:id="scrollPane" fitToWidth="true" styleClass="scroll-pane">
-                <TableView fx:id="eventTable" editable="true" prefWidth="800" prefHeight="600">
-                    <columns>
-                        <TableColumn fx:id="titreColumn" text="Titre" editable="true" />
-                        <TableColumn fx:id="descriptionColumn" text="Description" editable="true" />
-                        <TableColumn fx:id="dateDebutColumn" text="Date Début" editable="true" />
-                        <TableColumn fx:id="dateFinColumn" text="Date Fin" editable="true" />
-                        <TableColumn fx:id="capaciteColumn" text="Capacité" editable="true" />
-                        <TableColumn fx:id="prixColumn" text="Prix" editable="true" />
-                        <TableColumn fx:id="statutColumn" text="Statut" />
-                        <TableColumn fx:id="actionsColumn" text="Actions" />
-                    </columns>
-                </TableView>
-            </ScrollPane>
-            <Button text="Retour" onAction="#handleRetour"/>
+            <!-- Table avec style moderne -->
+            <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 0;">
+                    <TableView fx:id="eventTable" editable="true" style="-fx-background-color: transparent;">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn fx:id="titreColumn" text="Titre" style="-fx-alignment: CENTER-LEFT;"/>
+                            <TableColumn fx:id="descriptionColumn" text="Description" style="-fx-alignment: CENTER-LEFT;"/>
+                            <TableColumn fx:id="categorieColumn" text="Catégorie" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="dateDebutColumn" text="Date Début" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="dateFinColumn" text="Date Fin" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="capaciteColumn" text="Capacité" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="prixColumn" text="Prix" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="statutColumn" text="Statut" style="-fx-alignment: CENTER;"/>
+                            <TableColumn fx:id="actionsColumn" text="Actions" style="-fx-alignment: CENTER;"/>
+                        </columns>
+                        <VBox.margin>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </VBox.margin>
+                    </TableView>
+                </ScrollPane>
+            </VBox>
+
+            <!-- Bouton Retour -->
+            <Button text="Retour" onAction="#handleRetour"
+                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
         </VBox>
     </center>
 </BorderPane>

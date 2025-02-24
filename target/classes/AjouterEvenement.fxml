@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -20,60 +21,83 @@
 
     <!-- Contenu principal au centre -->
     <center>
-        <VBox spacing="10" style="-fx-padding: 20;">
+        <VBox spacing="20" style="-fx-padding: 20;">
             <Label text="Ajouter Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
             <!-- Barre de navigation en haut -->
-            <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0;">
-                <Button text="Ajouter Catégorie" onAction="#goToAjouterCateg"/>
-                <Button text="Ajouter Événement" onAction="#goToAjouterEvenement"/>
-                <Button text="Modifier Événement" onAction="#goToModifierEvenement"/>
-                <Button text="Voir Événements" onAction="#goToEventsView"/>
-                <Button text="Gérer Événements" onAction="#goToGererEvenements"/>
+            <HBox spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie" onAction="#goToAjouterCateg"
+                        style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnAjouterEvenement" text="Ajouter Événement" onAction="#goToAjouterEvenement"
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnModifierEvenement" text="Modifier Événement" onAction="#goToModifierEvenement"
+                        style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                <Button fx:id="btnGererEvenements" text="Gérer Événements" onAction="#goToGererEvenements"
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
             </HBox>
 
-            <!-- Contenu de la page -->
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane">
-                <VBox spacing="15" styleClass="card">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
+            <!-- Formulaire d'ajout -->
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
 
-                    <Label text="Ajouter un événement" styleClass="title-label"/>
+                    <!-- Titre et Description -->
+                    <TextField fx:id="titreField" promptText="Titre"
+                               style="-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8;"/>
+                    <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"
+                              style="-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8;"/>
 
-                    <TextField fx:id="titreField" promptText="Titre"/>
-                    <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
-
+                    <!-- Dates -->
                     <HBox spacing="10">
-                        <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"/>
-                        <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"/>
+                        <DatePicker fx:id="dateDebutPicker" promptText="Date Début" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-radius: 8; -fx-border-radius: 8;"/>
+                        <DatePicker fx:id="dateFinPicker" promptText="Date Fin" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-radius: 8; -fx-border-radius: 8;"/>
                     </HBox>
 
-                    <TextField fx:id="capaciteField" promptText="Capacité"/>
-                    <ComboBox fx:id="categorieComboBox" promptText="Sélectionnez une catégorie" maxWidth="Infinity"/>
+                    <!-- Capacité et Catégorie -->
+                    <TextField fx:id="capaciteField" promptText="Capacité"
+                               style="-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8;"/>
+                    <ComboBox fx:id="categorieComboBox" promptText="Sélectionnez une catégorie" maxWidth="Infinity"
+                              style="-fx-padding: 12; -fx-background-radius: 8;"/>
 
-                    <VBox spacing="10">
-                        <Label text="Choix du lieu" styleClass="subtitle-label"/>
-                        <RadioButton fx:id="lieuExistantRadio" text="Sélectionner un lieu existant"/>
-                        <RadioButton fx:id="lieuPersonnaliseRadio" text="Ajouter un lieu personnalisé"/>
+                    <!-- Section Lieu -->
+                    <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 8;">
+                        <Label text="Choix du lieu" style="-fx-font-weight: bold;"/>
+                        <RadioButton fx:id="lieuExistantRadio" text="Sélectionner un lieu existant"
+                                     style="-fx-padding: 5;"/>
+                        <RadioButton fx:id="lieuPersonnaliseRadio" text="Ajouter un lieu personnalisé"
+                                     style="-fx-padding: 5;"/>
 
                         <VBox fx:id="lieuExistantVBox" spacing="10">
-                            <ComboBox fx:id="lieuComboBox" promptText="Sélectionnez un lieu" maxWidth="Infinity"/>
+                            <ComboBox fx:id="lieuComboBox" promptText="Sélectionnez un lieu" maxWidth="Infinity"
+                                      style="-fx-padding: 12; -fx-background-radius: 8;"/>
                         </VBox>
 
                         <VBox fx:id="lieuPersonnaliseVBox" spacing="10">
-                            <TextField fx:id="lieuProprietaireField" promptText="Nom du lieu"/>
+                            <TextField fx:id="lieuProprietaireField" promptText="Nom du lieu"
+                                       style="-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8;"/>
                         </VBox>
                     </VBox>
 
-                    <TextField fx:id="organisateurIdField" promptText="ID Organisateur"/>
-                    <TextField fx:id="prixField" promptText="Prix"/>
-                    <TextField fx:id="imageField" promptText="Image URL"/>
+                    <!-- Prix et Image -->
+                    <TextField fx:id="prixField" promptText="Prix"
+                               style="-fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8;"/>
 
-                    <VBox spacing="10">
-                        <Label text="Matériels nécessaires" styleClass="subtitle-label"/>
+                    <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 8;">
+                        <Label text="Image de l'événement" style="-fx-font-weight: bold;"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button text="Choisir une image" onAction="#handleSelectImage"
+                                    style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                            <ImageView fx:id="imagePreview" fitWidth="150" fitHeight="100" preserveRatio="true"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Section Matériels -->
+                    <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 8;">
+                        <Label text="Matériels nécessaires" style="-fx-font-weight: bold;"/>
                         <Button text="Ajouter Matériel" onAction="#ouvrirSelectionMateriel"
-                                styleClass="secondary-button"/>
-                        <TableView fx:id="materielTable" prefHeight="150.0">
+                                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                        <TableView fx:id="materielTable" prefHeight="150.0" style="-fx-background-radius: 8;">
                             <columns>
                                 <TableColumn fx:id="materielColumn" text="Matériel"/>
                                 <TableColumn fx:id="quantiteColumn" text="Quantité"/>
@@ -82,8 +106,9 @@
                         </TableView>
                     </VBox>
 
-                    <Button text="Ajouter Evenement" onAction="#handleAjouterEvenement"
-                            styleClass="confirm-button"/>
+                    <!-- Bouton de confirmation -->
+                    <Button text="Ajouter Événement" onAction="#handleAjouterEvenement"
+                            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15 30; -fx-background-radius: 8; -fx-font-size: 14;"/>
                 </VBox>
             </ScrollPane>
         </VBox>
