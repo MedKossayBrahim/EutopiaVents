@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -100,6 +101,20 @@ public class MaterielGridController {
         card.getChildren().addAll(imageView, nameLabel, descriptionLabel, quantiteLabel, prixLabel);
         return card;
     }
+    @FXML
+    private void openListeReservation() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeReservation.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Liste des Réservations");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            System.err.println("Erreur: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handlePreviousButtonAction() {
@@ -181,5 +196,21 @@ public class MaterielGridController {
     private void handleDetails(Materiel materiel) {
         System.out.println("Afficher les détails de: " + materiel.getLibelle());
         // Ajoutez ici l'affichage des détails de l'élément sélectionné
+    }
+
+    public void openstats(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/statistiques.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("stats");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
+        }
     }
 }

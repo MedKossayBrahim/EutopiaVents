@@ -17,6 +17,12 @@
         <HBox spacing="20" alignment="CENTER">
             <Button fx:id="btnMaterielList" text="Liste des Matériels" onAction="#navigateToMaterielList" />
             <Button fx:id="btnCategoriesList" text="Liste des Catégories" onAction="#navigateToCategoriesList" />
+            <Button text="Liste des Réservations"
+                    onAction="#openListeReservation"
+                    style="-fx-min-width: 150;"/>
+            <Button text="Stats"
+                    onAction="#openstats"
+                    style="-fx-min-width: 150;"/>
         </HBox>
 
         <!-- Boutons de pagination -->
