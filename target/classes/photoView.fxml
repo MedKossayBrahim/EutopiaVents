@@ -2,70 +2,67 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx"
+
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.photo"
-            prefHeight="700.0" prefWidth="1200.0"
+            prefHeight="600" prefWidth="800"
             stylesheets="@styles/photo.css">
 
-    <left>
-        <fx:include source="Navbar.fxml"/>
-    </left>
-    
-    <center>
-        <VBox spacing="20">
-            <padding>
-                <Insets topRightBottomLeft="20"/>
-            </padding>
+    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
 
-            <!-- Header Section -->
-            <Label text="Gestion des Photos des Lieux" styleClass="header-label"/>
+        <!-- Header Section -->
+        <Label text="Gestion des Photos des Lieux" styleClass="header-label"/>
 
-            <!-- Form Section -->
-            <GridPane hgap="15" vgap="15">
-                <padding><Insets topRightBottomLeft="10"/></padding>
+        <!-- Form Section -->
+        <GridPane hgap="15" vgap="15">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-                <Label text="Lieu associé:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="comboBoxLieux" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#afficherPhotosPourLieu"/>
+            <Label text="Lieu associé:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboBoxLieux" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#afficherPhotosPourLieu"/>
 
-                <Label text="Chemin de l'image:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <HBox spacing="10" GridPane.rowIndex="1" GridPane.columnIndex="1">
-                    <TextField fx:id="txtUrlImage" prefWidth="300" editable="false"/>
-                    <Button text="Parcourir" onAction="#choisirImage" styleClass="browse-button"/>
-                </HBox>
-            </GridPane>
-
-            <!-- Preview Section -->
-            <VBox spacing="10" styleClass="preview-box">
-                <Label text="Aperçu de l'image"/>
-                <ImageView fx:id="imagePreview" fitHeight="180" fitWidth="280" preserveRatio="true"/>
-            </VBox>
-
-            <!-- Action Buttons -->
-            <HBox spacing="15" alignment="CENTER">
-                <Button text="Ajouter" onAction="#ajouterPhoto" styleClass="action-button"/>
-                <Button text="Modifier" onAction="#modifierPhoto" styleClass="action-button"/>
-                <Button text="Supprimer" onAction="#supprimerPhoto" styleClass="delete-button"/>
-                <Button text="Réinitialiser" onAction="#clearFields" styleClass="reset-button"/>
+            <Label text="Chemin de l'image:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <HBox spacing="10" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <TextField fx:id="txtUrlImage" prefWidth="300" editable="false"/>
+                <Button text="Parcourir" onAction="#choisirImage" styleClass="browse-button"/>
             </HBox>
+        </GridPane>
 
-            <!-- Gallery Section -->
-            <VBox spacing="10">
-                <Label text="Galerie des Photos"/>
-                <FlowPane fx:id="flowPanePhotos" hgap="15" vgap="15" prefWrapLength="750"/>
-            </VBox>
+        <!-- Preview Section -->
+        <VBox spacing="10" styleClass="preview-box">
+            <Label text="Aperçu de l'image"/>
+            <ImageView fx:id="imagePreview" fitHeight="180" fitWidth="280" preserveRatio="true"/>
         </VBox>
-    </center>
+
+        <!-- Action Buttons -->
+        <HBox spacing="15" alignment="CENTER">
+            <Button text="Ajouter" onAction="#ajouterPhoto" styleClass="action-button"/>
+            <Button text="Modifier" onAction="#modifierPhoto" styleClass="action-button"/>
+            <Button text="Supprimer" onAction="#supprimerPhoto" styleClass="delete-button"/>
+            <Button text="Réinitialiser" onAction="#clearFields" styleClass="reset-button"/>
+        </HBox>
+
+        <!-- Gallery Section -->
+        <VBox spacing="10">
+            <Label text="Galerie des Photos"/>
+            <ScrollPane fitToWidth="true" prefViewportHeight="200">
+                <FlowPane fx:id="flowPanePhotos" hgap="15" vgap="15" prefWrapLength="750"/>
+            </ScrollPane>
+        </VBox>
+    </VBox>
+
     <Button fx:id="btnGoToReservation" text="Aller à la réservation" onAction="#goToReservation"
             AnchorPane.bottomAnchor="10.0"
             AnchorPane.leftAnchor="10.0"
             AnchorPane.rightAnchor="10.0"
             prefHeight="30.0"
             styleClass="button-bottom"/>
+
     <Button fx:id="btnGoToLieu" text="← Retour" onAction="#goToLieu"
             AnchorPane.topAnchor="10.0"
             AnchorPane.rightAnchor="10.0"
             styleClass="button-back"/>
-</BorderPane>
+
+</AnchorPane>

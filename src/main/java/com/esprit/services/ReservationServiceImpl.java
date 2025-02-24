@@ -1,8 +1,6 @@
 package com.esprit.services;
-
 import com.esprit.models.reservation1;
 import com.esprit.utils.DataSource;
-
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -133,7 +131,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
             }
 
             // Vérifier les contraintes comme dans la méthode ajouter
-            // (Vous pouvez extraire ces vérifications dans une méthode séparée pour éviter la duplication de code)
+
 
             String sql = "UPDATE reservation1 SET evenement_id = ?, lieu_id = ?, date_debut = ?, date_fin = ? WHERE id = ?";
             try (PreparedStatement pst = connection.prepareStatement(sql)) {
@@ -285,4 +283,3 @@ public class ReservationServiceImpl implements IService<reservation1> {
         return "Événement inconnu";
     }
 }
-

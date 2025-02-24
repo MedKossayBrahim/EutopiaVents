@@ -58,18 +58,13 @@ public class NavbarController {
     public void initialize() {
         try {
             // Read user session
-            ObjectMapper mapper = new ObjectMapper();
-//            Map<String, Object> userSession = mapper.readValue(Paths.get("user_session.json").toFile(), Map.class);
-//            String userRole = (String) userSession.get("role");
             String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
             System.out.println("*************" + userRole);
 
-            // If user is not admin, hide dashboard and settings buttons
+            // Only hide dashboard button for non-admin users
             if (!"Admin".equals(userRole)) {
                 dashboardButton.setVisible(false);
                 dashboardButton.setManaged(false);
-                settingsButton.setVisible(false);
-                settingsButton.setManaged(false);
             }
 
             // Update button styles for visible buttons
@@ -175,7 +170,7 @@ public class NavbarController {
     public void onSettingsButtonClick(ActionEvent event) {
         updateButtonStyles("Dashboard");
         try {
-            URL url = getClass().getResource("/MainNavigation.fxml");
+            URL url = getClass().getResource("/MainMenu.fxml");
             if (url == null) {
                 throw new IOException("Cannot find Main.fxml");
             }

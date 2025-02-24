@@ -2,16 +2,15 @@ package com.esprit.controllers;
 
 import com.esprit.models.reservation1;
 import com.esprit.services.ReservationServiceImpl;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -53,12 +52,10 @@ public class Reservation1 implements Initializable {
             setupTableColumns();
             loadReservations();
             setupListeners();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | SQLException e) {
             System.err.println("Erreur d'initialisation : " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Erreur d'initialisation : " + e.getMessage());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 

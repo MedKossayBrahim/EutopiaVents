@@ -1,9 +1,11 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Lieu;
+import com.esprit.models.PhotoLieu;
 import com.esprit.models.categorie_salle;
-import com.esprit.services.CategorieServiceImpl;
 import com.esprit.services.LieuServiceImpl;
+import com.esprit.services.CategorieServiceImpl;
+import com.esprit.services.PhotoLieuServiceImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,8 +13,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 
 public class LieuController {
@@ -36,16 +45,23 @@ public class LieuController {
     @FXML private Button btnAjouter;
     @FXML private Button btnModifier;
     @FXML private Button btnSupprimer;
-
+    private MainMenuController mainMenuController;
     private LieuServiceImpl lieuService;
     private CategorieServiceImpl categorieService;
+    private PhotoLieuServiceImpl photoLieuService;
     private ObservableList<Lieu> lieuxList;
     private Lieu selectedLieu;
+
+    private static final String WAMP_UPLOAD_DIR = "C:\\wamp64\\www\\images\\";
+    private static final String XAMPP_UPLOAD_DIR = "C:\\xampp\\htdocs\\images\\";
+    private static final String UPLOAD_DIR = getUploadDir();
+    private static final String IMAGE_URL_PREFIX = "http://localhost/images/";
 
     @FXML
     public void initialize() throws SQLException {
         lieuService = new LieuServiceImpl();
         categorieService = new CategorieServiceImpl();
+        photoLieuService = new PhotoLieuServiceImpl();
 
         // Configuration des colonnes
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
@@ -73,36 +89,26 @@ public class LieuController {
                         btnAjouter.setDisable(true);
                     }
                 });
-    }
 
+        tfImage.setOnMouseClicked(event -> choisirImage());
+    }
 
     private void loadCategories() {
         ObservableList<categorie_salle> categories =
                 FXCollections.observableArrayList(categorieService.rechercher());
         cbCategorie.setItems(categories);
-        // Personnaliser l'affichage des catégories dans le ComboBox
         cbCategorie.setCellFactory(lv -> new ListCell<categorie_salle>() {
             @Override
             protected void updateItem(categorie_salle item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getNom());
-                }
+                setText(empty || item == null ? null : item.getNom());
             }
         });
-
-        // Personnaliser l'affichage de la catégorie sélectionnée
         cbCategorie.setButtonCell(new ListCell<categorie_salle>() {
             @Override
             protected void updateItem(categorie_salle item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getNom());
-                }
+                setText(empty || item == null ? null : item.getNom());
             }
         });
     }
@@ -118,30 +124,66 @@ public class LieuController {
             try {
                 Lieu lieu = createLieuFromFields();
                 lieuService.ajouter(lieu);
+
+                if (mainMenuController != null) {
+                    mainMenuController.refreshLieux();
+                }
+
                 refreshLieuxList();
                 clearFields();
-                showAlert(Alert.AlertType.INFORMATION, "Succès",
-                        "Lieu ajouté avec succès!");
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Lieu ajouté avec succès!");
             } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur",
-                        "Erreur lors de l'ajout: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout: " + e.getMessage());
             }
         }
     }
-
     @FXML
     private void modifierLieu() {
         if (validateInput()) {
             try {
-                updateLieuFromFields();
+                updateLieuFromFields(); // Ne modifie pas l'image ici
+
+                // Si le champ image n'est PAS vide
+                if (!tfImage.getText().trim().isEmpty()) {
+                    // Si le texte dans tfImage commence déjà par IMAGE_URL_PREFIX, l'image a déjà été uploadée
+                    if (tfImage.getText().startsWith(IMAGE_URL_PREFIX)) {
+                        selectedLieu.setImage(tfImage.getText());
+                    } else {
+                        // L'image est un chemin local, on l'upload
+                        String imagePath = uploadImage(tfImage.getText());
+                        selectedLieu.setImage(imagePath != null ? imagePath : "");
+
+                        // Mettre à jour la photo associée
+                        if (imagePath != null && !imagePath.isEmpty()) {
+                            PhotoLieu existingPhoto = photoLieuService.rechercherParLieuId(selectedLieu.getId())
+                                    .stream()
+                                    .findFirst()
+                                    .orElse(null);
+                            if (existingPhoto != null) {
+                                existingPhoto.setUrlImage(imagePath);
+                                photoLieuService.modifier(existingPhoto);
+                            } else {
+                                PhotoLieu newPhoto = new PhotoLieu(selectedLieu.getId(), imagePath);
+                                photoLieuService.ajouter(newPhoto);
+                            }
+                        }
+                    }
+                }
+
+                // Mise à jour du lieu dans la base de données
                 lieuService.modifier(selectedLieu);
+
+                // Rafraîchir l'affichage
+                if (mainMenuController != null) {
+                    mainMenuController.refreshLieux();
+                }
                 refreshLieuxList();
                 clearFields();
-                showAlert(Alert.AlertType.INFORMATION, "Succès",
-                        "Lieu modifié avec succès!");
+
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Lieu modifié avec succès!");
+
             } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur",
-                        "Erreur lors de la modification: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la modification: " + e.getMessage());
             }
         }
     }
@@ -156,14 +198,20 @@ public class LieuController {
 
             if (confirmation.showAndWait().get() == ButtonType.OK) {
                 try {
+                    // Supprimer les photos associées
+                    photoLieuService.rechercherParLieuId(selectedLieu.getId())
+                            .forEach(photo -> photoLieuService.supprimer(photo));
+
+                    // Supprimer le lieu
                     lieuService.supprimer(selectedLieu);
+                    if (mainMenuController != null) {
+                        mainMenuController.refreshLieux();
+                    }
                     refreshLieuxList();
                     clearFields();
-                    showAlert(Alert.AlertType.INFORMATION, "Succès",
-                            "Lieu supprimé avec succès!");
+                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Lieu supprimé avec succès!");
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur",
-                            "Erreur lors de la suppression: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la suppression: " + e.getMessage());
                 }
             }
         }
@@ -250,8 +298,8 @@ public class LieuController {
         selectedLieu.setCodePostal(tfCodePostal.getText().trim());
         selectedLieu.setCapacite(Integer.parseInt(tfCapacite.getText().trim()));
         selectedLieu.setPrix(Double.parseDouble(tfPrix.getText().trim()));
-        selectedLieu.setImage(tfImage.getText().trim());
         selectedLieu.setCategorie(cbCategorie.getValue());
+        // On NE modifie PAS l'image ici !
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
@@ -261,6 +309,7 @@ public class LieuController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     @FXML
     private void goToCategorie() {
         try {
@@ -270,7 +319,6 @@ public class LieuController {
             e.printStackTrace();
         }
     }
-
 
     @FXML
     private void goToPhotoView() {
@@ -282,4 +330,59 @@ public class LieuController {
         }
     }
 
+    private String uploadImage(String imagePath) throws IOException {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return selectedLieu.getImage(); // Retourne l'image existante
+        }
+
+        File sourceFile = new File(imagePath);
+        if (!sourceFile.exists()) {
+            return null;
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + sourceFile.getName();
+        Path destinationPath = Paths.get(UPLOAD_DIR, fileName);
+        Files.createDirectories(destinationPath.getParent());
+        Files.copy(sourceFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+        return IMAGE_URL_PREFIX + fileName;
+    }
+
+    @FXML
+    private void choisirImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile != null) {
+            try {
+                // Uploader l'image et obtenir l'URL HTTP
+                String imageUrl = uploadImage(selectedFile.getAbsolutePath());
+                tfImage.setText(imageUrl); // Stocker l'URL, pas le chemin local
+            } catch (IOException e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'upload : " + e.getMessage());
+            }
+        }
+    }
+    // Add this method in both classes:
+    private static String getUploadDir() {
+        if (Files.exists(Paths.get(WAMP_UPLOAD_DIR))) {
+            return WAMP_UPLOAD_DIR;
+        } else if (Files.exists(Paths.get(XAMPP_UPLOAD_DIR))) {
+            return XAMPP_UPLOAD_DIR;
+        } else {
+            throw new RuntimeException("Neither WAMP nor XAMPP directory found");
+        }
+    }
+    public void setMainMenuController(MainMenuController controller) {
+        this.mainMenuController = controller;
+    }
+
+    public void setLieu(Lieu lieu) {
+        this.selectedLieu = lieu;
+        showLieuDetails(lieu);
+    }
 }

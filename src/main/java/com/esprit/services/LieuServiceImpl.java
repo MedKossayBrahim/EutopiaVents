@@ -50,21 +50,27 @@ public class LieuServiceImpl implements IService<Lieu>{
         String updateReq = "UPDATE lieu SET nom=?, adresse=?, ville=?, code_postal=?, capacite=?, image=?, categorie_salle_id=?, prix=? WHERE id=?";
 
         try (PreparedStatement updateStmt = connection.prepareStatement(updateReq)) {
-            // Paramétrage direct de la requête UPDATE
             updateStmt.setString(1, lieu.getNom());
             updateStmt.setString(2, lieu.getAdresse());
             updateStmt.setString(3, lieu.getVille());
             updateStmt.setString(4, lieu.getCodePostal());
             updateStmt.setInt(5, lieu.getCapacite());
-            updateStmt.setString(6, lieu.getImage());
+
+            // Vérification avant mise à jour
+            if (lieu.getImage() == null) {
+                System.out.println("DEBUG : L'image du lieu est NULL, suppression en cours...");
+                updateStmt.setNull(6, Types.VARCHAR);
+            } else {
+                System.out.println("DEBUG : L'image est mise à jour avec " + lieu.getImage());
+                updateStmt.setString(6, lieu.getImage());
+            }
+
             updateStmt.setInt(7, lieu.getCategorie().getId());
             updateStmt.setDouble(8, lieu.getPrix());
             updateStmt.setInt(9, lieu.getId());
 
-            // Exécution directe de la mise à jour
             int rowsAffected = updateStmt.executeUpdate();
 
-            // Vérification basique du résultat
             if (rowsAffected > 0) {
                 System.out.println("Lieu modifié avec succès : " + lieu);
             } else {
@@ -72,11 +78,12 @@ public class LieuServiceImpl implements IService<Lieu>{
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println("Erreur : Conflit d'unicité (nom probablement déjà utilisé)");
+            System.out.println("Erreur SQL complète : " + e.getMessage());
         } catch (SQLException e) {
             System.out.println("Erreur technique lors de la modification : " + e.getMessage());
         }
     }
+
 
     @Override
     public void supprimer(Lieu lieu) {
@@ -160,6 +167,29 @@ public class LieuServiceImpl implements IService<Lieu>{
         List<Lieu> lieux = this.rechercher();
         return lieux.isEmpty() ? null : lieux.get(lieux.size() - 1);
     }
-
+    public Lieu getLieuById(int id) {
+        String req = "SELECT * FROM lieu WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Lieu(
+                            rs.getInt("id"),
+                            rs.getString("nom"),
+                            rs.getString("adresse"),
+                            rs.getString("ville"),
+                            rs.getString("code_postal"),
+                            rs.getInt("capacite"),
+                            rs.getString("image"),
+                            getCategorieById(rs.getInt("categorie_salle_id")),
+                            rs.getDouble("prix")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération du lieu : " + e.getMessage());
+        }
+        return null;
+    }
 
 }
