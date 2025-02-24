@@ -67,6 +67,7 @@ public class CategorieService implements IService<Categorie> {
                 categories.add(new Categorie(
                         rs.getInt("id"),
                         rs.getString("nom")
+
                 ));
             }
         } catch (SQLException e) {

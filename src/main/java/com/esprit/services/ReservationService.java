@@ -151,5 +151,33 @@ public class ReservationService implements IService<Reservation> {
             System.out.println(" Erreur SQL lors de la suppression de la réservation : " + e.getMessage());
         }
     }
+    public String getEventName(int eventId) {
+        String req = "SELECT titre FROM events WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, eventId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("titre");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du nom de l'événement : " + e.getMessage());
+        }
+        return null;
+    }
+
+    public String getMaterialName(int materialId) {
+        String req = "SELECT libelle FROM materiel WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, materialId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("libelle");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du nom du matériel : " + e.getMessage());
+        }
+        return null;
+    }
+
 
 }

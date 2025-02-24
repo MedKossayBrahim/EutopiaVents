@@ -10,7 +10,21 @@
 
     <Label text="Liste des Matériels" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <TableView fx:id="materielTable" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+    <!-- Zone de recherche et bouton ajout aligné à droite -->
+    <HBox spacing="10">
+        <TextField fx:id="searchField" promptText="Rechercher un matériel..."
+                   style="-fx-background-color: white; -fx-border-radius: 5px; -fx-padding: 5px;"
+                   maxWidth="300" prefWidth="300"/>
+
+        <Region HBox.hgrow="ALWAYS"/> <!-- Cet élément pousse le bouton vers la droite -->
+
+        <Button text="Ajouter un Matériel" onAction="#ajouterMateriel"
+                style="-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-border-radius: 5px;"/>
+    </HBox>
+
+    <TableView fx:id="materielTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white; -fx-border-radius: 10px; -fx-background-radius: 10px;
+                      -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
         <columns>
             <TableColumn fx:id="libelleColumn" text="Libellé" prefWidth="200" style="-fx-alignment: CENTER-LEFT;"/>
             <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="300" style="-fx-alignment: CENTER-LEFT;"/>
@@ -21,4 +35,5 @@
             <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200" style="-fx-alignment: CENTER;"/>
         </columns>
     </TableView>
+
 </VBox>

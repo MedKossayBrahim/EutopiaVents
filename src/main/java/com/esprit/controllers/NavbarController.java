@@ -100,9 +100,9 @@ public class NavbarController {
     public void onDashboardButtonClick(ActionEvent event) {
         updateButtonStyles("Dashboard");
         try {
-            URL url = getClass().getResource("/Main.fxml");
+            URL url = getClass().getResource("/MaterielGridView.fxml");
             if (url == null) {
-                throw new IOException("Cannot find Main.fxml");
+                throw new IOException("Not Found");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
@@ -125,7 +125,7 @@ public class NavbarController {
         try {
             URL url = getClass().getResource("/events-view.fxml");
             if (url == null) {
-                throw new IOException("Cannot find events-view.fxml");
+                throw new IOException("Not found");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
@@ -148,7 +148,7 @@ public class NavbarController {
         try {
             URL url = getClass().getResource("/forum_main_page.fxml");
             if (url == null) {
-                throw new IOException("Cannot find forum_main_page.fxml");
+                throw new IOException("Not found");
             }
 
             FXMLLoader loader = new FXMLLoader(url);

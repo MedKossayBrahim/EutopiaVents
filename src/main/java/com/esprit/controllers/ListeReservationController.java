@@ -2,6 +2,10 @@ package com.esprit.controllers;
 
 import com.esprit.models.Reservation;
 import com.esprit.services.ReservationService;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,19 +15,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 
 public class ListeReservationController {
     @FXML
     private TableView<Reservation> reservationTable;
     @FXML
-    private TableColumn<Reservation, Integer> idColumn;
+    private TableColumn<Reservation, String> evenementIdColumn;
     @FXML
-    private TableColumn<Reservation, Integer> evenementIdColumn;
-    @FXML
-    private TableColumn<Reservation, Integer> materielIdColumn;
+    private TableColumn<Reservation, String> materielIdColumn;
     @FXML
     private TableColumn<Reservation, Integer> quantiteColumn;
     @FXML
@@ -34,8 +39,14 @@ public class ListeReservationController {
     private TableColumn<Reservation, Timestamp> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
+    @FXML
+    private TextField filterEventField; // Champ de filtre par événement
+    @FXML
+    private TextField filterMaterialField; // Champ de filtre par matériel
 
     private final ReservationService reservationService;
+    private ObservableList<Reservation> reservationsList; // Liste observable des réservations
+    private FilteredList<Reservation> filteredReservations; // Liste filtrée
 
     public ListeReservationController() throws SQLException {
         reservationService = new ReservationService();
@@ -45,36 +56,29 @@ public class ListeReservationController {
     public void initialize() {
         setupColumns();
         loadReservations();
+
+        // Configurer les filtres
+        setupFilters();
     }
 
     private void setupColumns() {
-        // Configuration des colonnes
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        evenementIdColumn.setCellValueFactory(new PropertyValueFactory<>("evenementId"));
-        materielIdColumn.setCellValueFactory(new PropertyValueFactory<>("materielId"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        evenementIdColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
+        );
+
+        materielIdColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(reservationService.getMaterialName(cellData.getValue().getMaterielId()))
+        );
+
         quantiteColumn.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         prixTotalColumn.setCellValueFactory(new PropertyValueFactory<>("prixTotal"));
         dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
         dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
 
-        // Rendre les colonnes éditables (sauf les colonnes de date)
-        evenementIdColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.IntegerStringConverter()));
-        materielIdColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.IntegerStringConverter()));
-        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.IntegerStringConverter()));
-        prixTotalColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.DoubleStringConverter()));
-
-        // Gérer les modifications (sauf les colonnes de date)
-        evenementIdColumn.setOnEditCommit(event -> {
-            Reservation reservation = event.getRowValue();
-            reservation.setEvenementId(event.getNewValue());
-            reservationService.modifier(reservation);
-        });
-
-        materielIdColumn.setOnEditCommit(event -> {
-            Reservation reservation = event.getRowValue();
-            reservation.setMaterielId(event.getNewValue());
-            reservationService.modifier(reservation);
-        });
+        quantiteColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        prixTotalColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
         quantiteColumn.setOnEditCommit(event -> {
             Reservation reservation = event.getRowValue();
@@ -88,14 +92,36 @@ public class ListeReservationController {
             reservationService.modifier(reservation);
         });
 
-        // Configuration de la colonne des actions (supprimer uniquement)
+        dateDebutColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Timestamp item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.toLocalDateTime().format(formatter));
+                }
+            }
+        });
+
+        dateFinColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Timestamp item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.toLocalDateTime().format(formatter));
+                }
+            }
+        });
+
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button deleteBtn = new Button("Supprimer");
-            private final HBox buttonsBox = new HBox(5); // 5 est l'espacement entre les boutons
+            private final HBox buttonsBox = new HBox(5);
 
             {
-                buttonsBox.getChildren().addAll(deleteBtn);
-
+                buttonsBox.getChildren().add(deleteBtn);
                 deleteBtn.setOnAction(event -> {
                     Reservation reservation = getTableView().getItems().get(getIndex());
                     reservationService.supprimer(reservation);
@@ -114,14 +140,13 @@ public class ListeReservationController {
             }
         });
 
-        // Activer l'édition sur double-clic (sauf les colonnes de date)
         reservationTable.setEditable(true);
         reservationTable.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2 && !reservationTable.getSelectionModel().isEmpty()) {
                 TablePosition<Reservation, ?> pos = reservationTable.getSelectionModel().getSelectedCells().get(0);
                 int row = pos.getRow();
                 TableColumn<Reservation, ?> col = pos.getTableColumn();
-                if (col == evenementIdColumn || col == materielIdColumn || col == quantiteColumn || col == prixTotalColumn) {
+                if (col == quantiteColumn || col == prixTotalColumn) {
                     reservationTable.edit(row, col);
                 }
             }
@@ -129,24 +154,45 @@ public class ListeReservationController {
     }
 
     private void loadReservations() {
-        reservationTable.getItems().clear();
-        reservationTable.getItems().addAll(reservationService.rechercher());
+        reservationsList = FXCollections.observableArrayList(reservationService.rechercher());
+        filteredReservations = new FilteredList<>(reservationsList, p -> true); // Initialiser la liste filtrée
+        reservationTable.setItems(filteredReservations); // Lier la liste filtrée à la TableView
     }
 
-    private void ouvrirModification(Reservation reservation) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierReservation.fxml"));
-            Parent root = loader.load();
+    private void setupFilters() {
+        // Ajouter un écouteur sur le champ de filtre par événement
+        filterEventField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                // Si le champ de filtre par événement est vide, ignorer ce filtre
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
 
-            ModifierReservationController controller = loader.getController();
-            controller.setReservation(reservation);
+                // Convertir le texte saisi et le nom de l'événement en minuscules pour une recherche insensible à la casse
+                String lowerCaseFilter = newValue.toLowerCase();
+                String eventName = reservationService.getEventName(reservation.getEvenementId()).toLowerCase();
 
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Réservation");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
-        }
+                // Vérifier si le nom de l'événement contient le texte saisi
+                return eventName.contains(lowerCaseFilter);
+            });
+        });
+
+        // Ajouter un écouteur sur le champ de filtre par matériel
+        filterMaterialField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                // Si le champ de filtre par matériel est vide, ignorer ce filtre
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Convertir le texte saisi et le nom du matériel en minuscules pour une recherche insensible à la casse
+                String lowerCaseFilter = newValue.toLowerCase();
+                String materialName = reservationService.getMaterialName(reservation.getMaterielId()).toLowerCase();
+
+                // Vérifier si le nom du matériel contient le texte saisi
+                return materialName.contains(lowerCaseFilter);
+            });
+        });
     }
+
 }

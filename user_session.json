@@ -1,1 +1,11 @@
-null
+{
+  "userID": 12,
+  "fullname": "Talel",
+  "email": "ambrose.army1997@gmail.com",
+  "passwd": "$2a$10$7G0lmbkm3TbO3.WDwpQfX.tKHGEDAZ7ssNAmsJjZnmKTrhI54bRmG",
+  "userName": "Vengeful",
+  "image": "null",
+  "phone": 51707908,
+  "isActive": true,
+  "role": "Admin"
+}
