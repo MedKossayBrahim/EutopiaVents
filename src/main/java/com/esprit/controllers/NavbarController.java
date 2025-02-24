@@ -57,19 +57,19 @@ public class NavbarController {
     @FXML
     public void initialize() {
         try {
-            // Read user session
             String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
             System.out.println("*************" + userRole);
 
-            // Only hide dashboard button for non-admin users
-            if (!"Admin".equals(userRole)) {
-                dashboardButton.setVisible(false);
-                dashboardButton.setManaged(false);
-            }
+            // Set initial styles for all buttons
+            dashboardButton.setStyle(INACTIVE_STYLE);
+            eventsButton.setStyle(INACTIVE_STYLE);
+            forumButton.setStyle(INACTIVE_STYLE);
+            settingsButton.setStyle(INACTIVE_STYLE);
+            storeButton.setStyle(INACTIVE_STYLE);
 
-            // Update button styles for visible buttons
-            updateButtonStyles("forum");
-            
+            // Update button styles based on current page
+            updateButtonStyles(currentPage);
+
             if (searchField != null) {
                 searchField.setDisable(true);
 
@@ -98,7 +98,8 @@ public class NavbarController {
 
     @FXML
     public void onDashboardButtonClick(ActionEvent event) {
-        updateButtonStyles("Dashboard");
+        currentPage = "dashboard";
+        updateButtonStyles(currentPage);
         try {
             URL url = getClass().getResource("/MaterielGridView.fxml");
             if (url == null) {
@@ -122,6 +123,8 @@ public class NavbarController {
 
     @FXML
     public void onEventsButtonClick(ActionEvent event) {
+        currentPage = "events";
+        updateButtonStyles(currentPage);
         try {
             URL url = getClass().getResource("/events-view.fxml");
             if (url == null) {
@@ -145,6 +148,8 @@ public class NavbarController {
 
     @FXML
     public void onForumButtonClick(ActionEvent event) {
+        currentPage = "forum";
+        updateButtonStyles(currentPage);
         try {
             URL url = getClass().getResource("/forum_main_page.fxml");
             if (url == null) {
@@ -168,11 +173,12 @@ public class NavbarController {
 
     @FXML
     public void onSettingsButtonClick(ActionEvent event) {
-        updateButtonStyles("Dashboard");
+        currentPage = "dashboard";
+        updateButtonStyles(currentPage);
         try {
             URL url = getClass().getResource("/MainMenu.fxml");
             if (url == null) {
-                throw new IOException("Cannot find Main.fxml");
+                throw new IOException("Cannot find MainMenu.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
@@ -190,8 +196,10 @@ public class NavbarController {
         }
     }
 
+    @FXML
     public void onStoreButtonClick(ActionEvent event) {
-        updateButtonStyles("Store");
+        currentPage = "store";
+        updateButtonStyles(currentPage);
         try {
             URL url = getClass().getResource("/MainProduit.fxml");
             if (url == null) {
@@ -316,32 +324,47 @@ public class NavbarController {
     }
 
     private void updateButtonStyles(String activeButton) {
-        // Reset all buttons to inactive style
-        resetButtonStyle(dashboardButton);
-        resetButtonStyle(eventsButton);
-        resetButtonStyle(forumButton);
-        resetButtonStyle(settingsButton);
+        System.out.println("Updating styles for: " + activeButton); // Debug line
 
-        // Set active style for the clicked button
-        switch (activeButton) {
+        // Force reset all buttons first
+        if (dashboardButton != null) dashboardButton.setStyle(INACTIVE_STYLE);
+        if (eventsButton != null) eventsButton.setStyle(INACTIVE_STYLE);
+        if (forumButton != null) forumButton.setStyle(INACTIVE_STYLE);
+        if (settingsButton != null) settingsButton.setStyle(INACTIVE_STYLE);
+        if (storeButton != null) storeButton.setStyle(INACTIVE_STYLE);
+
+        // Apply active style
+        switch (activeButton.toLowerCase()) {
             case "dashboard":
-                dashboardButton.setStyle(ACTIVE_STYLE);
+                if (dashboardButton != null) {
+                    dashboardButton.setStyle(ACTIVE_STYLE);
+                    System.out.println("Dashboard style applied: " + dashboardButton.getStyle());
+                }
                 break;
             case "events":
-                eventsButton.setStyle(ACTIVE_STYLE);
+                if (eventsButton != null) {
+                    eventsButton.setStyle(ACTIVE_STYLE);
+                    System.out.println("Events style applied: " + eventsButton.getStyle());
+                }
                 break;
             case "forum":
-                forumButton.setStyle(ACTIVE_STYLE);
+                if (forumButton != null) {
+                    forumButton.setStyle(ACTIVE_STYLE);
+                    System.out.println("Forum style applied: " + forumButton.getStyle());
+                }
                 break;
             case "settings":
-                settingsButton.setStyle(ACTIVE_STYLE);
+                if (settingsButton != null) {
+                    settingsButton.setStyle(ACTIVE_STYLE);
+                    System.out.println("Settings style applied: " + settingsButton.getStyle());
+                }
                 break;
-        }
-    }
-
-    private void resetButtonStyle(Button button) {
-        if (button != null) {
-            button.setStyle(INACTIVE_STYLE);
+            case "store":
+                if (storeButton != null) {
+                    storeButton.setStyle(ACTIVE_STYLE);
+                    System.out.println("Store style applied: " + storeButton.getStyle());
+                }
+                break;
         }
     }
 }

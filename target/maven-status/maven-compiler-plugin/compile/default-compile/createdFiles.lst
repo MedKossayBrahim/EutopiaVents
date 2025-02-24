@@ -1,4 +1,5 @@
 com\esprit\controllers\AjoutCategorie.class
+com\esprit\controllers\Main.class
 com\esprit\utils\SceneManager.class
 com\esprit\services\LieuServiceImpl.class
 com\esprit\controllers\PostViewController$1.class
