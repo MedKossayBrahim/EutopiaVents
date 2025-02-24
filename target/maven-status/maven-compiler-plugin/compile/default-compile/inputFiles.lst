@@ -5,8 +5,10 @@ C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\ListeReservationController.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\MainController.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\MaterielGridController.java
+C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\StatistiqueController.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Categorie.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Materiel.java
+C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\MaterielStats.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Reservation.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\CategorieService.java
 C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\IService.java

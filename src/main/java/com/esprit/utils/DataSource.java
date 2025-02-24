@@ -16,19 +16,28 @@ public class DataSource {
     private DataSource() {
         try {
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("Connected to DB");
+            System.out.println("✅ Connected to DB");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("❌ Connection failed: " + e.getMessage());
         }
     }
 
     public static DataSource getInstance() {
-        if(instance == null)
+        if (instance == null) {
             instance = new DataSource();
+        }
         return instance;
     }
 
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                System.out.println("🔄 Reconnecting to DB...");
+                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return connection;
     }
 }

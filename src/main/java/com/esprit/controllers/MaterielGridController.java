@@ -95,11 +95,9 @@ public class MaterielGridController {
         Label prixLabel = new Label("Prix: " + materiel.getPrix() + " TND");
         prixLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
 
-        Button detailsButton = new Button("Voir Détails");
-        detailsButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 5 10;");
-        detailsButton.setOnAction(event -> handleDetails(materiel));
 
-        card.getChildren().addAll(imageView, nameLabel, descriptionLabel, quantiteLabel, prixLabel, detailsButton);
+
+        card.getChildren().addAll(imageView, nameLabel, descriptionLabel, quantiteLabel, prixLabel);
         return card;
     }
 

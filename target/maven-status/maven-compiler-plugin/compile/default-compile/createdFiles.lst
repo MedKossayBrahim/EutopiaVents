@@ -1,6 +1,8 @@
 com\esprit\controllers\MaterielGridController.class
 com\esprit\controllers\ListeReservationController$3.class
+com\esprit\models\MaterielStats.class
 com\esprit\controllers\ListeReservationController$2.class
 com\esprit\controllers\AjoutMaterielController$1.class
+com\esprit\controllers\StatistiqueController.class
 com\esprit\controllers\AjoutMaterielController$2.class
 com\esprit\controllers\ListeMaterielController$2.class
