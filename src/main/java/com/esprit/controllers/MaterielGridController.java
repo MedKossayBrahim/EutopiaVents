@@ -1,7 +1,9 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
+import com.esprit.models.Role;
 import com.esprit.services.MaterielService;
+import com.esprit.tests.Eutopia;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +25,12 @@ import java.util.List;
 public class MaterielGridController {
 
     @FXML
+    public Button stats;
+    @FXML
+    public Button reserv;
+    @FXML
+    public VBox navigationBox;
+    @FXML
     private GridPane gridPaneMateriels;
 
     @FXML
@@ -43,7 +51,26 @@ public class MaterielGridController {
         setupNavigationButtons();
         updateGrid();
         updateButtons();
+        try {
+            if (!(Eutopia.getCurrentUser().getRole() == Role.Admin)) {
+                navigationBox.setVisible(false);
+                navigationBox.setManaged(false);
+                // Masquer les boutons accessibles uniquement par l'Admin
+                btnMaterielList.setVisible(false);
+                btnMaterielList.setManaged(false);
+                btnCategoriesList.setVisible(false);
+                btnCategoriesList.setManaged(false);
+                reserv.setVisible(false);
+                reserv.setManaged(false);
+                stats.setVisible(false);
+                stats.setManaged(false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error loading user session: " + e.getMessage());
+        }
     }
+
 
     private void updateGrid() {
         gridPaneMateriels.getChildren().clear();

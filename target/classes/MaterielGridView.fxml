@@ -30,7 +30,7 @@
             </VBox>
 
             <!-- Navigation Buttons Banner -->
-            <VBox alignment="CENTER"
+            <VBox fx:id="navigationBox" alignment="CENTER"
                   style="-fx-background-color: white;
                          -fx-background-radius: 20px;
                          -fx-padding: 20px;
@@ -50,14 +50,14 @@
                                    -fx-font-size: 14px; -fx-cursor: hand;
                                    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-                    <Button text="Liste des Réservations"
+                    <Button fx:id="reserv" text="Liste des Réservations"
                             onAction="#openListeReservation"
                             style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
                                    -fx-background-radius: 8px; -fx-padding: 12px 24px;
                                    -fx-font-size: 14px; -fx-cursor: hand;
                                    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-                    <Button text="Stats"
+                    <Button fx:id="stats" text="Stats"
                             onAction="#openstats"
                             style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
                                    -fx-background-radius: 8px; -fx-padding: 12px 24px;

@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
+import com.esprit.utils.DataSource;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -205,11 +206,9 @@ public class ListeMaterielController {
     }
 
     private String getCategorieName(int categorieId) throws SQLException {
-        final String URL = "jdbc:mysql://localhost:3306/eutopia";
-        final String USERNAME = "root";
-        final String PASSWORD = "";
+        Connection connection = DataSource.getInstance().getConnection();
+
         String req = "SELECT nom FROM categorie WHERE id = ?";
-        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
         try (PreparedStatement ps = connection.prepareStatement(req)) {
             ps.setInt(1, categorieId);
             ResultSet rs = ps.executeQuery();
