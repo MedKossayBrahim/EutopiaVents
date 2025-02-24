@@ -1,47 +1,68 @@
 package com.esprit.models;
 
+import com.esprit.services.ProduitService;
+
 public class commande {
-    private int id;
-    private int participantId;
-    private int produitId;
-    private int quantite;
 
-    public commande(int id, int participantId , int produitId, int quantite) {
-        this.id = id;
-        this.participantId = participantId;
-        this.produitId = produitId;
-        this.quantite = quantite;
-    }
+        private int id;
+        private int clientId;
+        private int produitId;
+        private int quantite;
+        private double prixTotal;
 
-    public commande(int participantId, int produitId, int quantite) {
-        this.participantId = participantId;
-        this.produitId = produitId;
-        this.quantite = quantite;
-    }
+        public commande() {
+        }
+
+        public commande(int id, int clientId, int produitId, int quantite) {
+            this.id = id;
+            this.clientId = clientId;
+            this.produitId = produitId;
+            this.quantite = quantite;
+        }
+
+        public commande(int clientId, int produitId, int quantite) {
+            this.clientId = clientId;
+            this.produitId = produitId;
+            this.quantite = quantite;
+        }
 
     public commande(int id) {
-        this.id = id;
+this.id = id;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+        public int getId() { return id; }
+        public void setId(int id) { this.id = id; }
 
-    public int getParticipantId () { return participantId; }
-    public void setParticipantId(int participantId) { this.participantId = participantId; }
+        public int getClientId() { return clientId; }
+        public void setClientId(int clientId) { this.clientId = clientId; }
 
-    public int getProduitId() { return produitId; }
-    public void setProduitId(int produitId) { this.produitId = produitId; }
+        public int getProduitId() { return produitId; }
+        public void setProduitId(int produitId) { this.produitId = produitId; }
 
-    public int getQuantite() { return quantite; }
-    public void setQuantite(int quantite) { this.quantite = quantite; }
+        public int getQuantite() { return quantite; }
+        public void setQuantite(int quantite) { this.quantite = quantite; }
 
-    @Override
-    public String toString() {
-        return "commande{" +
-                "id=" + id +
-                ", participantId=" + participantId +
-                ", produitId=" + produitId +
-                ", quantite=" + quantite +
-                '}';
+        @Override
+        public String toString() {
+            return "commande{" +
+                    "id=" + id +
+                    ", clientId=" + clientId +
+                    ", produitId=" + produitId +
+                    ", quantite=" + quantite +
+                    '}';
+        }
+
+    public double getPrixTotal() {
+        // Créer une instance de ProduitService pour obtenir le prix du produit
+        ProduitService produitService = new ProduitService();
+        // Récupérer le produit par son ID
+        produit produit = produitService.getOne(this.produitId);
+        // Calculer le prix total (prix du produit * quantité)
+        return produit.getPrix() * this.quantite;
+    }
+
+    public void setPrixTotal(double prixTotal) {
+        this.prixTotal = prixTotal;
     }
 }
+

@@ -6,24 +6,29 @@ public class produit {
     private String description;
     private double prix;
     private int stock;
-    private int categorie_produitId;
+    private int categorieId;
+    private byte[] image;
 
-    public produit(int id, String nom, String description, double prix, int stock, int categorie_produitId) {
+    public produit(int id, String nom, String description, double prix, int stock, int categorieId, byte[] image) {
         this.id = id;
         this.nom = nom;
         this.description = description;
         this.prix = prix;
         this.stock = stock;
-        this.categorie_produitId = categorie_produitId;
+        this.categorieId = categorieId;
+        this.image = image;
     }
 
-    public produit(String nom, String description, double prix, int stock, int categorie_produitId) {
+    public produit(String nom, String description, double prix, int stock, int categorieId, byte[] image) {
         this.nom = nom;
         this.description = description;
         this.prix = prix;
         this.stock = stock;
-        this.categorie_produitId = categorie_produitId;
+        this.categorieId = categorieId;
+        this.image = image;
     }
+
+
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -40,8 +45,11 @@ public class produit {
     public int getStock() { return stock; }
     public void setStock(int stock) { this.stock = stock; }
 
-    public int getCategorie_produitId() { return categorie_produitId; }
-    public void setCategorie_produitId(int categorie_produitId) { this.categorie_produitId = categorie_produitId; }
+    public int getCategorieId() { return categorieId; }
+    public void setCategorieId(int categorieId) { this.categorieId = categorieId; }
+
+    public byte[] getImage() { return image; }
+    public void setImage(byte[] image) { this.image = this.image; }
 
     @Override
     public String toString() {
@@ -51,7 +59,9 @@ public class produit {
                 ", description='" + description + '\'' +
                 ", prix=" + prix +
                 ", stock=" + stock +
-                ", categorie_produitId=" + categorie_produitId +
+                ", categorieId=" + categorieId +
+                ", image='" + image + '\'' +
                 '}';
     }
 }
+

@@ -18,8 +18,8 @@ public class CommandeService implements IService<commande> {
 
     @Override
     public void ajouter(commande commande) {
-        String req = "INSERT INTO commande (participant_id , produit_id, quantite) VALUES ("
-                + commande.getParticipantId() + ", " + commande.getProduitId() + ", " + commande.getQuantite() + ")";
+        String req = "INSERT INTO commande (client_id, produit_id, quantite) VALUES ("
+                + commande.getClientId() + ", " + commande.getProduitId() + ", " + commande.getQuantite() + ")";
 
         try {
             Statement st = this.connection.createStatement();
@@ -32,7 +32,7 @@ public class CommandeService implements IService<commande> {
 
     @Override
     public void modifier(commande commande) {
-        String req = "UPDATE commande SET participant_id=" + commande.getParticipantId()
+        String req = "UPDATE commande SET client_id=" + commande.getClientId()
                 + ", produit_id=" + commande.getProduitId() + ", quantite=" + commande.getQuantite()
                 + " WHERE id=" + commande.getId();
 
@@ -70,7 +70,7 @@ public class CommandeService implements IService<commande> {
             while (rs.next()) {
                 commandes.add(new commande(
                         rs.getInt("id"),
-                        rs.getInt("participant_id"),
+                        rs.getInt("client_id"),
                         rs.getInt("produit_id"),
                         rs.getInt("quantite")
                 ));

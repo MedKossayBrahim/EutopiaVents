@@ -1,36 +1,37 @@
 package com.esprit.tests;
 
-import com.esprit.models.*;
-import com.esprit.services.*;
+import com.esprit.models.categorie;
+import com.esprit.models.commande;
+import com.esprit.models.produit;
+import com.esprit.services.CategorieService;
+import com.esprit.services.CommandeService;
+import com.esprit.services.ProduitService;
 
 public class MainProg {
     public static void main(String[] args) {
-        //********************************MODULE STORE************************************************
-
-        //CRUD categorie
-        //CategorieProduitService cs = new CategorieProduitService();
-        //cs.ajouter(new categorie_produit("kfjkd", "dsffsd"));
-        //cs.modifier(new categorie_produit(1,"Youssef", "Ahmed"));
-        //cs.supprimer(new categorie_produit(1,"", ""));
-        //System.out.println(cs.rechercher());
+          //CRUD categorie
+          //CategorieService cs = new CategorieService();
+          //cs.ajouter(new categorie("kfjkd", "dsffsd"));
+          //cs.modifier(new categorie(2,"Youssef", "Ahmed"));
+          //cs.supprimer(new categorie(2,"", ""));
+          //System.out.println(cs.rechercher());
 
         /*****************************************************************************************/
         // CRUD produit
         //ProduitService ps = new ProduitService();
-        //ps.ajouter(new produit("ttt","wsdhghd",15.90,10,4));
-        //ps.modifier(new produit(1,"ooo","tt",15.90,15,4));
-        //ps.supprimer(new produit(2,"ooo","tt",15.90,15,4));
+        // ps.ajouter(new produit("aaa","www",15.90,15,4));
+        // ps.modifier(new produit(4,"ooo","tt",15.90,15,4));
+        // ps.supprimer(new produit(4,"ooo","tt",15.90,15,4));
         //System.out.println(ps.rechercher());
 
         /************************************************************************************************/
         //CRUD  commande
         //CommandeService cos = new CommandeService();
         //cos.ajouter(new commande(1, 1,25));
-        //cos.modifier(new commande(1,1,1,3));
-        //cos.supprimer(new commande(1));
+        //cos.modifier(new commande(4,1,1,10));
+        //cos.supprimer(new commande(4));
         //System.out.println(cos.rechercher());
 
-        //********************************MODULE STORE************************************************
 
 
     }
