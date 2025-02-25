@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import com.esprit.tests.Eutopia;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -50,12 +51,11 @@ public class MainMenuController {
         setupSearch();
         setupCategoryFilter();
         
-        // Configure button visibility based on role
-        configureButtonsByRole(userRole);
+        // Wait for scene to be available before configuring buttons
+        Platform.runLater(() -> configureButtonsByRole(userRole));
     }
 
     private void configureButtonsByRole(String userRole) {
-        // Only show admin buttons if user is admin
         boolean isAdmin = "Admin".equals(userRole);
         
         // Configure "Ajouter Lieu" button
@@ -66,11 +66,22 @@ public class MainMenuController {
         }
         
         // Configure all management buttons
-        HBox navButtonsContainer = (HBox) lieuxGrid.getParent().lookup(".nav-buttons");
-        if (navButtonsContainer != null) {
-            // Hide the entire container for non-admin users
-            navButtonsContainer.setVisible(isAdmin);
-            navButtonsContainer.setManaged(isAdmin);
+        if (lieuxGrid.getScene() != null) {
+            HBox navButtonsContainer = (HBox) lieuxGrid.getScene().lookup(".nav-buttons");
+            
+            if (navButtonsContainer != null) {
+                System.out.println("Found nav buttons container, setting visibility: " + isAdmin); // Debug line
+                navButtonsContainer.setVisible(isAdmin);
+                navButtonsContainer.setManaged(isAdmin);
+                
+                // Also hide all children buttons individually
+                navButtonsContainer.getChildren().forEach(node -> {
+                    node.setVisible(isAdmin);
+                    node.setManaged(isAdmin);
+                });
+            } else {
+                System.out.println("Nav buttons container not found!"); // Debug line
+            }
         }
     }
 

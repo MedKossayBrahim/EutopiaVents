@@ -10,22 +10,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
-import javafx.scene.Node;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.file.Paths;
-import java.util.Map;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class NavbarController {
     @FXML
@@ -265,62 +254,8 @@ public class NavbarController {
         Eutopia.getSceneManager().switchScene("/login-view.fxml", null); // Start at Page1.fxml
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
     public void setCurrentController(SearchableController controller) {
         this.currentController = controller;
-    }
-
-    @FXML
-    private void onSearchButtonClick() throws SQLException {
-        if (searchField.isDisable()) {
-            searchField.setDisable(false);
-            searchField.setStyle("-fx-background-color: white;");
-            searchField.requestFocus();
-        } else {
-            searchField.setDisable(true);
-            searchField.clear();
-            if (currentController != null) {
-                currentController.handleSearch("");  // Clear search
-            }
-        }
-    }
-
-    @FXML
-    private void onSearchKeyReleased() throws SQLException {
-        if (!searchField.isDisable() && currentController != null) {
-            String searchText = searchField.getText().toLowerCase();
-            currentController.handleSearch(searchText);
-        }
-    }
-
-    @FXML
-    private void activateSearch() {
-        if (!searchField.isFocused()) {
-            searchField.requestFocus();
-        }
-    }
-
-    private void navigateToPage(String fxmlFile) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo1/" + fxmlFile));
-            Parent root = loader.load();
-
-            Object controller = loader.getController();
-            if (controller instanceof SearchableController) {
-                setCurrentController((SearchableController) controller);
-            }
-
-            dashboardButton.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void updateButtonStyles(String activeButton) {
