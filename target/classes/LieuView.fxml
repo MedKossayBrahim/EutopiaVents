@@ -8,7 +8,7 @@
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.LieuController"
-            stylesheets="@styles/categories.css">
+            stylesheets="@styles/lieu.css">
     <children>
         <VBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
