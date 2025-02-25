@@ -7,28 +7,26 @@ public class produit {
     private double prix;
     private int stock;
     private int categorieId;
-    private byte[] image;
+    private String imageUrl;
 
-    public produit(int id, String nom, String description, double prix, int stock, int categorieId, byte[] image) {
+    public produit(int id, String nom, String description, double prix, int stock, int categorieId, String imageUrl) {
         this.id = id;
         this.nom = nom;
         this.description = description;
         this.prix = prix;
         this.stock = stock;
         this.categorieId = categorieId;
-        this.image = image;
+        this.imageUrl = imageUrl;
     }
 
-    public produit(String nom, String description, double prix, int stock, int categorieId, byte[] image) {
+    public produit(String nom, String description, double prix, int stock, int categorieId, String imageUrl) {
         this.nom = nom;
         this.description = description;
         this.prix = prix;
         this.stock = stock;
         this.categorieId = categorieId;
-        this.image = image;
+        this.imageUrl = imageUrl;
     }
-
-
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -48,8 +46,13 @@ public class produit {
     public int getCategorieId() { return categorieId; }
     public void setCategorieId(int categorieId) { this.categorieId = categorieId; }
 
-    public byte[] getImage() { return image; }
-    public void setImage(byte[] image) { this.image = this.image; }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     @Override
     public String toString() {
@@ -60,7 +63,7 @@ public class produit {
                 ", prix=" + prix +
                 ", stock=" + stock +
                 ", categorieId=" + categorieId +
-                ", image='" + image + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }

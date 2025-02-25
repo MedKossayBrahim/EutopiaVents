@@ -5,46 +5,53 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
+<HBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.esprit.controllers.Listeproduit"
       styleClass="main-container"
-      spacing="10">
+      stylesheets="@styles/listeproduit.css">
+    <!-- Include Navbar -->
+    <fx:include source="Navbar.fxml"/>
 
-    <!-- En-tête avec recherche et filtres -->
-    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="10">
-        <padding>
-            <Insets top="15" right="20" bottom="15" left="20"/>
-        </padding>
-
-        <VBox>
-            <Label text="Liste des Produits" styleClass="title"/>
-            <Label text="Gérez votre catalogue de produits" styleClass="subtitle"/>
-        </VBox>
-
-        <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="10">
-            <TextField fx:id="searchField" promptText="Rechercher un produit..." styleClass="search-input"/>
-            <ComboBox fx:id="priceFilter" promptText="Filtrer par prix"/>
-            <Button fx:id="ajouterAuPanierBtn" text="Ajouter au Panier" styleClass="primary-button"/>
+    <!-- Main Content -->
+    <VBox spacing="20" HBox.hgrow="ALWAYS" style="-fx-background-color: #ffffff;">
+        <!-- En-tête -->
+        <HBox styleClass="header-container" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label styleClass="main-title" text="Gestion des Produits"/>
         </HBox>
-    </HBox>
 
-    <!-- Contenu scrollable -->
-    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="content-area">
-        <VBox spacing="15" alignment="CENTER">
-            <GridPane fx:id="produitsGrid"
-                      vgap="15"
-                      hgap="15"
-                      alignment="CENTER"
-                      styleClass="produits-grid">
+        <!-- Barre de recherche et filtres -->
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 20;">
+            <TextField fx:id="searchField" promptText="Rechercher un produit..." 
+                      styleClass="search-field"
+                      prefWidth="300"/>
+            <ComboBox fx:id="priceFilter" promptText="Filtrer par prix"
+                     styleClass="combo-box"/>
+            <Button fx:id="ajouterAuPanierBtn" text="Ajouter au Panier" 
+                    styleClass="button-primary"/>
+        </HBox>
+
+        <!-- Contenu scrollable -->
+        <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="content-area"
+                   style="-fx-background-color: transparent;">
+            <VBox spacing="15" alignment="CENTER">
                 <padding>
-                    <Insets top="15" right="15" bottom="15" left="15"/>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
-            </GridPane>
 
-            <Pagination fx:id="pagination"
-                        styleClass="custom-pagination"
-                        maxPageIndicatorCount="5"/>
-        </VBox>
-    </ScrollPane>
+                <GridPane fx:id="produitsGrid"
+                         vgap="20"
+                         hgap="20"
+                         alignment="CENTER"
+                         styleClass="produits-grid">
+                </GridPane>
 
-</VBox>
+                <Pagination fx:id="pagination"
+                           styleClass="custom-pagination"
+                           maxPageIndicatorCount="5"/>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</HBox>

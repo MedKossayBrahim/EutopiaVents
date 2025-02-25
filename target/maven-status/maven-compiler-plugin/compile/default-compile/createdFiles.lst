@@ -76,6 +76,7 @@ com\esprit\utils\EmailSender.class
 com\esprit\controllers\NewPassView.class
 com\esprit\controllers\editProfile.class
 com\esprit\controllers\AjouterCategorie$2.class
+com\esprit\controllers\AjouterProduit$1.class
 com\esprit\controllers\AjoutMaterielController$1.class
 com\esprit\controllers\PostViewController$2.class
 com\esprit\controllers\StatistiqueController.class

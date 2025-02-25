@@ -84,9 +84,9 @@ public class ModifierProduit {
             }
 
             // Display image if available
-            if (currentProduit.getImage() != null) {
+            if (currentProduit.getImageUrl() != null) {
                 try {
-                    Image image = new Image(new ByteArrayInputStream(currentProduit.getImage()));
+                    Image image = new Image(currentProduit.getImageUrl());
                     imageView.setImage(image);
                 } catch (Exception e) {
                     System.out.println("Erreur lors du chargement de l'image : " + e.getMessage());

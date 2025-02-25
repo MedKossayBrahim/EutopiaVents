@@ -20,8 +20,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Pos;
+import javafx.geometry.Insets;
+import javafx.scene.text.Text;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -61,6 +64,7 @@ public class Listeproduit {
     private ObservableList<produit> filteredProduits;
 
     private static final int ITEMS_PER_PAGE = 8;
+    private static final String HTDOCS_PATH = "file:///C:/xampp/htdocs/images/";
 
     public Listeproduit() throws SQLException {
         produitService = new ProduitService();
@@ -83,8 +87,8 @@ public class Listeproduit {
         imageColumn.setCellValueFactory(param -> {
             produit p = param.getValue();
             ImageView imageView = new ImageView();
-            if (p.getImage() != null) {
-                Image image = new Image(new ByteArrayInputStream(p.getImage())); // Convertir le tableau d'octets en Image
+            if (p.getImageUrl() != null) {
+                Image image = new Image(p.getImageUrl()); // Convertir le tableau d'octets en Image
                 imageView.setImage(image);
             }
             imageView.setFitWidth(50);
@@ -154,70 +158,100 @@ public class Listeproduit {
     }
 
     private VBox createPage(int pageIndex) {
-        int fromIndex = pageIndex * ITEMS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredProduits.size());
-        List<produit> pageItems = filteredProduits.subList(fromIndex, toIndex);
+        try {
+            int fromIndex = pageIndex * ITEMS_PER_PAGE;
+            int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredProduits.size());
+            List<produit> pageItems = filteredProduits.subList(fromIndex, toIndex);
 
-        produitsGrid.getChildren().clear();
+            produitsGrid.getChildren().clear();
+            produitsGrid.getRowConstraints().clear();
+            produitsGrid.getColumnConstraints().clear();
 
-        int row = 0;
-        int col = 0;
-        for (produit produit : pageItems) {
-            produitsGrid.add(createProduitCard(produit), col, row);
-            col++;
-            if (col == 4) {
-                col = 0;
-                row++;
+            int row = 0;
+            int col = 0;
+            for (produit produit : pageItems) {
+                VBox productCard = createProductCard(produit);
+                produitsGrid.add(productCard, col, row);
+                col++;
+                if (col == 4) {
+                    col = 0;
+                    row++;
+                }
             }
-        }
 
-        return new VBox(produitsGrid);
+            return new VBox(produitsGrid);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors du chargement de la page: " + e.getMessage());
+            return new VBox();
+        }
     }
 
-    private VBox createProduitCard(produit produit) {
-        VBox card = new VBox(5);
-        card.getStyleClass().add("produit-card");
+    private VBox createProductCard(produit product) {
+        VBox card = new VBox(10);
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(10));
+        card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; " +
+                     "-fx-border-radius: 5; -fx-background-radius: 5;");
+        card.setPrefWidth(200);
 
-        // Image container
-        VBox imageContainer = new VBox();
-        imageContainer.getStyleClass().add("image-container");
         ImageView imageView = new ImageView();
-        if (produit.getImage() != null) {
-            Image image = new Image(new ByteArrayInputStream(produit.getImage()));
-            imageView.setImage(image);
-        }
-        imageView.setFitWidth(200);
-        imageView.setFitHeight(200);
+        imageView.setFitWidth(150);
+        imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
-        imageContainer.getChildren().add(imageView);
 
-        // Informations produit
-        Label nomLabel = new Label(produit.getNom());
-        nomLabel.getStyleClass().add("product-name");
+        try {
+            String imageUrl = product.getImageUrl();
+            System.out.println("Loading image from URL: " + imageUrl);
+            
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Image image = new Image(imageUrl, 
+                                     150, 150,
+                                     true,
+                                     true,
+                                     true);
+                
+                image.errorProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue) {
+                        System.out.println("Error loading image: " + image.getException());
+                        loadDefaultImage(imageView);
+                    }
+                });
+                
+                imageView.setImage(image);
+            } else {
+                loadDefaultImage(imageView);
+            }
+        } catch (Exception e) {
+            System.out.println("Error loading image: " + e.getMessage());
+            e.printStackTrace();
+            loadDefaultImage(imageView);
+        }
 
-        Label prixLabel = new Label(String.format("%.2f €", produit.getPrix()));
-        prixLabel.getStyleClass().add("product-price");
+        Label nameLabel = new Label(product.getNom());
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        nameLabel.setWrapText(true);
 
-        Label stockLabel = new Label("Stock: " + produit.getStock());
-        stockLabel.getStyleClass().add("product-stock");
+        Text descriptionText = new Text(product.getDescription());
+        descriptionText.setWrappingWidth(180);
 
-        // Boutons
-        HBox buttonContainer = new HBox(5);
-        buttonContainer.getStyleClass().add("button-container");
-        buttonContainer.setAlignment(Pos.CENTER);
+        Label priceLabel = new Label(String.format("%.2f DT", product.getPrix()));
+        priceLabel.setStyle("-fx-text-fill: #007bff; -fx-font-weight: bold;");
 
-        Button modifyBtn = new Button("Modifier");
-        modifyBtn.getStyleClass().add("primary-button");
-        Button deleteBtn = new Button("Supprimer");
-        deleteBtn.getStyleClass().add("danger-button");
+        Button addToCartBtn = new Button("Ajouter au panier");
+        addToCartBtn.getStyleClass().add("button-primary");
+        addToCartBtn.setOnAction(e -> handleAddToCart(product));
 
-
-        deleteBtn.setOnAction(e -> supprimerProduit(produit));
-
-        buttonContainer.getChildren().addAll(modifyBtn, deleteBtn);
-
-        card.getChildren().addAll(imageContainer, nomLabel, prixLabel, stockLabel, buttonContainer);
+        card.getChildren().addAll(imageView, nameLabel, descriptionText, priceLabel, addToCartBtn);
         return card;
+    }
+
+    private void loadDefaultImage(ImageView imageView) {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/Images/default-product.png"));
+            imageView.setImage(defaultImage);
+        } catch (Exception e) {
+            System.out.println("Error loading default image: " + e.getMessage());
+        }
     }
 
     private void filterProduits() {
@@ -303,6 +337,10 @@ public class Listeproduit {
                 }
             });
         });
+    }
+
+    private void handleAddToCart(produit produit) {
+        showAlert(Alert.AlertType.INFORMATION, "Succès", "Produit ajouté au panier");
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

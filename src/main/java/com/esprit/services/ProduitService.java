@@ -20,7 +20,7 @@ public class ProduitService implements IService<produit> {
     public void ajouter(produit produit) {
         String req = "INSERT INTO produit (nom, description, prix, stock, categorie_produit_id, image_url) VALUES ('"
                 + produit.getNom() + "', '" + produit.getDescription() + "', " + produit.getPrix() + ", "
-                + produit.getStock() + ", " + produit.getCategorieId() + ", '" + produit.getImage() + "')";
+                + produit.getStock() + ", " + produit.getCategorieId() + ", '" + produit.getImageUrl() + "')";
 
         try {
             Statement st = this.connection.createStatement();
@@ -35,7 +35,7 @@ public class ProduitService implements IService<produit> {
     public void modifier(produit produit) {
         String req = "UPDATE produit SET nom='" + produit.getNom() + "', description='" + produit.getDescription()
                 + "', prix=" + produit.getPrix() + ", stock=" + produit.getStock() + ", categorie_produit_id="
-                + produit.getCategorieId() + ", image_url='" + produit.getImage() + "' WHERE id=" + produit.getId();
+                + produit.getCategorieId() + ", image_url='" + produit.getImageUrl() + "' WHERE id=" + produit.getId();
 
         try {
             Statement st = this.connection.createStatement();
@@ -76,7 +76,7 @@ public class ProduitService implements IService<produit> {
                         rs.getDouble("prix"),
                         rs.getInt("stock"),
                         rs.getInt("categorie_produit_id"),
-                        rs.getBytes("image_url")
+                        rs.getString("image_url")
                 ));
             }
         } catch (SQLException e) {
@@ -101,7 +101,7 @@ public class ProduitService implements IService<produit> {
                         rs.getDouble("prix"),
                         rs.getInt("stock"),
                         rs.getInt("categorie_produit_id"),
-                        rs.getBytes("image_url")
+                        rs.getString("image_url")
                 );
             }
         } catch (SQLException e) {
