@@ -45,12 +45,17 @@
         </HBox>
 
         <!-- Gallery Section -->
-        <VBox spacing="10">
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
             <Label text="Galerie des Photos"/>
-            <ScrollPane fitToWidth="true" prefViewportHeight="200">
-                <FlowPane fx:id="flowPanePhotos" hgap="15" vgap="15" prefWrapLength="750"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gallery-section">
+                <FlowPane fx:id="flowPanePhotos"
+                          hgap="15"
+                          vgap="15"
+                          prefWrapLength="750"
+                          styleClass="flow-pane"/>
             </ScrollPane>
         </VBox>
+
     </VBox>
 
     <Button fx:id="btnGoToReservation" text="Aller à la réservation" onAction="#goToReservation"

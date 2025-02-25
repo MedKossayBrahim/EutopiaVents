@@ -45,9 +45,22 @@
                     <Label styleClass="section-title" text="Liste des Catégories"/>
 
                     <TableView fx:id="categoriesTable" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
                         <columns>
-                            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150"/>
-                            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250"/>
+                            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150">
+                                <style>
+                                    -fx-wrap-text: true;
+                                    -fx-alignment: CENTER-LEFT;
+                                </style>
+                            </TableColumn>
+                            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250">
+                                <style>
+                                    -fx-wrap-text: true;
+                                    -fx-alignment: CENTER-LEFT;
+                                </style>
+                            </TableColumn>
                         </columns>
                         <placeholder>
                             <Label text="Aucune catégorie disponible"/>

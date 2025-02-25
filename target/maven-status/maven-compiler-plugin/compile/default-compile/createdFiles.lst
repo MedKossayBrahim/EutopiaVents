@@ -65,6 +65,7 @@ com\esprit\controllers\Listeproduit.class
 com\esprit\controllers\EnterOPTView.class
 com\esprit\controllers\PanierController.class
 com\esprit\controllers\AjoutMaterielController$2.class
+com\esprit\controllers\AjouterCategorie$1.class
 com\esprit\utils\UserSession.class
 com\esprit\services\PhotoLieuServiceImpl.class
 com\esprit\controllers\Ajoutercategorieevent$1.class
@@ -74,6 +75,7 @@ com\esprit\controllers\AjouterCategorie.class
 com\esprit\utils\EmailSender.class
 com\esprit\controllers\NewPassView.class
 com\esprit\controllers\editProfile.class
+com\esprit\controllers\AjouterCategorie$2.class
 com\esprit\controllers\AjoutMaterielController$1.class
 com\esprit\controllers\PostViewController$2.class
 com\esprit\controllers\StatistiqueController.class

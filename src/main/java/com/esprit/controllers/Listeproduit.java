@@ -5,6 +5,8 @@ import com.esprit.models.produit;
 import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,10 +16,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.layout.GridPane;
+import javafx.geometry.Pos;
 
 import java.io.ByteArrayInputStream;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
+import java.util.List;
 
 public class Listeproduit {
 
@@ -36,10 +43,24 @@ public class Listeproduit {
     @FXML
     private Button ajouterAuPanierBtn;
 
+    // Ajout des nouveaux éléments UI
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> priceFilter;
+
+    @FXML private GridPane produitsGrid;
+    @FXML private Pagination pagination;
+
     private final ProduitService produitService;
 
     // Ajout d'une variable pour stocker l'ID du client connecté
     private static int clientConnecteId;  // Vous devrez définir cette valeur lors de la connexion
+
+    private ObservableList<produit> allProduits;
+    private ObservableList<produit> filteredProduits;
+
+    private static final int ITEMS_PER_PAGE = 8;
 
     public Listeproduit() throws SQLException {
         produitService = new ProduitService();
@@ -47,7 +68,7 @@ public class Listeproduit {
 
     @FXML
     public void initialize() {
-        setupColumns();
+        setupFilters();
         loadProduits();
         setupAjouterAuPanierButton();
     }
@@ -81,10 +102,7 @@ public class Listeproduit {
             private final Button deleteBtn = new Button("Supprimer");
 
             {
-                modifyBtn.setOnAction(event -> {
-                    produit selectedProduit = getTableView().getItems().get(getIndex());
-                    ouvrirModification(selectedProduit);
-                });
+
 
                 deleteBtn.setOnAction(event -> {
                     produit selectedProduit = getTableView().getItems().get(getIndex());
@@ -105,27 +123,125 @@ public class Listeproduit {
         });
     }
 
+    private void setupFilters() {
+        // Configuration du champ de recherche
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterProduits();
+        });
+
+        // Configuration du filtre de prix
+        priceFilter.setItems(FXCollections.observableArrayList(
+                "Tous les prix",
+                "Moins de 50",
+                "50 - 100",
+                "Plus de 100"
+        ));
+        priceFilter.getSelectionModel().selectFirst();
+        priceFilter.setOnAction(e -> filterProduits());
+    }
+
     private void loadProduits() {
-        produitTable.getItems().clear();
-        produitTable.getItems().addAll(produitService.rechercher());
+        allProduits = FXCollections.observableArrayList(produitService.rechercher());
+        filteredProduits = FXCollections.observableArrayList(allProduits);
+        updatePagination();
     }
 
-    private void ouvrirModification(produit produit) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierProduit.fxml"));
-            Parent root = loader.load();
+    private void updatePagination() {
+        int pageCount = (int) Math.ceil((double) filteredProduits.size() / ITEMS_PER_PAGE);
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        pagination.setPageFactory(this::createPage);
+    }
 
-            ModifierProduit controller = loader.getController();
-            controller.setProduit(produit);
+    private VBox createPage(int pageIndex) {
+        int fromIndex = pageIndex * ITEMS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredProduits.size());
+        List<produit> pageItems = filteredProduits.subList(fromIndex, toIndex);
 
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Produit");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
+        produitsGrid.getChildren().clear();
+
+        int row = 0;
+        int col = 0;
+        for (produit produit : pageItems) {
+            produitsGrid.add(createProduitCard(produit), col, row);
+            col++;
+            if (col == 4) {
+                col = 0;
+                row++;
+            }
         }
+
+        return new VBox(produitsGrid);
     }
+
+    private VBox createProduitCard(produit produit) {
+        VBox card = new VBox(5);
+        card.getStyleClass().add("produit-card");
+
+        // Image container
+        VBox imageContainer = new VBox();
+        imageContainer.getStyleClass().add("image-container");
+        ImageView imageView = new ImageView();
+        if (produit.getImage() != null) {
+            Image image = new Image(new ByteArrayInputStream(produit.getImage()));
+            imageView.setImage(image);
+        }
+        imageView.setFitWidth(200);
+        imageView.setFitHeight(200);
+        imageView.setPreserveRatio(true);
+        imageContainer.getChildren().add(imageView);
+
+        // Informations produit
+        Label nomLabel = new Label(produit.getNom());
+        nomLabel.getStyleClass().add("product-name");
+
+        Label prixLabel = new Label(String.format("%.2f €", produit.getPrix()));
+        prixLabel.getStyleClass().add("product-price");
+
+        Label stockLabel = new Label("Stock: " + produit.getStock());
+        stockLabel.getStyleClass().add("product-stock");
+
+        // Boutons
+        HBox buttonContainer = new HBox(5);
+        buttonContainer.getStyleClass().add("button-container");
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        Button modifyBtn = new Button("Modifier");
+        modifyBtn.getStyleClass().add("primary-button");
+        Button deleteBtn = new Button("Supprimer");
+        deleteBtn.getStyleClass().add("danger-button");
+
+
+        deleteBtn.setOnAction(e -> supprimerProduit(produit));
+
+        buttonContainer.getChildren().addAll(modifyBtn, deleteBtn);
+
+        card.getChildren().addAll(imageContainer, nomLabel, prixLabel, stockLabel, buttonContainer);
+        return card;
+    }
+
+    private void filterProduits() {
+        String searchText = searchField.getText().toLowerCase();
+        String selectedPriceRange = priceFilter.getValue();
+
+        filteredProduits.setAll(allProduits.stream()
+                .filter(produit ->
+                        produit.getNom().toLowerCase().contains(searchText)
+                )
+                .filter(produit -> {
+                    double prix = produit.getPrix();
+                    return switch (selectedPriceRange) {
+                        case "Moins de 50" -> prix < 50;
+                        case "50 - 100" -> prix >= 50 && prix <= 100;
+                        case "Plus de 100" -> prix > 100;
+                        default -> true; // "Tous les prix"
+                    };
+                })
+                .collect(Collectors.toList()));
+
+        updatePagination();
+    }
+
 
     private void supprimerProduit(produit produit) {
         produitService.supprimer(produit); // Assurez-vous d'avoir une méthode supprimer dans votre service
