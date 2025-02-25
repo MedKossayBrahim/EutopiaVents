@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class Reservation {
     private int id;
-    private Integer evenementId; // Clé étrangère vers Evenement
+    private int evenementId; // Clé étrangère vers Evenement
     private int materielId;  // Clé étrangère vers Materiel
     private int quantite;
     private double prixTotal; // Prix total = prix du matériel * quantité
@@ -33,18 +33,8 @@ public class Reservation {
 
     private int userId;
 
-    public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin) {
-        this.id = id;
-        this.evenementId = evenementId;
-        this.materielId = materielId;
-        this.quantite = quantite;
-        this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-    }
 
-    public Reservation(int id, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin, int userId) {
-        this.id = id;
+    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin, int userId) {
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;

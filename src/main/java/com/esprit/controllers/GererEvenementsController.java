@@ -21,13 +21,10 @@ import com.esprit.services.ReservationService;
 import com.esprit.services.ReservationServiceImpl;
 
 import java.net.URL;
-import java.sql.Connection;
+import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import com.esprit.utils.DataSource;
@@ -58,7 +55,7 @@ public class GererEvenementsController implements Initializable {
     private final ReservationService reservationMaterielService = new ReservationService();
     private final ReservationServiceImpl reservationLieuService = new ReservationServiceImpl();
 
-
+    private User currentUser;
 
 
 
@@ -227,26 +224,64 @@ public class GererEvenementsController implements Initializable {
         alert.setHeaderText("Confirmer l'acceptation de l'événement");
         alert.setContentText("Êtes-vous sûr de vouloir accepter cet événement ?");
 
-        // Ajout des boutons "Confirmer" et "Annuler"
         ButtonType confirmButton = new ButtonType("Confirmer");
         ButtonType cancelButton = new ButtonType("Annuler");
         alert.getButtonTypes().setAll(confirmButton, cancelButton);
 
-        // Afficher l'alerte et attendre la réponse de l'utilisateur
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == confirmButton) {
-            // Si l'utilisateur confirme, procéder à l'acceptation
             try {
-                // Si l'événement utilise un lieu existant (lieuId > 0), créer une réservation pour ce lieu
+                this.connection = DataSource.getInstance().getConnection();
+                
+                // Debug: Print event details before modification
+                System.out.println("Event ID before modification: " + evenement.getId());
+                
+                // First update the event status
+                evenement.setStatut("acceptée");
+                evenementService.modifier(evenement);
+                
+                // Verify the event exists and get its actual ID from the database
+                String verifyEventQuery = "SELECT id FROM events WHERE id = ?";
+                int confirmedEventId;
+                
+                try (PreparedStatement pst = connection.prepareStatement(verifyEventQuery)) {
+                    pst.setInt(1, evenement.getId());
+                    System.out.println("Verifying event with ID: " + evenement.getId());
+                    
+                    ResultSet rs = pst.executeQuery();
+                    if (!rs.next()) {
+                        // If not found by ID, try to find by other criteria
+                        String findEventQuery = "SELECT id FROM events WHERE titre = ? AND date_debut = ?";
+                        try (PreparedStatement findPst = connection.prepareStatement(findEventQuery)) {
+                            findPst.setString(1, evenement.getTitre());
+                            findPst.setString(2, evenement.getDateDebut());
+                            ResultSet findRs = findPst.executeQuery();
+                            
+                            if (findRs.next()) {
+                                confirmedEventId = findRs.getInt("id");
+                                System.out.println("Found event with different ID: " + confirmedEventId);
+                            } else {
+                                throw new SQLException("L'événement n'existe pas dans la base de données.");
+                            }
+                        }
+                    } else {
+                        confirmedEventId = rs.getInt("id");
+                        System.out.println("Confirmed event ID: " + confirmedEventId);
+                    }
+                }
+
+                // Update the event object with the confirmed ID
+                evenement.setId(confirmedEventId);
+
+                // Then handle lieu reservation if needed
                 if (evenement.getLieuId() > 0) {
-                    // Convertir les dates en LocalDateTime
                     LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
                     LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
 
                     reservation1 reservationLieu = new reservation1(
-                            0, // id sera généré
+                            0,
                             evenement.getLieuId(),
-                            evenement.getId(),
+                            confirmedEventId,  // Use confirmed ID
                             dateDebut,
                             dateFin
                     );
@@ -254,45 +289,39 @@ public class GererEvenementsController implements Initializable {
                     reservationLieuService.ajouter(reservationLieu);
                 }
 
-                // Initialiser la connexion
-                this.connection = DataSource.getInstance().getConnection();
-
-                // Créer des réservations pour chaque matériel
+                // Handle material reservations
                 String req = "SELECT em.materiel_id, em.quantite, m.prix " +
                         "FROM event_materiel em " +
                         "JOIN materiel m ON em.materiel_id = m.id " +
                         "WHERE em.evenement_id = ?";
 
                 try (PreparedStatement pst = connection.prepareStatement(req)) {
-                    pst.setInt(1, evenement.getId());
+                    pst.setInt(1, confirmedEventId);  // Use confirmed ID
                     ResultSet rs = pst.executeQuery();
 
-                    ReservationService reservationMaterielService = new ReservationService();
                     while (rs.next()) {
                         int materielId = rs.getInt("materiel_id");
                         int quantite = rs.getInt("quantite");
                         double prix = rs.getDouble("prix");
 
+                        System.out.println("Creating reservation with confirmed event ID: " + confirmedEventId);
+                        
                         Reservation reservationMateriel = new Reservation(
-                                evenement.getId(),
+                                confirmedEventId,  // Use confirmed ID
                                 materielId,
                                 quantite,
                                 prix * quantite,
-                                java.sql.Date.valueOf(evenement.getDateDebut().split(" ")[0]),
-                                java.sql.Date.valueOf(evenement.getDateFin().split(" ")[0])
+                                Timestamp.valueOf(evenement.getDateDebut()),
+                                Timestamp.valueOf(evenement.getDateFin()),
+                                Eutopia.getCurrentUser().getUserID()
                         );
+
                         reservationMaterielService.ajouter(reservationMateriel);
                     }
                 }
 
-                // Mettre à jour le statut de l'événement
-                evenement.setStatut("acceptée");
-                evenementService.modifier(evenement);
-
-                // Rafraîchir la table
                 loadEvents();
 
-                // Afficher un message de succès
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                 successAlert.setTitle("Succès");
                 successAlert.setContentText("Événement accepté avec succès. Les réservations ont été créées.");
@@ -303,7 +332,7 @@ public class GererEvenementsController implements Initializable {
                 errorAlert.setTitle("Erreur");
                 errorAlert.setContentText("Erreur lors de l'acceptation de l'événement: " + e.getMessage());
                 errorAlert.showAndWait();
-                e.printStackTrace(); // Pour avoir plus de détails sur l'erreur dans la console
+                e.printStackTrace();
             }
         }
     }
