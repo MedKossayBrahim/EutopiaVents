@@ -20,7 +20,7 @@
     </HBox>
 
     <Button fx:id="eventsButton" text="Events" onAction="#onEventsButtonClick"/>
-    <Button fx:id="dashboardButton" text="GestionMateriels" onAction="#onDashboardButtonClick"/>
+    <Button fx:id="dashboardButton" text="Ressource Materiels" onAction="#onDashboardButtonClick"/>
     <Button fx:id="settingsButton" text="GestionDesSalles" onAction="#onSettingsButtonClick"/>
     <Button fx:id="forumButton" text="Blog" onAction="#onForumButtonClick"/>
     <Button fx:id="storeButton" text="Store" onAction="#onStoreButtonClick"/>
