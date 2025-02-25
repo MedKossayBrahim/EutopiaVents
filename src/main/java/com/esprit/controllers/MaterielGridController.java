@@ -15,6 +15,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +41,7 @@ public class MaterielGridController {
 
     @FXML
     public void initialize() {
-        allMateriels = materielService.rechercher(); // Récupérer tous les matériels
+        allMateriels = materielService.rechercher();
         setupNavigationButtons();
         updateGrid();
         updateButtons();
@@ -96,11 +99,12 @@ public class MaterielGridController {
         Label prixLabel = new Label("Prix: " + materiel.getPrix() + " TND");
         prixLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
 
-
-
-        card.getChildren().addAll(imageView, nameLabel, descriptionLabel, quantiteLabel, prixLabel);
+        card.getChildren().addAll(imageView, nameLabel, descriptionLabel, 
+                                 quantiteLabel, prixLabel);
+        
         return card;
     }
+
     @FXML
     private void openListeReservation() {
         try {
@@ -193,11 +197,6 @@ public class MaterielGridController {
         }
     }
 
-    private void handleDetails(Materiel materiel) {
-        System.out.println("Afficher les détails de: " + materiel.getLibelle());
-        // Ajoutez ici l'affichage des détails de l'élément sélectionné
-    }
-
     public void openstats(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/statistiques.fxml"));
@@ -211,6 +210,24 @@ public class MaterielGridController {
 
         } catch (IOException e) {
             System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openReservationWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationWindow.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = new Stage();
+            stage.setTitle("Nouvelle Réservation");
+            stage.setScene(new Scene(root));
+            stage.show();
+            
+            // Rafraîchir la grille quand la fenêtre de réservation est fermée
+            stage.setOnHidden(e -> updateGrid());
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'ouverture de la fenêtre de réservation : " + e.getMessage());
         }
     }
 }

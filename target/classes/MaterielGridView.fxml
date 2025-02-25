@@ -23,6 +23,9 @@
             <Button text="Stats"
                     onAction="#openstats"
                     style="-fx-min-width: 150;"/>
+            <Button text="Nouvelle Réservation" 
+                    onAction="#openReservationWindow"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-min-width: 150;"/>
         </HBox>
 
         <!-- Boutons de pagination -->
