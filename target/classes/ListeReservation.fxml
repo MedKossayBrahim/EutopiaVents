@@ -22,6 +22,7 @@
     <TableView fx:id="reservationTable" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="evenementIdColumn" text="Événement" prefWidth="100"/>
+            <TableColumn fx:id="userIdColumn" text="Utilisateur" prefWidth="100"/>
             <TableColumn fx:id="materielIdColumn" text="Matériel" prefWidth="100"/>
             <TableColumn fx:id="quantiteColumn" text="Quantité" prefWidth="80"/>
             <TableColumn fx:id="prixTotalColumn" text="Prix Total" prefWidth="100"/>

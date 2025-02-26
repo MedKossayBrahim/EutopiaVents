@@ -43,6 +43,8 @@ public class ListeReservationController {
     private TextField filterEventField; // Champ de filtre par événement
     @FXML
     private TextField filterMaterialField; // Champ de filtre par matériel
+    @FXML
+    private TableColumn<Reservation, String> userIdColumn;
 
     private final ReservationService reservationService;
     private ObservableList<Reservation> reservationsList; // Liste observable des réservations
@@ -66,6 +68,10 @@ public class ListeReservationController {
 
         evenementIdColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
+        );
+
+        userIdColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(reservationService.getUserName(cellData.getValue().getUserId()))
         );
 
         materielIdColumn.setCellValueFactory(cellData ->

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER" style="-fx-padding: 20;" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.esprit.controllers.ReservationWindowController">
+
+    <Label text="Nouvelle Réservation" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Rechercher un matériel:"/>
+        <TextField fx:id="searchField" prefWidth="200"/>
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
+        <VBox spacing="5">
+            <Label text="Date de début"/>
+            <DatePicker fx:id="dateDebutPicker"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="Date de fin"/>
+            <DatePicker fx:id="dateFinPicker"/>
+        </VBox>
+    </HBox>
+
+    <TableView fx:id="materielsTable" VBox.vgrow="ALWAYS" editable="true">
+        <columns>
+            <TableColumn fx:id="selectColumn" text="Sélectionner" prefWidth="100"/>
+            <TableColumn fx:id="libelleColumn" text="Libellé" prefWidth="150"/>
+            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="200"/>
+            <TableColumn fx:id="prixColumn" text="Prix" prefWidth="100"/>
+            <TableColumn fx:id="stockColumn" text="Stock Disponible" prefWidth="120"/>
+            <TableColumn fx:id="quantiteColumn" text="Quantité à réserver" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Prix Total:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+        <Label fx:id="prixTotalLabel" text="0.00 TND" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2196F3;"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="confirmerButton" text="Confirmer la réservation"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button fx:id="annulerButton" text="Annuler"
+                style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>
