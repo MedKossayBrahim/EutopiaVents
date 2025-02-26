@@ -2,6 +2,7 @@ com\esprit\controllers\AjoutCategorie.class
 com\esprit\controllers\Main.class
 com\esprit\utils\SceneManager.class
 com\esprit\services\LieuServiceImpl.class
+com\esprit\controllers\LieuDetailsController.class
 com\esprit\controllers\PostViewController$1.class
 com\esprit\controllers\ModifierCommande.class
 com\esprit\controllers\Listeproduit$1.class

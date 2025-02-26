@@ -46,34 +46,34 @@ public class MainMenuController {
     public void initialize() {
         // Get current user role
         String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
-        
+
         loadLieux();
         setupSearch();
         setupCategoryFilter();
-        
+
         // Wait for scene to be available before configuring buttons
         Platform.runLater(() -> configureButtonsByRole(userRole));
     }
 
     private void configureButtonsByRole(String userRole) {
         boolean isAdmin = "Admin".equals(userRole);
-        
+
         // Configure "Ajouter Lieu" button
         Button ajouterButton = (Button) searchField.getParent().lookup("Button");
         if (ajouterButton != null) {
             ajouterButton.setVisible(isAdmin);
             ajouterButton.setManaged(isAdmin);
         }
-        
+
         // Configure all management buttons
         if (lieuxGrid.getScene() != null) {
             HBox navButtonsContainer = (HBox) lieuxGrid.getScene().lookup(".nav-buttons");
-            
+
             if (navButtonsContainer != null) {
                 System.out.println("Found nav buttons container, setting visibility: " + isAdmin); // Debug line
                 navButtonsContainer.setVisible(isAdmin);
                 navButtonsContainer.setManaged(isAdmin);
-                
+
                 // Also hide all children buttons individually
                 navButtonsContainer.getChildren().forEach(node -> {
                     node.setVisible(isAdmin);
@@ -158,6 +158,9 @@ public class MainMenuController {
         Label nomLabel = new Label(lieu.getNom());
         nomLabel.getStyleClass().add("card-title");
 
+        // Add click event to the card
+        card.setOnMouseClicked(event -> ouvrirDetailsLieu(lieu));
+
         // Only create admin buttons if user is admin
         String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
         if ("Admin".equals(userRole)) {
@@ -166,19 +169,41 @@ public class MainMenuController {
             Button supprimerBtn = new Button("Supprimer");
             supprimerBtn.getStyleClass().addAll("button", "supprimer");
 
-            modifierBtn.setOnAction(e -> modifierLieu(lieu));
-            supprimerBtn.setOnAction(e -> supprimerLieu(lieu));
+            modifierBtn.setOnAction(e -> {
+                e.consume(); // Prevent event from bubbling up to the card
+                modifierLieu(lieu);
+            });
+            supprimerBtn.setOnAction(e -> {
+                e.consume(); // Prevent event from bubbling up to the card
+                supprimerLieu(lieu);
+            });
 
             VBox buttonContainer = new VBox(5, modifierBtn, supprimerBtn);
             buttonContainer.getStyleClass().add("button-container");
-            
+
             card.getChildren().addAll(imageView, nomLabel, buttonContainer);
         } else {
             // For non-admin users, only show the image and name
             card.getChildren().addAll(imageView, nomLabel);
         }
-        
+
         return card;
+    }
+
+    private void ouvrirDetailsLieu(Lieu lieu) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LieuDetails.fxml"));
+            Parent root = loader.load();
+            LieuDetailsController controller = loader.getController();
+            controller.setLieu(lieu);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Détails du lieu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir la fenêtre de détails du lieu.");
+        }
     }
 
     private ImageView createImageView(String imageUrl) {
@@ -200,7 +225,7 @@ public class MainMenuController {
                     image = new Image(getClass().getResourceAsStream("/Images/defaultPlace.png"));
                 }
             }
-            
+
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(260);
             imageView.setFitHeight(195);
@@ -208,7 +233,7 @@ public class MainMenuController {
             imageView.setSmooth(true);
             imageView.setCache(true);
             return imageView;
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             // Fallback to default image in case of any error
