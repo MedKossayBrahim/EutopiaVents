@@ -13,7 +13,7 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Text title="Feedback" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
+    <Text text="Feedback" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
 
     <Label text="Liste des Réservations" style="-fx-font-size: 20px;"/>
 
@@ -37,23 +37,5 @@
         </columns>
     </TableView>
 
-    <Label fx:id="materielLabel" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-    
-    <TextArea fx:id="newFeedbackArea" 
-              promptText="Écrivez votre avis ici..."
-              wrapText="true"
-              prefRowCount="5"
-              style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-color: #f9f9f9;"/>
-              
-    <Button fx:id="submitButton" 
-            text="Ajouter un avis"
-            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 14;"
-            onMouseEntered="this.setStyle('-fx-background-color: #45a049; -fx-text-fill: white;')"
-            onMouseExited="this.setStyle('-fx-background-color: #4CAF50; -fx-text-fill: white;')"/>
-    
-    <Separator style="-fx-pref-height: 2; -fx-background-color: #cccccc;"/>
-    
-    <ScrollPane>
-        <ListView fx:id="feedbackListView" VBox.vgrow="ALWAYS" style="-fx-pref-height: 200;"/>
-    </ScrollPane>
+
 </VBox>

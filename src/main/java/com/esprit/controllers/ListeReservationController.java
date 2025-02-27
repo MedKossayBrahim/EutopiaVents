@@ -60,6 +60,7 @@ public class ListeReservationController {
         setupColumns();
         loadReservations();
 
+
         // Configurer les filtres
         setupFilters();
 
