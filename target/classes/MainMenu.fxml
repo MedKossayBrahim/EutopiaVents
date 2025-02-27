@@ -62,4 +62,10 @@
             </VBox>
         </ScrollPane>
     </VBox>
+
+    <!-- Right Map View -->
+    <VBox minWidth="300" maxWidth="400" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <fx:include source="map_view.fxml"/>
+    </VBox>
+
 </HBox>

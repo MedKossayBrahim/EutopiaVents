@@ -29,6 +29,7 @@ com\esprit\services\CategorieServiceImpl.class
 com\esprit\utils\OTPGenerator.class
 com\esprit\controllers\GererEvenementsController.class
 com\esprit\models\MaterielStats.class
+com\esprit\utils\SwingWaypoint.class
 com\esprit\controllers\MainMenuController.class
 com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
@@ -53,6 +54,7 @@ com\esprit\controllers\paniers.class
 com\esprit\controllers\Reservation1$2.class
 com\esprit\services\OrganisateurService.class
 com\esprit\controllers\Listecategorie.class
+com\esprit\utils\SwingWaypoint$1.class
 com\esprit\models\Evenement.class
 com\esprit\controllers\MaterielGridController.class
 com\esprit\controllers\LieuController$1.class
@@ -89,6 +91,7 @@ com\esprit\utils\DataReceiver.class
 com\esprit\controllers\ListeReservationController$3.class
 com\esprit\controllers\EventsController.class
 com\esprit\models\Reservations.class
+com\esprit\controllers\MapViewController.class
 com\esprit\controllers\ListeReservationController$2.class
 com\esprit\services\ChatService$UserChatMessage.class
 com\esprit\controllers\ModifierEvenementController$1.class
