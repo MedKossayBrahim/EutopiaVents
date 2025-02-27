@@ -10,6 +10,7 @@
 <?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
             fx:controller="com.esprit.controllers.PostViewController"
@@ -20,45 +21,47 @@
     </left>
     
     <center>
-        <VBox spacing="20" style="-fx-padding: 20;">
-            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 5;">
-                <Label fx:id="postTitleLabel" text="POST TITLE" 
-                       style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Published By: " style="-fx-text-fill: #666;"/>
-                    <Label fx:id="authorLabel" text="Username" style="-fx-text-fill: #666;"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="On: " style="-fx-text-fill: #666;"/>
-                    <Label fx:id="dateLabel" text="15/01/2025" style="-fx-text-fill: #666;"/>
-                </HBox>
-                
-                <HBox spacing="10" alignment="CENTER_RIGHT">
-                    <Button fx:id="deletePostButton" visible="false"/>
-                </HBox>
-                
-                <TextFlow fx:id="contentFlow" style="-fx-padding: 20 0;">
-                    <Text fx:id="contentText" style="-fx-font-size: 14px;"/>
-                </TextFlow>
-                
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button fx:id="likeButton" text="♡"
-                            style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #b0a8a0;"/>
-                    <Label fx:id="likesCount" text="500 likes" style="-fx-text-fill: #666;"/>
-                </HBox>
-                
-                <VBox spacing="10" style="-fx-padding: 20 0;">
-                    <Label text="Comments" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                    
-                    <VBox fx:id="commentsContainer" spacing="10">
-                        <!-- Comments will be added here dynamically -->
-                    </VBox>
-                    
-                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0;">
-                        <TextField fx:id="commentField" promptText="Add comment..." HBox.hgrow="ALWAYS"
-                                 style="-fx-background-radius: 20; -fx-padding: 8 15;"/>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 20;">
+                <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 5;">
+                    <Label fx:id="postTitleLabel" text="POST TITLE" 
+                           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Published By: " style="-fx-text-fill: #666;"/>
+                        <Label fx:id="authorLabel" text="Username" style="-fx-text-fill: #666;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="On: " style="-fx-text-fill: #666;"/>
+                        <Label fx:id="dateLabel" text="15/01/2025" style="-fx-text-fill: #666;"/>
                     </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button fx:id="deletePostButton" visible="false"/>
+                    </HBox>
+                    
+                    <TextFlow fx:id="contentFlow" style="-fx-padding: 20 0;">
+                        <Text fx:id="contentText" style="-fx-font-size: 14px;"/>
+                    </TextFlow>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="likeButton" text="♡"
+                                style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #b0a8a0;"/>
+                        <Label fx:id="likesCount" text="500 likes" style="-fx-text-fill: #666;"/>
+                    </HBox>
+                    
+                    <VBox spacing="10" style="-fx-padding: 20 0;">
+                        <Label text="Comments" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        
+                        <VBox fx:id="commentsContainer" spacing="10">
+                            <!-- Comments will be added here dynamically -->
+                        </VBox>
+                        
+                        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0;">
+                            <TextField fx:id="commentField" promptText="Add comment..." HBox.hgrow="ALWAYS"
+                                     style="-fx-background-radius: 20; -fx-padding: 8 15;"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
             </VBox>
-        </VBox>
+        </ScrollPane>
     </center>
 </BorderPane> 

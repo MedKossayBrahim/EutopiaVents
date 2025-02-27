@@ -6,6 +6,7 @@ import com.esprit.services.CategoryService;
 import com.esprit.services.ChatService;
 import com.esprit.tests.Eutopia;
 import com.esprit.utils.ProfanityFilter;
+import com.esprit.utils.TextUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -348,8 +349,9 @@ public class PostDialogController {
             // Parse AI response to extract title and content
             String[] parts = aiResponse.split("CONTENT:", 2);
             if (parts.length == 2) {
-                String titlePart = parts[0].replace("TITLE:", "").trim();
-                String contentPart = parts[1].trim();
+                // Strip emojis from title and content using TextUtils
+                String titlePart = TextUtils.stripEmojis(parts[0].replace("TITLE:", "").trim());
+                String contentPart = TextUtils.stripEmojis(parts[1].trim());
 
                 // Update the fields
                 titleField.setText(titlePart);

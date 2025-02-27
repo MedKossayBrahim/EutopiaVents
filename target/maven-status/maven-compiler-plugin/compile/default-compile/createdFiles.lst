@@ -33,6 +33,7 @@ com\esprit\controllers\MainMenuController.class
 com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
 com\esprit\services\CategoriesEventService.class
+com\esprit\utils\TextUtils.class
 com\esprit\controllers\EventDetailsController.class
 com\esprit\controllers\AjouterEvenementController$2.class
 com\esprit\models\categorieproduit.class
