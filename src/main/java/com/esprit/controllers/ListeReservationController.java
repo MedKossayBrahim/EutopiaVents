@@ -21,6 +21,8 @@ import javafx.util.converter.IntegerStringConverter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class ListeReservationController {
     @FXML
@@ -34,9 +36,9 @@ public class ListeReservationController {
     @FXML
     private TableColumn<Reservation, Double> prixTotalColumn;
     @FXML
-    private TableColumn<Reservation, Timestamp> dateDebutColumn;
+    private TableColumn<Reservation, Date> dateDebutColumn;
     @FXML
-    private TableColumn<Reservation, Timestamp> dateFinColumn;
+    private TableColumn<Reservation, Date> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
     @FXML
@@ -64,7 +66,7 @@ public class ListeReservationController {
     }
 
     private void setupColumns() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         evenementIdColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
@@ -98,26 +100,26 @@ public class ListeReservationController {
             reservationService.modifier(reservation);
         });
 
-        dateDebutColumn.setCellFactory(column -> new TableCell<>() {
+        dateDebutColumn.setCellFactory(column -> new TableCell<Reservation, Date>() {
             @Override
-            protected void updateItem(Timestamp item, boolean empty) {
+            public void updateItem(Date item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.toLocalDateTime().format(formatter));
+                    setText(dateFormat.format(item));
                 }
             }
         });
 
-        dateFinColumn.setCellFactory(column -> new TableCell<>() {
+        dateFinColumn.setCellFactory(column -> new TableCell<Reservation, Date>() {
             @Override
-            protected void updateItem(Timestamp item, boolean empty) {
+            public void updateItem(Date item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.toLocalDateTime().format(formatter));
+                    setText(dateFormat.format(item));
                 }
             }
         });

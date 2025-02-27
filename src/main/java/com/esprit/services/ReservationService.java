@@ -19,20 +19,26 @@ public class ReservationService implements IService<Reservation> {
         try {
             Statement st = connection.createStatement();
 
-            Timestamp dateDebut = (Timestamp) reservation.getDateDebut();
-            Timestamp dateFin = (Timestamp) reservation.getDateFin();
+            // Vérifier et obtenir les dates de l'événement si nécessaire
+            java.sql.Date dateDebut = reservation.getDateDebut();
+            java.sql.Date dateFin = reservation.getDateFin();
 
             if (reservation.getEvenementId() != null) {
-                String getEventDatesQuery = "SELECT date_debut, date_fin FROM events WHERE id=" + reservation.getEvenementId();
-                ResultSet rsEvent = st.executeQuery(getEventDatesQuery);
+                String getEventDatesQuery = "SELECT date_debut, date_fin FROM events WHERE id = ?";
+                PreparedStatement psEvent = connection.prepareStatement(getEventDatesQuery);
+                psEvent.setInt(1, reservation.getEvenementId());
+                ResultSet rsEvent = psEvent.executeQuery();
                 if (rsEvent.next()) {
-                    dateDebut = rsEvent.getTimestamp("date_debut");
-                    dateFin = rsEvent.getTimestamp("date_fin");
+                    dateDebut = rsEvent.getDate("date_debut");
+                    dateFin = rsEvent.getDate("date_fin");
                 }
             }
 
-            String getMaterielQuery = "SELECT prix, quantite FROM materiel WHERE id=" + reservation.getMaterielId();
-            ResultSet rsMateriel = st.executeQuery(getMaterielQuery);
+            // Vérifier la disponibilité du matériel
+            String getMaterielQuery = "SELECT prix, quantite FROM materiel WHERE id = ?";
+            PreparedStatement psMateriel = connection.prepareStatement(getMaterielQuery);
+            psMateriel.setInt(1, reservation.getMaterielId());
+            ResultSet rsMateriel = psMateriel.executeQuery();
 
             if (rsMateriel.next()) {
                 double prixUnitaire = rsMateriel.getDouble("prix");
@@ -41,69 +47,71 @@ public class ReservationService implements IService<Reservation> {
                 int nouvelleCapacite = capaciteActuelle - reservation.getQuantite();
 
                 if (nouvelleCapacite >= 0) {
-                    String req = "INSERT INTO reservation (userid, evenement_id, materiel_id, quantite, prix_total, date_debut, date_fin) VALUES (" +
-                            reservation.getUserId() + ", " +
-                            (reservation.getEvenementId() != null ? reservation.getEvenementId() : "NULL") + ", " +
-                            reservation.getMaterielId() + ", " +
-                            reservation.getQuantite() + ", " +
-                            prixTotal + ", '" +
-                            dateDebut + "', '" +
-                            dateFin + "')";
-                    st.executeUpdate(req);
+                    // Insérer la réservation avec PreparedStatement
+                    String insertQuery = "INSERT INTO reservation (userid, evenement_id, materiel_id, quantite, prix_total, date_debut, date_fin) " +
+                                       "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    
+                    PreparedStatement ps = connection.prepareStatement(insertQuery);
+                    ps.setInt(1, reservation.getUserId());
+                    
+                    if (reservation.getEvenementId() != null) {
+                        ps.setInt(2, reservation.getEvenementId());
+                    } else {
+                        ps.setNull(2, Types.INTEGER);
+                    }
+                    
+                    ps.setInt(3, reservation.getMaterielId());
+                    ps.setInt(4, reservation.getQuantite());
+                    ps.setDouble(5, prixTotal);
+                    ps.setDate(6, (java.sql.Date) reservation.getDateDebut());
+                    ps.setDate(7, (java.sql.Date) reservation.getDateFin());
 
-                    String updateCapaciteQuery = "UPDATE materiel SET quantite=" + nouvelleCapacite + " WHERE id=" + reservation.getMaterielId();
-                    st.executeUpdate(updateCapaciteQuery);
+                    ps.executeUpdate();
+
+                    // Mettre à jour la quantité du matériel
+                    String updateCapaciteQuery = "UPDATE materiel SET quantite = ? WHERE id = ?";
+                    PreparedStatement psUpdate = connection.prepareStatement(updateCapaciteQuery);
+                    psUpdate.setInt(1, nouvelleCapacite);
+                    psUpdate.setInt(2, reservation.getMaterielId());
+                    psUpdate.executeUpdate();
+
                     System.out.println("Réservation ajoutée avec succès et capacité mise à jour.");
                 } else {
                     System.out.println("Erreur : Stock insuffisant pour la réservation.");
+                    throw new SQLException("Stock insuffisant pour la réservation");
                 }
+            } else {
+                System.out.println("Erreur : Matériel non trouvé.");
+                throw new SQLException("Matériel non trouvé");
             }
+            
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout de la réservation : " + e.getMessage());
+            throw new RuntimeException("Erreur lors de l'ajout de la réservation : " + e.getMessage());
         }
     }
 
     @Override
     public void modifier(Reservation reservation) {
         try {
-            Statement st = connection.createStatement();
+            // Utiliser PreparedStatement pour plus de sécurité
+            String req = "UPDATE reservation SET userid=?, quantite=?, prix_total=?, date_debut=?, date_fin=? WHERE id=?";
+            
+            PreparedStatement ps = connection.prepareStatement(req);
+            ps.setInt(1, reservation.getUserId());
+            ps.setInt(2, reservation.getQuantite());
+            ps.setDouble(3, reservation.getPrixTotal());
+            ps.setDate(4, reservation.getDateDebut());  // Utiliser setDate au lieu de setTimestamp
+            ps.setDate(5, reservation.getDateFin());    // Utiliser setDate au lieu de setTimestamp
+            ps.setInt(6, reservation.getId());
 
-            String getPrixQuery = "SELECT prix FROM materiel WHERE id=" + reservation.getMaterielId();
-            ResultSet rs = st.executeQuery(getPrixQuery);
-
-            if (rs.next()) {
-                double prixUnitaire = rs.getDouble("prix");
-                double prixTotal = prixUnitaire * reservation.getQuantite();
-
-                Timestamp dateDebut = (Timestamp) reservation.getDateDebut();
-                Timestamp dateFin = (Timestamp) reservation.getDateFin();
-
-                if (reservation.getEvenementId() != null) {
-                    String getEventDatesQuery = "SELECT date_debut, date_fin FROM events WHERE id=" + reservation.getEvenementId();
-                    ResultSet rsEvent = st.executeQuery(getEventDatesQuery);
-                    if (rsEvent.next()) {
-                        dateDebut = rsEvent.getTimestamp("date_debut");
-                        dateFin = rsEvent.getTimestamp("date_fin");
-                    }
-                }
-
-                String req = "UPDATE reservation SET " +
-                        "userid=" + reservation.getUserId() + ", " +
-                        "quantite=" + reservation.getQuantite() + ", " +
-                        "prix_total=" + prixTotal + ", " +
-                        "date_debut='" + dateDebut + "', " +
-                        "date_fin='" + dateFin + "' " +
-                        "WHERE id=" + reservation.getId();
-
-                int rowsUpdated = st.executeUpdate(req);
-                if (rowsUpdated > 0) {
-                    System.out.println("Réservation modifiée avec succès.");
-                } else {
-                    System.out.println("Aucune réservation trouvée avec cet ID.");
-                }
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("Réservation modifiée avec succès.");
             } else {
-                System.out.println("Erreur : Matériel introuvable.");
+                System.out.println("Aucune réservation trouvée avec cet ID.");
             }
+            
         } catch (SQLException e) {
             System.out.println("Erreur SQL lors de la modification de la réservation : " + e.getMessage());
         }
@@ -125,8 +133,8 @@ public class ReservationService implements IService<Reservation> {
                         rs.getInt("materiel_id"),
                         rs.getInt("quantite"),
                         rs.getDouble("prix_total"),
-                        rs.getTimestamp("date_debut"),
-                        rs.getTimestamp("date_fin")
+                        rs.getDate("date_debut"),  // Changé de getTimestamp à getDate
+                        rs.getDate("date_fin")     // Changé de getTimestamp à getDate
                 ));
             }
         } catch (SQLException e) {
@@ -160,7 +168,7 @@ public class ReservationService implements IService<Reservation> {
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération du nom de l'événement : " + e.getMessage());
         }
-        return "Inconnu";
+        return "0";
     }
 
     public String getMaterialName(int materialId) {
@@ -186,7 +194,7 @@ public class ReservationService implements IService<Reservation> {
             ResultSet resultSet = preparedStatement.executeQuery();
             
             if (resultSet.next()) {
-                userName = resultSet.getString("full_name");
+                userName = resultSet.getString("fullName");
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération du nom d'utilisateur: " + e.getMessage());

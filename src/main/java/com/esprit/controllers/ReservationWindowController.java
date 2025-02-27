@@ -1,7 +1,11 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
+import com.esprit.models.Reservation;
+import com.esprit.models.User;
 import com.esprit.services.MaterielService;
+import com.esprit.services.ReservationService;
+import com.esprit.tests.Eutopia;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
+import java.sql.Timestamp;
 
 public class ReservationWindowController {
     @FXML
@@ -47,14 +52,17 @@ public class ReservationWindowController {
     private DatePicker dateFinPicker;
     @FXML
     private Label prixTotalLabel;
-
-    private final MaterielService materielService = new MaterielService();
+    private User currentUser;
+    private final MaterielService materielService;
+    private final ReservationService reservationService;
     private final Map<Materiel, SimpleBooleanProperty> selectionProperties = new HashMap<>();
     private final Map<Materiel, Spinner<Integer>> quantitySpinners = new HashMap<>();
     private ObservableList<Materiel> materiels;
     private FilteredList<Materiel> filteredMateriels;
 
     public ReservationWindowController() throws SQLException {
+        materielService = new MaterielService();
+        reservationService = new ReservationService();
     }
 
     @FXML
@@ -64,6 +72,7 @@ public class ReservationWindowController {
         setupSearch();
         setupButtons();
         setupDatePickers();
+        currentUser = Eutopia.getCurrentUser();
     }
 
     private void setupColumns() {
@@ -323,15 +332,45 @@ public class ReservationWindowController {
                         .append(" (Quantité: ").append(quantity)
                         .append(", Prix unitaire: ").append(materiel.getPrix()).append(" TND)\n"));
 
+        // Après les vérifications, créer et sauvegarder la réservation
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Confirmation de réservation");
         confirmation.setHeaderText("Voulez-vous confirmer cette réservation ?");
         confirmation.setContentText(details.toString());
 
+        // Conversion correcte des dates en Timestamp
+        java.sql.Date dateDebuta = java.sql.Date.valueOf(dateDebutPicker.getValue());
+        java.sql.Date dateFina = java.sql.Date.valueOf(dateFinPicker.getValue());
+
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Passer les dates à la méthode de création de réservation
-                // reservationService.creerReservation(materiel, quantity, dateDebut, dateFin);
+                for (Map.Entry<Materiel, SimpleBooleanProperty> entry : selectionProperties.entrySet()) {
+                    if (entry.getValue().get()) {
+                        Materiel materiel = entry.getKey();
+                        Spinner<Integer> spinner = quantitySpinners.get(materiel);
+                        int quantity = spinner.getValue();
+                        
+                        if (quantity > 0) {
+                            Reservation reservation = new Reservation(materiel.getId(),
+                                    quantity,
+                                    materiel.getPrix() * quantity,
+
+                                    dateDebuta,  // Utilisation de la date de début convertie
+                                dateFina,
+                                    currentUser.getUserID()// Utilisation de la date de fin convertie
+                            );
+
+                            try {
+                                reservationService.ajouter(reservation);
+                            } catch (Exception e) {
+                                showAlert(Alert.AlertType.ERROR, "Erreur",
+                                        "Erreur lors de la création de la réservation: " + e.getMessage());
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 showAlert(Alert.AlertType.INFORMATION, "Succès",
                         "Votre réservation a été effectuée avec succès!");
                 ((Stage) confirmerButton.getScene().getWindow()).close();

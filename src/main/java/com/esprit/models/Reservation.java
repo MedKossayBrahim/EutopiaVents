@@ -9,18 +9,25 @@ public class Reservation {
     private int materielId;  // Clé étrangère vers Materiel
     private int quantite;
     private double prixTotal; // Prix total = prix du matériel * quantité
-    private Date dateDebut;
-    private Date dateFin;
+    private java.sql.Date dateDebut;
+    private java.sql.Date dateFin;
 
-    public Reservation(int id, int userId, int evenementId, int materielId, int quantite, double prixTotal, Timestamp dateDebut, Timestamp dateFin) {
+    public Reservation(int id, int userId, Integer evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
+        this.userId = userId;
         this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
+        this.dateDebut = convertToSqlDate(dateDebut);
+        this.dateFin = convertToSqlDate(dateFin);
+    }
 
+    private java.sql.Date convertToSqlDate(java.util.Date date) {
+        if (date != null) {
+            return new java.sql.Date(date.getTime());
+        }
+        return null;
     }
 
     public int getUserId() {
@@ -33,23 +40,37 @@ public class Reservation {
 
     private int userId;
 
+<<<<<<< Updated upstream
 
     public Reservation(int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin, int userId) {
-        this.materielId = materielId;
-        this.quantite = quantite;
-        this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.userId = userId;
-    }
-
-    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin) {
+=======
+    public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
+        this.id = id;
         this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
+        this.dateDebut = convertToSqlDate(dateDebut);
+        this.dateFin = convertToSqlDate(dateFin);
+    }
+
+    public Reservation( int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin, int userId) {
+>>>>>>> Stashed changes
+        this.materielId = materielId;
+        this.quantite = quantite;
+        this.prixTotal = prixTotal;
+        this.dateDebut = convertToSqlDate(dateDebut);
+        this.dateFin = convertToSqlDate(dateFin);
+        this.userId = userId;
+    }
+
+    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
+        this.evenementId = evenementId;
+        this.materielId = materielId;
+        this.quantite = quantite;
+        this.prixTotal = prixTotal;
+        this.dateDebut = convertToSqlDate(dateDebut);
+        this.dateFin = convertToSqlDate(dateFin);
     }
 
 
@@ -85,11 +106,21 @@ public class Reservation {
     public double getPrixTotal() { return prixTotal; }
     public void setPrixTotal(double prixTotal) { this.prixTotal = prixTotal; }
 
-    public Date getDateDebut() { return dateDebut; }
-    public void setDateDebut(Date dateDebut) { this.dateDebut = dateDebut; }
+    public java.sql.Date getDateDebut() {
+        return dateDebut;
+    }
 
-    public Date getDateFin() { return dateFin; }
-    public void setDateFin(Date dateFin) { this.dateFin = dateFin; }
+    public void setDateDebut(java.util.Date dateDebut) {
+        this.dateDebut = convertToSqlDate(dateDebut);
+    }
+
+    public java.sql.Date getDateFin() {
+        return dateFin;
+    }
+
+    public void setDateFin(java.util.Date dateFin) {
+        this.dateFin = convertToSqlDate(dateFin);
+    }
 
     @Override
     public String toString() {
