@@ -50,4 +50,31 @@ public class FeedbackService {
         }
         return feedbacks;
     }
+
+    public void supprimer(int id) {
+        try {
+            String req = "DELETE FROM feedback WHERE id = ?";
+            PreparedStatement ps = connection.prepareStatement(req);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            System.out.println("Feedback supprimé avec succès");
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la suppression du feedback : " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void modifier(Feedback feedback) {
+        try {
+            String req = "UPDATE feedback SET contenu = ? WHERE id = ?";
+            PreparedStatement ps = connection.prepareStatement(req);
+            ps.setString(1, feedback.getContenu());
+            ps.setInt(2, feedback.getId());
+            ps.executeUpdate();
+            System.out.println("Feedback modifié avec succès");
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la modification du feedback : " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 } 
