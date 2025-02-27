@@ -44,11 +44,11 @@
             <Button text="Gestion des Photos" onAction="#goToGestionPhotos" styleClass="nav-button"/>
         </HBox>
 
-        <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="content-area">
-            <VBox spacing="15" alignment="CENTER">
-                <GridPane fx:id="lieuxGrid"
-                         vgap="15"
-                         hgap="15"
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+            <VBox spacing="20">
+                <GridPane fx:id="lieuxGrid" 
+                         hgap="20" 
+                         vgap="20"
                          alignment="CENTER"
                          styleClass="lieux-grid">
                     <padding>
@@ -62,10 +62,4 @@
             </VBox>
         </ScrollPane>
     </VBox>
-
-    <!-- Right Map View -->
-    <VBox minWidth="300" maxWidth="400" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-        <fx:include source="map_view.fxml"/>
-    </VBox>
-
 </HBox>

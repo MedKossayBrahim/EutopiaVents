@@ -36,6 +36,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Cate
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\categorieproduit.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\TextUtils.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Listeproduit.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\components\AutocompleteTextField.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\EmailService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\SignUpView.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Event.java
@@ -47,7 +48,6 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Like
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\MaterielStats.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Categorie.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\ReservationServiceImpl.java
-C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\MapViewController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\SearchableController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\AdminService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AjouterCategorie.java
@@ -68,6 +68,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Lieu
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Listecategorie.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\NavbarController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AjoutMaterielController.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\AutocompleteService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\MainController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\NewPassView.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercateg.java
@@ -77,7 +78,6 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Materi
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\commande.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\LieuController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\SceneManager.java
-C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\SwingWaypoint.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Evenement.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\EnterOPTView.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\OTPGenerator.java

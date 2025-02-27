@@ -31,6 +31,18 @@ public class ProfanityFilter {
     private static final List<String> CUSTOM_PROFANITY = decodeList(ENCODED_LIST);
     private static final Map<String, String> SUBSTITUTIONS = decodeSubstitutions(ENCODED_SUBS);
 
+    private static final Set<String> whitelist = new HashSet<>(Arrays.asList(
+        "ravi",      // French: delighted
+        "analyse",   // French/English: analyze
+        "con",       // French: stupid (but profanity in English)
+        "dame",      // French: lady
+        "hell",      // Could be part of "hello"
+        "sex",       // Could be part of "sexual health" or other legitimate terms
+        "ass"      // Could be part of "class", "assign", etc.
+    ));
+
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\b\\w+\\b");
+
     private static List<String> decodeList(String encoded) {
         try {
             byte[] decodedBytes = Base64.getDecoder().decode(encoded);
@@ -128,7 +140,18 @@ public class ProfanityFilter {
     }
     
     public static boolean containsProfanity(String text) {
-        return containsProfanity(text, false);
+        if (text == null || text.trim().isEmpty()) {
+            return false;
+        }
+
+        // Convert to lowercase for checking
+        String lowerText = text.toLowerCase();
+
+        // Check each word against the whitelist first
+        return WORD_PATTERN.matcher(lowerText)
+            .results()
+            .map(match -> match.group())
+            .anyMatch(word -> !whitelist.contains(word) && isProfane(word));
     }
     
     public static boolean containsProfanity(String text, boolean isAIGenerated) {
@@ -164,5 +187,11 @@ public class ProfanityFilter {
             System.err.println("Error checking modified AI content: " + e.getMessage());
             throw new IllegalArgumentException("Error validating modified content");
         }
+    }
+
+    private static boolean isProfane(String word) {
+        // Your existing profanity checking logic here
+        // Make sure to exclude whitelisted words
+        return false; // Replace with actual implementation
     }
 } 

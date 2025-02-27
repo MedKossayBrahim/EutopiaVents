@@ -269,36 +269,52 @@ public class PostDialogController {
                 categoryComboBox.getItems().add(category.getName());
             }
             
-            // Make ComboBox editable
-            categoryComboBox.setEditable(true);
+            // Check if current user is admin
+            boolean isAdmin = Eutopia.getCurrentUser().getRole() == Role.Admin;
             
-            // Add new category when Enter is pressed in ComboBox
-            categoryComboBox.getEditor().setOnAction(e -> {
-                String newCategoryName = categoryComboBox.getEditor().getText().trim();
-                if (!newCategoryName.isEmpty() && !categoryComboBox.getItems().contains(newCategoryName)) {
-                    try {
-                        System.out.println("Attempting to add new category: " + newCategoryName);
-                        
-                        // Create and add new category
-                        Category newCategory = new Category(newCategoryName, "New category description");
-                        System.out.println("Created category object: " + newCategory.getName());
-                        
-                        categoryService.ajouter(newCategory);
-                        
-                        // Add to ComboBox and select it
-                        categoryComboBox.getItems().add(newCategoryName);
-                        categoryComboBox.setValue(newCategoryName);
-                        
-                        showInfo("New category added successfully!");
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        System.err.println("Full error: " + ex.getMessage());
-                        showError("Could not add new category: " + ex.getMessage());
+            // Make ComboBox editable only for admins
+            categoryComboBox.setEditable(isAdmin);
+            
+            if (isAdmin) {
+                // Add new category when Enter is pressed in ComboBox (admin only)
+                categoryComboBox.getEditor().setOnAction(e -> {
+                    String newCategoryName = categoryComboBox.getEditor().getText().trim();
+                    if (!newCategoryName.isEmpty() && !categoryComboBox.getItems().contains(newCategoryName)) {
+                        try {
+                            System.out.println("Attempting to add new category: " + newCategoryName);
+                            
+                            // Create and add new category
+                            Category newCategory = new Category(newCategoryName, "New category description");
+                            System.out.println("Created category object: " + newCategory.getName());
+                            
+                            categoryService.ajouter(newCategory);
+                            
+                            // Add to ComboBox and select it
+                            categoryComboBox.getItems().add(newCategoryName);
+                            categoryComboBox.setValue(newCategoryName);
+                            
+                            showInfo("New category added successfully!");
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                            System.err.println("Full error: " + ex.getMessage());
+                            showError("Could not add new category: " + ex.getMessage());
+                        }
+                    } else if (newCategoryName.isEmpty()) {
+                        showError("Category name cannot be empty");
+                    } else {
+                        showError("Category already exists");
                     }
-                } else {
-                    System.out.println("Category name empty or already exists: " + newCategoryName);
-                }
-            });
+                });
+            } else {
+                // For non-admin users, show message if they try to type
+                categoryComboBox.setOnKeyTyped(event -> {
+                    showError("Only administrators can create new categories");
+                    // Reset to previous valid selection
+                    if (!categoryComboBox.getItems().contains(categoryComboBox.getValue())) {
+                        categoryComboBox.setValue(null);
+                    }
+                });
+            }
             
         } catch (SQLException e) {
             System.err.println("Error loading categories: " + e.getMessage());
@@ -335,10 +351,19 @@ public class PostDialogController {
 
         try {
             String prompt = String.format(
-                "Based on this prompt: '%s', generate a forum post with the following format:\n" +
-                "TITLE: A clear, concise title (max 100 characters)\n" +
-                "CONTENT: Detailed, well-structured content (max 1000 characters)\n\n" +
-                "Make sure the content is appropriate and relevant to the forum context.",
+                "You are a forum post generator. Create a post based on this prompt: '%s'\n\n" +
+                "Respond EXACTLY in this format:\n" +
+                "<TITLE>\n" +
+                "Your title here\n" +
+                "</TITLE>\n" +
+                "<CONTENT>\n" +
+                "Introduction paragraph here\n\n" +
+                "### First Main Point\n" +
+                "Content for first point\n\n" +
+                "### Second Main Point\n" +
+                "Content for second point\n\n" +
+                "Conclusion paragraph here\n" +
+                "</CONTENT>",
                 promptArea.getText().trim()
             );
 
@@ -346,27 +371,58 @@ public class PostDialogController {
             ChatService.UserChatMessage response = chatService.processMessage(prompt);
             String aiResponse = response.getContent();
 
-            // Parse AI response to extract title and content
-            String[] parts = aiResponse.split("CONTENT:", 2);
-            if (parts.length == 2) {
-                // Strip emojis from title and content using TextUtils
-                String titlePart = TextUtils.stripEmojis(parts[0].replace("TITLE:", "").trim());
-                String contentPart = TextUtils.stripEmojis(parts[1].trim());
+            // Parse title
+            String title = extractBetweenTags(aiResponse, "TITLE");
+            String content = extractBetweenTags(aiResponse, "CONTENT");
+
+            if (title != null && content != null) {
+                // Strip emojis and format
+                title = TextUtils.stripEmojis(title.trim());
+                content = formatContent(TextUtils.stripEmojis(content.trim()));
 
                 // Update the fields
-                titleField.setText(titlePart);
-                contentArea.setText(contentPart);
+                titleField.setText(title);
+                contentArea.setText(content);
                 
-                // Show success message
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Content generated successfully!");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse AI response");
+                System.out.println("AI Response received: " + aiResponse);
             }
 
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to generate content: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private String extractBetweenTags(String text, String tag) {
+        String startTag = "<" + tag + ">";
+        String endTag = "</" + tag + ">";
+        
+        int startIndex = text.indexOf(startTag);
+        int endIndex = text.indexOf(endTag);
+        
+        if (startIndex != -1 && endIndex != -1) {
+            return text.substring(startIndex + startTag.length(), endIndex).trim();
+        }
+        return null;
+    }
+
+    private String formatContent(String content) {
+        // Add extra line breaks between sections for better readability
+        content = content.replaceAll("###\\s+", "\n\n### ");
+        
+        // Add line breaks after paragraphs
+        content = content.replaceAll("\\.\n", ".\n\n");
+        
+        // Ensure consistent spacing around bullet points
+        content = content.replaceAll("(?m)^-\\s*", "\n- ");
+        
+        // Remove any excessive blank lines (more than 2)
+        content = content.replaceAll("\\n{3,}", "\n\n");
+        
+        return content.trim();
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
