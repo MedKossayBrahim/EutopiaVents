@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
+import com.esprit.tests.Eutopia;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -99,8 +100,12 @@ public class MaterielGridController {
         Label prixLabel = new Label("Prix: " + materiel.getPrix() + " TND");
         prixLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
 
+        Button avisButton = new Button("Avis");
+        avisButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white;");
+        avisButton.setOnAction(e -> openFeedbackWindow(materiel));
+
         card.getChildren().addAll(imageView, nameLabel, descriptionLabel, 
-                                 quantiteLabel, prixLabel);
+                                 quantiteLabel, prixLabel, avisButton);
         
         return card;
     }
@@ -146,17 +151,20 @@ public class MaterielGridController {
     private void setupNavigationButtons() {
         btnMaterielList = new Button("Liste des Matériels");
         btnCategoriesList = new Button("Liste des Catégories");
+        Button btnNouvelleReservation = new Button("Nouvelle Réservation");
 
         // Style des boutons
         btnMaterielList.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 10 20;");
         btnCategoriesList.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 10 20;");
+        btnNouvelleReservation.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10 20;");
 
         // Actions des boutons
         btnMaterielList.setOnAction(event -> navigateToMaterielList());
         btnCategoriesList.setOnAction(event -> navigateToCategoriesList());
+        btnNouvelleReservation.setOnAction(event -> openReservationWindow());
 
         // Ajout dans un HBox pour bien organiser l'affichage
-        HBox buttonContainer = new HBox(20, btnMaterielList, btnCategoriesList);
+        HBox buttonContainer = new HBox(20, btnMaterielList, btnCategoriesList, btnNouvelleReservation);
         buttonContainer.setAlignment(javafx.geometry.Pos.CENTER);
         gridPaneMateriels.add(buttonContainer, 0, 5, 3, 1); // Centrer sur 3 colonnes
     }
@@ -216,7 +224,11 @@ public class MaterielGridController {
     @FXML
     private void openReservationWindow() {
         try {
+            int userId = getCurrentUserId();
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationWindow.fxml"));
+            ReservationWindowController controller = new ReservationWindowController(userId);
+            loader.setController(controller);
             Parent root = loader.load();
             
             Stage stage = new Stage();
@@ -224,10 +236,44 @@ public class MaterielGridController {
             stage.setScene(new Scene(root));
             stage.show();
             
-            // Rafraîchir la grille quand la fenêtre de réservation est fermée
             stage.setOnHidden(e -> updateGrid());
         } catch (IOException e) {
-            System.err.println("Erreur lors de l'ouverture de la fenêtre de réservation : " + e.getMessage());
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur lors de l'ouverture de la fenêtre de réservation");
+            alert.setContentText("Détails : " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
         }
+    }
+
+    private int getCurrentUserId() {
+        // Pour le test, on retourne l'ID utilisateur 24
+        return Eutopia.getCurrentUser().getUserID();
+    }
+
+    private void openFeedbackWindow(Materiel materiel) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FeedbackWindow.fxml"));
+            FeedbackController controller = new FeedbackController(materiel, getCurrentUserId());
+            loader.setController(controller);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Avis - " + materiel.getLibelle());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Erreur lors de l'ouverture de la fenêtre des avis", e);
+        }
+    }
+
+    private void showError(String title, Exception e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText("Erreur lors de l'ouverture de la fenêtre des avis");
+        alert.setContentText("Détails : " + e.getMessage());
+        alert.showAndWait();
+        e.printStackTrace();
     }
 }

@@ -42,6 +42,10 @@ public class ListeReservationController {
     private TextField filterEventField; // Champ de filtre par événement
     @FXML
     private TextField filterMaterialField; // Champ de filtre par matériel
+    @FXML
+    private TableColumn<Reservation, String> userColumn;
+    @FXML
+    private TextField filterUserField;
 
     private final ReservationService reservationService;
     private ObservableList<Reservation> reservationsList; // Liste observable des réservations
@@ -58,6 +62,23 @@ public class ListeReservationController {
 
         // Configurer les filtres
         setupFilters();
+
+        userColumn.setCellValueFactory(cellData -> {
+            int userId = cellData.getValue().getUserId();
+            String userName = reservationService.getUserName(userId);
+            return new SimpleStringProperty(userName);
+        });
+
+        // Ajouter le filtre pour les utilisateurs
+        filterUserField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String userName = reservationService.getUserName(reservation.getUserId()).toLowerCase();
+                return userName.contains(newValue.toLowerCase());
+            });
+        });
     }
 
     private void setupColumns() {
@@ -193,5 +214,4 @@ public class ListeReservationController {
             });
         });
     }
-
-    }
+}

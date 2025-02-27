@@ -1,7 +1,9 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Materiel;
+import com.esprit.models.Reservation;
 import com.esprit.services.MaterielService;
+import com.esprit.services.ReservationService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,6 +54,11 @@ public class ReservationWindowController {
     private final Map<Materiel, Spinner<Integer>> quantitySpinners = new HashMap<>();
     private ObservableList<Materiel> materiels;
     private FilteredList<Materiel> filteredMateriels;
+    private int currentUserId;
+
+    public ReservationWindowController(int userId) {
+        this.currentUserId = userId;
+    }
 
     @FXML
     public void initialize() {
@@ -308,31 +315,41 @@ public class ReservationWindowController {
             return;
         }
 
-        // Ajouter le prix total dans le message de confirmation
-        StringBuilder details = new StringBuilder("Articles sélectionnés:\n");
-        details.append("Du: ").append(dateDebut).append("\n");
-        details.append("Au: ").append(dateFin).append("\n");
-        details.append("Prix Total: ").append(prixTotalLabel.getText()).append("\n\n");
-        
-        reservations.forEach((materiel, quantity) -> 
-            details.append("- ").append(materiel.getLibelle())
-                   .append(" (Quantité: ").append(quantity)
-                   .append(", Prix unitaire: ").append(materiel.getPrix()).append(" TND)\n"));
+        // Créer les réservations pour chaque matériel sélectionné
+        for (Map.Entry<Materiel, Integer> entry : reservations.entrySet()) {
+            Materiel materiel = entry.getKey();
+            int quantity = entry.getValue();
+            
+            try {
+                // Convertir LocalDate en java.sql.Date
+                java.sql.Date dateDebutSql = java.sql.Date.valueOf(dateDebutPicker.getValue());
+                java.sql.Date dateFinSql = java.sql.Date.valueOf(dateFinPicker.getValue());
+                
+                // Créer une nouvelle réservation avec l'userId
+                Reservation reservation = new Reservation(
+                    materiel.getId(),
+                    quantity,
+                    materiel.getPrix() * quantity,
+                    dateDebutSql,
+                    dateFinSql,
+                    currentUserId
+                );
 
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirmation de réservation");
-        confirmation.setHeaderText("Voulez-vous confirmer cette réservation ?");
-        confirmation.setContentText(details.toString());
-
-        confirmation.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                // Passer les dates à la méthode de création de réservation
-                // reservationService.creerReservation(materiel, quantity, dateDebut, dateFin);
-                showAlert(Alert.AlertType.INFORMATION, "Succès",
-                         "Votre réservation a été effectuée avec succès!");
-                ((Stage) confirmerButton.getScene().getWindow()).close();
+                // Appeler le service pour ajouter la réservation
+                ReservationService reservationService = new ReservationService();
+                reservationService.ajouter(reservation);
+                
+            } catch (Exception e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur",
+                         "Une erreur est survenue lors de la réservation: " + e.getMessage());
+                e.printStackTrace();
+                return;
             }
-        });
+        }
+
+        showAlert(Alert.AlertType.INFORMATION, "Succès",
+                 "Votre réservation a été effectuée avec succès!");
+        ((Stage) confirmerButton.getScene().getWindow()).close();
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

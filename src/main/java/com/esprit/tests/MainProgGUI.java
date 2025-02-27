@@ -15,7 +15,7 @@ public class MainProgGUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MaterielGridView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/signUp-view.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             primaryStage.setTitle("Gestion des Matériels et Catégories");

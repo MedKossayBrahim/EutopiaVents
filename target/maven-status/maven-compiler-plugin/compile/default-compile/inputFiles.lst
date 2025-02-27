@@ -1,19 +1,37 @@
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercateg.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\AjoutMaterielController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\ListeCategorieController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\ListeMaterielController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\ListeReservationController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\MaterielGridController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\ReservationWindowController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\controllers\StatistiqueController.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Categorie.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Materiel.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\MaterielStats.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\models\Reservation.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\CategorieService.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\IService.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\MaterielService.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\services\ReservationService.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\tests\MainProg.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\tests\MainProgGUI.java
-C:\Users\Youssefh\Desktop\Nouveau dossier\EutopiaVents\src\main\java\com\esprit\utils\DataSource.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Role.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Feedback.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\AjoutMaterielController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\MaterielStats.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\MaterielGridController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\MaterielService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\FeedbackController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\tests\MainProg.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\utils\DataReceiver.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Categorie.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\UserService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\OrganisateurService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\tests\MainProgGUI.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Materiel.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Organisateur.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\CategorieService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\ListeMaterielController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\ParticipantService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\ListeCategorieController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\SignUpView.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\StatistiqueController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercateg.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Participant.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\ReservationWindowController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Reservation.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\IService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\FeedbackService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\tests\Eutopia.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\utils\DataSource.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\User.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\ReservationService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\utils\SceneManager.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\ListeReservationController.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\utils\UserSession.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\services\AdminService.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\controllers\LoginView.java
+C:\Users\Youssefh\Desktop\FINAL03\EutopiaVents\src\main\java\com\esprit\models\Admin.java

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="800" prefHeight="600" xmlns:fx="http://javafx.com/fxml">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Date de début:"/>
+        <DatePicker fx:id="dateDebutPicker"/>
+        <Label text="Date de fin:"/>
+        <DatePicker fx:id="dateFinPicker"/>
+    </HBox>
+
+    <TextField fx:id="searchField" promptText="Rechercher un matériel..."/>
+
+    <TableView fx:id="materielsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="selectColumn" text="Sélectionner"/>
+            <TableColumn fx:id="libelleColumn" text="Libellé"/>
+            <TableColumn fx:id="descriptionColumn" text="Description"/>
+            <TableColumn fx:id="prixColumn" text="Prix"/>
+            <TableColumn fx:id="stockColumn" text="Stock"/>
+            <TableColumn fx:id="quantiteColumn" text="Quantité"/>
+        </columns>
+    </TableView>
+
+    <Label fx:id="prixTotalLabel" text="Prix Total: 0.00 TND"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="confirmerButton" text="Confirmer"/>
+        <Button fx:id="annulerButton" text="Annuler"/>
+    </HBox>
+</VBox> 

@@ -1,33 +1,75 @@
 package com.esprit.models;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class Reservation {
-    private transient int id;
+    private int id;
+    private int userId;
     private int evenementId; // Clé étrangère vers Evenement
     private int materielId;  // Clé étrangère vers Materiel
     private int quantite;
     private double prixTotal; // Prix total = prix du matériel * quantité
-    private Date dateDebut;
-    private Date dateFin;
+    private java.sql.Timestamp dateDebut;
+    private java.sql.Timestamp dateFin;
 
-    public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin) {
+    public Reservation(int id, int userId, Integer evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
+        this.id = id;
+        this.userId = userId;
+        this.evenementId = evenementId;
+        this.materielId = materielId;
+        this.quantite = quantite;
+        this.prixTotal = prixTotal;
+        this.dateDebut = convertToSqlTimestamp(dateDebut);
+        this.dateFin = convertToSqlTimestamp(dateFin);
+    }
+
+    private java.sql.Timestamp convertToSqlTimestamp(java.util.Date date) {
+        if (date != null) {
+            return new java.sql.Timestamp(date.getTime());
+        }
+        return null;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+
+
+
+
+    public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
         this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
+        this.dateDebut = convertToSqlTimestamp(dateDebut);
+        this.dateFin = convertToSqlTimestamp(dateFin);
     }
 
-    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, Date dateDebut, Date dateFin) {
+    public Reservation( int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin, int userId) {
+
+        this.materielId = materielId;
+        this.quantite = quantite;
+        this.prixTotal = prixTotal;
+        this.dateDebut = convertToSqlTimestamp(dateDebut);
+        this.dateFin = convertToSqlTimestamp(dateFin);
+        this.userId = userId;
+    }
+
+    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
+        this.dateDebut = convertToSqlTimestamp(dateDebut);
+        this.dateFin = convertToSqlTimestamp(dateFin);
     }
 
 
@@ -51,7 +93,7 @@ public class Reservation {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public int getEvenementId() { return evenementId; }
+    public Integer getEvenementId() { return evenementId; }
     public void setEvenementId(int evenementId) { this.evenementId = evenementId; }
 
     public int getMaterielId() { return materielId; }
@@ -63,11 +105,21 @@ public class Reservation {
     public double getPrixTotal() { return prixTotal; }
     public void setPrixTotal(double prixTotal) { this.prixTotal = prixTotal; }
 
-    public Date getDateDebut() { return dateDebut; }
-    public void setDateDebut(Date dateDebut) { this.dateDebut = dateDebut; }
+    public java.sql.Timestamp getDateDebut() {
+        return dateDebut;
+    }
 
-    public Date getDateFin() { return dateFin; }
-    public void setDateFin(Date dateFin) { this.dateFin = dateFin; }
+    public void setDateDebut(java.util.Date dateDebut) {
+        this.dateDebut = convertToSqlTimestamp(dateDebut);
+    }
+
+    public java.sql.Timestamp getDateFin() {
+        return dateFin;
+    }
+
+    public void setDateFin(java.util.Date dateFin) {
+        this.dateFin = convertToSqlTimestamp(dateFin);
+    }
 
     @Override
     public String toString() {
