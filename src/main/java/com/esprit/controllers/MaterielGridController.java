@@ -102,7 +102,7 @@ public class MaterielGridController {
 
         Button avisButton = new Button("Avis");
         avisButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white;");
-        avisButton.setOnAction(e -> openFeedbackWindow(materiel));
+        avisButton.setOnAction(e -> openFeedbackWindow(materiel, getCurrentUserId()));
 
         card.getChildren().addAll(imageView, nameLabel, descriptionLabel, 
                                  quantiteLabel, prixLabel, avisButton);
@@ -252,19 +252,22 @@ public class MaterielGridController {
         return Eutopia.getCurrentUser().getUserID();
     }
 
-    private void openFeedbackWindow(Materiel materiel) {
+    private void openFeedbackWindow(Materiel materiel, int userId) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FeedbackWindow.fxml"));
-            FeedbackController controller = new FeedbackController(materiel, getCurrentUserId());
+            FeedbackController controller = new FeedbackController();
+            controller.setMateriel(materiel);
+            controller.setUserId(userId);
             loader.setController(controller);
+            
             Parent root = loader.load();
-
+            
             Stage stage = new Stage();
             stage.setTitle("Avis - " + materiel.getLibelle());
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            showError("Erreur lors de l'ouverture de la fenêtre des avis", e);
+            e.printStackTrace();
         }
     }
 

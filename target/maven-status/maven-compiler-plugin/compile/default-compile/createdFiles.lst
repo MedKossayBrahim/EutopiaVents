@@ -5,6 +5,7 @@ com\esprit\services\UserService.class
 com\esprit\controllers\SignUpView.class
 com\esprit\models\Role.class
 com\esprit\models\Participant.class
+com\esprit\controllers\FeedbackController$1.class
 com\esprit\services\OrganisateurService.class
 com\esprit\controllers\ReservationWindowController$3.class
 com\esprit\controllers\AjoutMaterielController$1.class
