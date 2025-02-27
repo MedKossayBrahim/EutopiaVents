@@ -12,11 +12,12 @@ public class FeedbackService {
 
     public void ajouter(Feedback feedback) {
         try {
-            String req = "INSERT INTO feedback (user, materiel_id, contenu) VALUES (?, ?, ?)";
+            String req = "INSERT INTO feedback (user, materiel_id, contenu, rating) VALUES (?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, feedback.getUserId());
             ps.setInt(2, feedback.getMaterielId());
             ps.setString(3, feedback.getContenu());
+            ps.setInt(4, feedback.getRating());
             ps.executeUpdate();
             System.out.println("Feedback ajouté avec succès");
         } catch (SQLException e) {
@@ -40,7 +41,8 @@ public class FeedbackService {
                     rs.getInt("id"),
                     rs.getInt("user"),
                     rs.getInt("materiel_id"),
-                    rs.getString("contenu")
+                    rs.getString("contenu"),
+                    rs.getInt("rating")
                 );
                 feedback.setUserName(rs.getString("fullName"));
                 feedbacks.add(feedback);
@@ -66,15 +68,32 @@ public class FeedbackService {
 
     public void modifier(Feedback feedback) {
         try {
-            String req = "UPDATE feedback SET contenu = ? WHERE id = ?";
+            String req = "UPDATE feedback SET contenu = ?, rating = ? WHERE id = ?";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setString(1, feedback.getContenu());
-            ps.setInt(2, feedback.getId());
+            ps.setInt(2, feedback.getRating());
+            ps.setInt(3, feedback.getId());
             ps.executeUpdate();
             System.out.println("Feedback modifié avec succès");
         } catch (SQLException e) {
             System.err.println("Erreur lors de la modification du feedback : " + e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public double getMoyenneRating(int materielId) {
+        try {
+            String req = "SELECT AVG(rating) as moyenne FROM feedback WHERE materiel_id = ?";
+            PreparedStatement ps = connection.prepareStatement(req);
+            ps.setInt(1, materielId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("moyenne");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors du calcul de la moyenne : " + e.getMessage());
+        }
+        return 0.0;
     }
 } 

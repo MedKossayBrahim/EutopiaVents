@@ -6,12 +6,14 @@ public class Feedback {
     private int materielId;
     private String contenu;
     private String userName; // Pour l'affichage
+    private int rating;  // Ajout du rating
 
-    public Feedback(int id, int userId, int materielId, String contenu) {
+    public Feedback(int id, int userId, int materielId, String contenu, int rating) {
         this.id = id;
         this.userId = userId;
         this.materielId = materielId;
         this.contenu = contenu;
+        this.rating = rating;
     }
 
     public Feedback(int userId, int materielId, String contenu) {
@@ -35,4 +37,12 @@ public class Feedback {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
 } 

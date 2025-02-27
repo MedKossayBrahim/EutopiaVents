@@ -29,3 +29,4 @@ com\esprit\models\Feedback.class
 com\esprit\controllers\AjoutMaterielController$2.class
 com\esprit\utils\UserSession.class
 com\esprit\controllers\ListeMaterielController$2.class
+com\esprit\utils\OpenAIUtil.class

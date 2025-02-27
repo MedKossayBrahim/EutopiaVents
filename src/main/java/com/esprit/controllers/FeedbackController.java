@@ -17,6 +17,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
 import javafx.geometry.Pos;
+import javafx.scene.layout.VBox;
+import java.util.ArrayList;
+import java.util.List;
+import com.esprit.utils.OpenAIUtil;
 
 public class FeedbackController {
 
@@ -64,18 +68,28 @@ public class FeedbackController {
                     HBox container = new HBox(10);
                     container.setAlignment(Pos.CENTER_LEFT);
                     
+                    VBox contentBox = new VBox(5);
+                    
+                    // Afficher le nom et le contenu
+                    HBox textContainer = new HBox(5);
                     Label nameLabel = new Label(feedback.getUserName());
                     nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
-                    
                     Label separator = new Label(" : ");
-                    
                     Label contentLabel = new Label(feedback.getContenu());
                     contentLabel.setWrapText(true);
                     contentLabel.setPrefWidth(280);
-                    
-                    HBox textContainer = new HBox(5);
                     textContainer.getChildren().addAll(nameLabel, separator, contentLabel);
-                    container.getChildren().add(textContainer);
+                    
+                    // Afficher les étoiles basées sur l'analyse IA
+                    HBox starsBox = new HBox(2);
+                    for (int i = 1; i <= 5; i++) {
+                        Label star = new Label(i <= feedback.getRating() ? "★" : "☆");
+                        star.setStyle("-fx-text-fill: gold; -fx-font-size: 14px;");
+                        starsBox.getChildren().add(star);
+                    }
+                    
+                    contentBox.getChildren().addAll(textContainer, starsBox);
+                    container.getChildren().add(contentBox);
 
                     if (feedback.getUserId() == userId) {
                         Button deleteBtn = new Button("✖");
@@ -176,15 +190,19 @@ public class FeedbackController {
         }
 
         try {
+            // Analyser le sentiment avec l'IA
+            int aiRating = OpenAIUtil.analyzeMaterielReviews(List.of(contenu));
+            
             if (isEditing) {
                 currentEditingFeedback.setContenu(contenu);
+                currentEditingFeedback.setRating(aiRating);
                 feedbackService.modifier(currentEditingFeedback);
                 showSuccess("Succès", "Votre avis a été modifié avec succès !");
                 isEditing = false;
                 currentEditingFeedback = null;
                 btnEnvoyer.setText("Envoyer");
             } else {
-                Feedback feedback = new Feedback(0, userId, materiel.getId(), contenu);
+                Feedback feedback = new Feedback(0, userId, materiel.getId(), contenu, aiRating);
                 feedbackService.ajouter(feedback);
                 showSuccess("Succès", "Votre avis a été enregistré avec succès !");
             }

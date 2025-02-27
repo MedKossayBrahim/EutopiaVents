@@ -1,5 +1,6 @@
 package com.esprit.controllers;
 
+import com.esprit.models.Feedback;
 import com.esprit.models.Materiel;
 import com.esprit.services.MaterielService;
 import com.esprit.tests.Eutopia;
@@ -19,6 +20,9 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import java.util.stream.Collectors;
+import com.esprit.utils.OpenAIUtil;
+import com.esprit.services.FeedbackService;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,12 +36,14 @@ public class MaterielGridController {
     private Button previousButton, nextButton, btnMaterielList, btnCategoriesList;
 
     private final MaterielService materielService;
+    private final FeedbackService feedbackService;
     private List<Materiel> allMateriels;
     private int currentPage = 0;
     private final int itemsPerPage = 6; // Nombre d'éléments par page
 
     public MaterielGridController() {
         materielService = new MaterielService();
+        feedbackService = new FeedbackService();
     }
 
     @FXML
@@ -75,7 +81,7 @@ public class MaterielGridController {
         VBox card = new VBox(10);
         card.setStyle("-fx-border-color: black; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f8f8f8;");
         card.setPrefSize(220, 320);
-        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setAlignment(Pos.CENTER);
 
         Label nameLabel = new Label(materiel.getLibelle());
         nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
@@ -88,6 +94,35 @@ public class MaterielGridController {
             imageView.setImage(image);
         } catch (Exception e) {
             System.err.println("Erreur chargement image: " + e.getMessage());
+        }
+
+        // Créer la zone d'étoiles IA
+        HBox aiRatingBox = new HBox(2);
+        aiRatingBox.setAlignment(Pos.CENTER);
+        
+        // Récupérer tous les avis pour ce matériel
+        List<Feedback> feedbacks = feedbackService.getFeedbacksByMateriel(materiel.getId());
+        List<String> reviews = feedbacks.stream()
+                                      .map(Feedback::getContenu)
+                                      .collect(Collectors.toList());
+        
+        // Si il y a des avis, analyser avec l'IA
+        if (!reviews.isEmpty()) {
+            int aiRating = OpenAIUtil.analyzeMaterielReviews(reviews);
+            
+            // Créer le label pour la note IA
+            Label aiLabel = new Label("Note IA : ");
+            aiLabel.setStyle("-fx-font-size: 12px;");
+            
+            // Afficher les étoiles
+            HBox starsBox = new HBox(1);
+            for (int i = 1; i <= 5; i++) {
+                Label star = new Label(i <= aiRating ? "★" : "☆");
+                star.setStyle("-fx-text-fill: gold; -fx-font-size: 14px;");
+                starsBox.getChildren().add(star);
+            }
+            
+            aiRatingBox.getChildren().addAll(aiLabel, starsBox);
         }
 
         Label descriptionLabel = new Label("Description : " + materiel.getDescription());
@@ -104,8 +139,8 @@ public class MaterielGridController {
         avisButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white;");
         avisButton.setOnAction(e -> openFeedbackWindow(materiel, getCurrentUserId()));
 
-        card.getChildren().addAll(imageView, nameLabel, descriptionLabel, 
-                                 quantiteLabel, prixLabel, avisButton);
+        card.getChildren().addAll(imageView, nameLabel, aiRatingBox, descriptionLabel, 
+                                quantiteLabel, prixLabel, avisButton);
         
         return card;
     }
