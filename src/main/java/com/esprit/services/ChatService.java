@@ -13,6 +13,8 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
 import com.theokanning.openai.service.OpenAiService;
 import java.util.stream.Collectors;
+import java.time.Duration;
+import com.theokanning.openai.completion.chat.ChatCompletionResult;
 
 public class ChatService {
     private static final String BOT_NAME = "Eventor";
@@ -21,6 +23,7 @@ public class ChatService {
     private OpenAiService openAiService;
     private static final String OPENAI_API_KEY = "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";
     private List<com.theokanning.openai.completion.chat.ChatMessage> conversationHistory;
+    private static final int TIMEOUT_SECONDS = 10;
 
     public ChatService() {
         try {
@@ -164,7 +167,11 @@ public class ChatService {
     }
 
     private UserChatMessage processWithAI(String userMessage) {
+        OpenAiService service = null;
         try {
+            // Create service with timeout
+            service = new OpenAiService(OPENAI_API_KEY, Duration.ofSeconds(10));
+            
             System.out.println("\n====== Processing User Message ======");
             System.out.println("User Input: " + userMessage);
             
@@ -176,7 +183,7 @@ public class ChatService {
             // Manage conversation history size
             if (conversationHistory.size() > 10) {
                 // Keep system message and last 9 messages
-                List<com.theokanning.openai.completion.chat.ChatMessage> trimmedHistory = new ArrayList<>();
+                List<ChatMessage> trimmedHistory = new ArrayList<>();
                 trimmedHistory.add(conversationHistory.get(0)); // Keep system message
                 trimmedHistory.addAll(conversationHistory.subList(
                     conversationHistory.size() - 9, 
@@ -186,29 +193,28 @@ public class ChatService {
             }
 
             // Add context and user message to conversation history
-            conversationHistory.add(new com.theokanning.openai.completion.chat.ChatMessage(
+            conversationHistory.add(new ChatMessage(
                 ChatMessageRole.SYSTEM.value(),
                 "Current database information:\n" + databaseContext + "\n" +
                 "You are an event and forum assistant. Help users by providing specific information about events and forum posts."
             ));
 
-            conversationHistory.add(new com.theokanning.openai.completion.chat.ChatMessage(
+            conversationHistory.add(new ChatMessage(
                 ChatMessageRole.USER.value(), 
                 userMessage
             ));
 
             // Create chat completion request with increased max tokens
             ChatCompletionRequest completionRequest = ChatCompletionRequest.builder()
-                .model("gpt-3.5-turbo-16k") // Using the 16k model for larger context
+                .model("gpt-3.5-turbo-16k")
                 .messages(conversationHistory)
                 .temperature(0.7)
                 .maxTokens(1000)
                 .build();
 
             // Get AI response
-            com.theokanning.openai.completion.chat.ChatMessage aiResponse = 
-                openAiService.createChatCompletion(completionRequest)
-                    .getChoices().get(0).getMessage();
+            ChatMessage aiResponse = service.createChatCompletion(completionRequest)
+                .getChoices().get(0).getMessage();
 
             System.out.println("\n====== AI Response ======");
             System.out.println(aiResponse.getContent());
@@ -223,8 +229,12 @@ public class ChatService {
             System.err.println("Error processing with AI: " + e.getMessage());
             e.printStackTrace();
             return new UserChatMessage(BOT_NAME + " (AI)", 
-                "I'm having trouble processing your request due to the amount of information. Let me try to help you with a more focused response.", 
+                "I'm having trouble processing your request. Please try again later.", 
                 LocalDateTime.now());
+        } finally {
+            if (service != null) {
+                service.shutdownExecutor();
+            }
         }
     }
 

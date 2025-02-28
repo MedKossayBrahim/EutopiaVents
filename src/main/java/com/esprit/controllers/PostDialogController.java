@@ -3,8 +3,10 @@ package com.esprit.controllers;
 import com.esprit.models.*;
 import com.esprit.services.PostService;
 import com.esprit.services.CategoryService;
+import com.esprit.services.ChatService;
 import com.esprit.tests.Eutopia;
 import com.esprit.utils.ProfanityFilter;
+import com.esprit.utils.TextUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -24,6 +26,9 @@ public class PostDialogController {
     @FXML private CheckBox pinnedCheckBox;
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
+    @FXML private CheckBox eventor;
+    @FXML private TextArea promptArea;
+    @FXML private Button generateButton;
     
     private Post post;
     private boolean isEdit;
@@ -31,6 +36,7 @@ public class PostDialogController {
     private boolean saveClicked = false;
     private PostService postService;
     private CategoryService categoryService = new CategoryService();
+    private ChatService chatService = new ChatService();
     
     @FXML
     private void initialize() {
@@ -47,8 +53,21 @@ public class PostDialogController {
         contentArea.textProperty().addListener((obs, oldVal, newVal) -> updateSaveButton());
         categoryComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateSaveButton());
         
+        // Add handler for generate button
+        generateButton.setOnAction(event -> handleGenerate());
+        
+        // Disable/Enable prompt area and generate button based on eventor checkbox
+        eventor.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            promptArea.setDisable(!newVal);
+            generateButton.setDisable(!newVal);
+        });
+        
         // Initially disable save button
         updateSaveButton();
+        
+        // Initially disable AI components
+        promptArea.setDisable(true);
+        generateButton.setDisable(true);
     }
     
     private void updateSaveButton() {
@@ -250,36 +269,52 @@ public class PostDialogController {
                 categoryComboBox.getItems().add(category.getName());
             }
             
-            // Make ComboBox editable
-            categoryComboBox.setEditable(true);
+            // Check if current user is admin
+            boolean isAdmin = Eutopia.getCurrentUser().getRole() == Role.Admin;
             
-            // Add new category when Enter is pressed in ComboBox
-            categoryComboBox.getEditor().setOnAction(e -> {
-                String newCategoryName = categoryComboBox.getEditor().getText().trim();
-                if (!newCategoryName.isEmpty() && !categoryComboBox.getItems().contains(newCategoryName)) {
-                    try {
-                        System.out.println("Attempting to add new category: " + newCategoryName);
-                        
-                        // Create and add new category
-                        Category newCategory = new Category(newCategoryName, "New category description");
-                        System.out.println("Created category object: " + newCategory.getName());
-                        
-                        categoryService.ajouter(newCategory);
-                        
-                        // Add to ComboBox and select it
-                        categoryComboBox.getItems().add(newCategoryName);
-                        categoryComboBox.setValue(newCategoryName);
-                        
-                        showInfo("New category added successfully!");
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        System.err.println("Full error: " + ex.getMessage());
-                        showError("Could not add new category: " + ex.getMessage());
+            // Make ComboBox editable only for admins
+            categoryComboBox.setEditable(isAdmin);
+            
+            if (isAdmin) {
+                // Add new category when Enter is pressed in ComboBox (admin only)
+                categoryComboBox.getEditor().setOnAction(e -> {
+                    String newCategoryName = categoryComboBox.getEditor().getText().trim();
+                    if (!newCategoryName.isEmpty() && !categoryComboBox.getItems().contains(newCategoryName)) {
+                        try {
+                            System.out.println("Attempting to add new category: " + newCategoryName);
+                            
+                            // Create and add new category
+                            Category newCategory = new Category(newCategoryName, "New category description");
+                            System.out.println("Created category object: " + newCategory.getName());
+                            
+                            categoryService.ajouter(newCategory);
+                            
+                            // Add to ComboBox and select it
+                            categoryComboBox.getItems().add(newCategoryName);
+                            categoryComboBox.setValue(newCategoryName);
+                            
+                            showInfo("New category added successfully!");
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                            System.err.println("Full error: " + ex.getMessage());
+                            showError("Could not add new category: " + ex.getMessage());
+                        }
+                    } else if (newCategoryName.isEmpty()) {
+                        showError("Category name cannot be empty");
+                    } else {
+                        showError("Category already exists");
                     }
-                } else {
-                    System.out.println("Category name empty or already exists: " + newCategoryName);
-                }
-            });
+                });
+            } else {
+                // For non-admin users, show message if they try to type
+                categoryComboBox.setOnKeyTyped(event -> {
+                    showError("Only administrators can create new categories");
+                    // Reset to previous valid selection
+                    if (!categoryComboBox.getItems().contains(categoryComboBox.getValue())) {
+                        categoryComboBox.setValue(null);
+                    }
+                });
+            }
             
         } catch (SQLException e) {
             System.err.println("Error loading categories: " + e.getMessage());
@@ -305,5 +340,96 @@ public class PostDialogController {
 //            e.printStackTrace();
 //            throw new RuntimeException("Could not get current user ID from session");
 //        }
+    }
+
+    @FXML
+    private void handleGenerate() {
+        if (promptArea.getText().trim().isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter a prompt for content generation");
+            return;
+        }
+
+        try {
+            String prompt = String.format(
+                "You are a forum post generator. Create a post based on this prompt: '%s'\n\n" +
+                "Respond EXACTLY in this format:\n" +
+                "<TITLE>\n" +
+                "Your title here\n" +
+                "</TITLE>\n" +
+                "<CONTENT>\n" +
+                "Introduction paragraph here\n\n" +
+                "### First Main Point\n" +
+                "Content for first point\n\n" +
+                "### Second Main Point\n" +
+                "Content for second point\n\n" +
+                "Conclusion paragraph here\n" +
+                "</CONTENT>",
+                promptArea.getText().trim()
+            );
+
+            // Get AI response using ChatService
+            ChatService.UserChatMessage response = chatService.processMessage(prompt);
+            String aiResponse = response.getContent();
+
+            // Parse title
+            String title = extractBetweenTags(aiResponse, "TITLE");
+            String content = extractBetweenTags(aiResponse, "CONTENT");
+
+            if (title != null && content != null) {
+                // Strip emojis and format
+                title = TextUtils.stripEmojis(title.trim());
+                content = formatContent(TextUtils.stripEmojis(content.trim()));
+
+                // Update the fields
+                titleField.setText(title);
+                contentArea.setText(content);
+                
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Content generated successfully!");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse AI response");
+                System.out.println("AI Response received: " + aiResponse);
+            }
+
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to generate content: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String extractBetweenTags(String text, String tag) {
+        String startTag = "<" + tag + ">";
+        String endTag = "</" + tag + ">";
+        
+        int startIndex = text.indexOf(startTag);
+        int endIndex = text.indexOf(endTag);
+        
+        if (startIndex != -1 && endIndex != -1) {
+            return text.substring(startIndex + startTag.length(), endIndex).trim();
+        }
+        return null;
+    }
+
+    private String formatContent(String content) {
+        // Add extra line breaks between sections for better readability
+        content = content.replaceAll("###\\s+", "\n\n### ");
+        
+        // Add line breaks after paragraphs
+        content = content.replaceAll("\\.\n", ".\n\n");
+        
+        // Ensure consistent spacing around bullet points
+        content = content.replaceAll("(?m)^-\\s*", "\n- ");
+        
+        // Remove any excessive blank lines (more than 2)
+        content = content.replaceAll("\\n{3,}", "\n\n");
+        
+        return content.trim();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

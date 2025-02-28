@@ -4,111 +4,99 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.esprit.controllers.MaterielGridController"
-            style="-fx-background-color: #faf6f3;">
+<VBox spacing="25" alignment="CENTER" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.esprit.controllers.MaterielGridController"
+      style="-fx-background-color: #faf6f3; -fx-padding: 40px;">
 
-    <!-- Left side - Navbar -->
-    <left>
-        <fx:include source="Navbar.fxml"/>
-    </left>
+    <!-- Titre Banner -->
+    <VBox alignment="CENTER"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 20px;
+                 -fx-padding: 20px;
+                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
+        <Label text="Liste des Matériels"
+               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+    </VBox>
 
-    <!-- Center content -->
-    <center>
-        <VBox spacing="25" alignment="CENTER"
-              style="-fx-padding: 40px;">
+    <!-- Navigation Buttons Banner -->
+    <VBox fx:id="navigationBox" alignment="CENTER"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 20px;
+                 -fx-padding: 20px;
+                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
+        <HBox spacing="20" alignment="CENTER">
+            <Button fx:id="btnMaterielList" text="Liste des Matériels"
+                    onAction="#navigateToMaterielList"
+                    style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-            <!-- Titre Banner -->
-            <VBox alignment="CENTER"
-                  style="-fx-background-color: white;
-                         -fx-background-radius: 20px;
-                         -fx-padding: 20px;
-                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
-                <Label text="Liste des Matériels"
-                       style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-            </VBox>
+            <Button fx:id="btnCategoriesList" text="Liste des Catégories"
+                    onAction="#navigateToCategoriesList"
+                    style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-            <!-- Navigation Buttons Banner -->
-            <VBox fx:id="navigationBox" alignment="CENTER"
-                  style="-fx-background-color: white;
-                         -fx-background-radius: 20px;
-                         -fx-padding: 20px;
-                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
-                <HBox spacing="20" alignment="CENTER">
-                    <Button fx:id="btnMaterielList" text="Liste des Matériels"
-                            onAction="#navigateToMaterielList"
-                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
-                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+            <Button fx:id="reserv" text="Liste des Réservations"
+                    onAction="#openListeReservation"
+                    style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-                    <Button fx:id="btnCategoriesList" text="Liste des Catégories"
-                            onAction="#navigateToCategoriesList"
-                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
-                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+            <Button fx:id="stats" text="Stats"
+                    onAction="#openstats"
+                    style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
 
-                    <Button fx:id="reserv" text="Liste des Réservations"
-                            onAction="#openListeReservation"
-                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
-                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+            <Button text="Nouvelle Réservation"
+                    onAction="#openReservationWindow"
+                    style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                           -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+        </HBox>
+    </VBox>
 
-                    <Button fx:id="stats" text="Stats"
-                            onAction="#openstats"
-                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
-                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+    <!-- Main Content Container -->
+    <VBox spacing="15" VBox.vgrow="ALWAYS"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 20px;
+                 -fx-padding: 20px;
+                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
 
-                    <Button text="Nouvelle Réservation"
-                            onAction="#openReservationWindow"
-                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
-                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/></HBox>
-            </VBox>
+        <!-- Boutons de pagination -->
+        <HBox spacing="15" alignment="CENTER">
+            <Button fx:id="previousButton" text="Précédent"
+                    onAction="#handlePreviousButtonAction"
+                    style="-fx-background-color: #faf6f3; -fx-text-fill: #b0a8a0;
+                           -fx-background-radius: 8px; -fx-padding: 10px 20px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-border-color: #e8e1db; -fx-border-radius: 8px;"/>
 
-            <!-- Main Content Container -->
-            <VBox spacing="15" VBox.vgrow="ALWAYS"
-                  style="-fx-background-color: white;
-                         -fx-background-radius: 20px;
-                         -fx-padding: 20px;
-                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
+            <Button fx:id="nextButton" text="Suivant"
+                    onAction="#handleNextButtonAction"
+                    style="-fx-background-color: #faf6f3; -fx-text-fill: #b0a8a0;
+                           -fx-background-radius: 8px; -fx-padding: 10px 20px;
+                           -fx-font-size: 14px; -fx-cursor: hand;
+                           -fx-border-color: #e8e1db; -fx-border-radius: 8px;"/>
+        </HBox>
 
-                <!-- Boutons de pagination -->
-                <HBox spacing="15" alignment="CENTER">
-                    <Button fx:id="previousButton" text="Précédent"
-                            onAction="#handlePreviousButtonAction"
-                            style="-fx-background-color: #faf6f3; -fx-text-fill: #b0a8a0;
-                                   -fx-background-radius: 8px; -fx-padding: 10px 20px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-border-color: #e8e1db; -fx-border-radius: 8px;"/>
-
-                    <Button fx:id="nextButton" text="Suivant"
-                            onAction="#handleNextButtonAction"
-                            style="-fx-background-color: #faf6f3; -fx-text-fill: #b0a8a0;
-                                   -fx-background-radius: 8px; -fx-padding: 10px 20px;
-                                   -fx-font-size: 14px; -fx-cursor: hand;
-                                   -fx-border-color: #e8e1db; -fx-border-radius: 8px;"/>
-                </HBox>
-
-                <!-- ScrollPane pour la grille -->
-                <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
-                            style="-fx-background-color: transparent; -fx-padding: 20px;">
-                    <GridPane fx:id="gridPaneMateriels" hgap="20" vgap="20"
-                              alignment="CENTER"
-                              style="-fx-background-color: transparent;">
-                        <padding>
-                            <Insets top="10" right="10" bottom="10" left="10"/>
-                        </padding>
-                    </GridPane>
-                </ScrollPane>
-            </VBox>
-
-        </VBox>
-    </center>
-</BorderPane>
+        <!-- ScrollPane pour la grille -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-padding: 20px;">
+            <GridPane fx:id="gridPaneMateriels" hgap="20" vgap="20"
+                      alignment="CENTER"
+                      style="-fx-background-color: transparent;">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+            </GridPane>
+        </ScrollPane>
+    </VBox>
+</VBox>

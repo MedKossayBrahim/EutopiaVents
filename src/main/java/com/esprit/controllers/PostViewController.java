@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -50,6 +51,7 @@ import org.json.simple.parser.JSONParser;
 import java.io.FileReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.esprit.components.AutocompleteTextField;
 
 public class PostViewController {
     @FXML private Label postTitleLabel;
@@ -59,7 +61,7 @@ public class PostViewController {
     @FXML private Label likesCount;
     @FXML private Button likeButton;
     @FXML private VBox commentsContainer;
-    @FXML private TextField commentField;
+    @FXML private AutocompleteTextField commentField;
     @FXML private Button deletePostButton;
     @FXML private Button backButton;
 
@@ -68,11 +70,36 @@ public class PostViewController {
     private final CommentService commentService = new CommentService();
     private boolean isLiked = false;
     private PostService postService = new PostService();
+    private Eutopia application;
+
+    public void setApplication(Eutopia application) {
+        this.application = application;
+    }
 
     @FXML
     public void initialize() {
         likeButton.setOnAction(event -> handleLikeAction());
-        commentField.setOnAction(event -> handleAddComment());
+        
+        // Configure AutocompleteTextField
+        commentField.setPromptText("Write a comment...");
+        commentField.applyTextFieldStyle("-fx-background-radius: 25; " +
+                "-fx-padding: 12 20; " +
+                "-fx-font-family: 'Segoe UI'; " +
+                "-fx-prompt-text-fill: #999; " +
+                "-fx-background-color: #f0eae4; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 1); " +
+                "-fx-font-size: 13px;");
+                
+        // Initialize the suggestions pane
+        commentField.initializeSuggestions();
+                
+        // Handle comment submission
+        commentField.setOnAction(event -> {
+            String content = commentField.getText().trim();
+            if (!content.isEmpty()) {
+                handleAddComment();
+            }
+        });
 
         // Setup delete post button with image
         try {
@@ -83,25 +110,9 @@ public class PostViewController {
             deletePostButton.setGraphic(deleteIcon);
             deletePostButton.setStyle("-fx-background-color: transparent;");
 
-            deletePostButton.setOnAction(event -> {
-                int response = showStyledConfirmDialog(
-                        "Are you sure you want to delete this post? This action cannot be undone.",
-                        "Confirm Delete"
-                );
-
-                if (response == JOptionPane.YES_OPTION) {
-                    try {
-                        postService.supprimer(postId, getCurrentUserId());
-                        goBack();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        showStyledErrorDialog("Error deleting post", "Error");
-                    }
-                }
-            });
+            deletePostButton.setOnAction(event -> handleDeletePost());
         } catch (Exception e) {
             e.printStackTrace();
-            // Fallback to text button if image fails to load
             deletePostButton.setText("🗑️");
         }
 
@@ -268,20 +279,7 @@ public class PostViewController {
             deleteButton.setStyle("-fx-background-color: transparent;");
 
             deleteButton.setOnAction(e -> {
-                int response = showStyledConfirmDialog(
-                        "Are you sure you want to delete this comment?",
-                        "Confirm Delete"
-                );
-
-                if (response == JOptionPane.YES_OPTION) {
-                    try {
-                        commentService.supprimer(comment.getId(), getCurrentUserId());
-                        commentsContainer.getChildren().remove(commentBox);
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        showStyledErrorDialog("Error deleting comment", "Error");
-                    }
-                }
+                handleDeleteComment(comment.getId(), commentBox);
             });
 
             Region spacer = new Region();
@@ -348,24 +346,216 @@ public class PostViewController {
     }
 
     private void handleDeleteComment(int commentId, VBox commentBox) {
-        // Simple confirmation using ButtonType
-        ButtonType yes = new ButtonType("Yes");
-        ButtonType no = new ButtonType("No");
+        // Create custom styled dialog
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Delete Comment");
+        dialog.setHeaderText(null);
+        
+        // Style the dialog pane
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle(
+            "-fx-background-color: #f0eae4; " +
+            "-fx-padding: 20; " +
+            "-fx-background-radius: 15;"
+        );
+        
+        // Create content
+        Label messageLabel = new Label("Are you sure you want to delete this comment?");
+        messageLabel.setStyle(
+            "-fx-font-family: 'Segoe UI'; " +
+            "-fx-font-size: 14px; " +
+            "-fx-text-fill: #666666;"
+        );
+        dialogPane.setContent(messageLabel);
+        
+        // Create and style buttons
+        ButtonType deleteButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialogPane.getButtonTypes().setAll(deleteButton, cancelButton);
+        
+        // Style the buttons
+        dialogPane.lookupButton(deleteButton).setStyle(
+            "-fx-background-color: #ff6b6b; " +
+            "-fx-text-fill: white; " +
+            "-fx-background-radius: 20; " +
+            "-fx-padding: 8 20; " +
+            "-fx-cursor: hand;"
+        );
+        
+        dialogPane.lookupButton(cancelButton).setStyle(
+            "-fx-background-color: #e0dad4; " +
+            "-fx-text-fill: #666666; " +
+            "-fx-background-radius: 20; " +
+            "-fx-padding: 8 20; " +
+            "-fx-cursor: hand;"
+        );
+        
+        // Add hover effects
+        dialogPane.lookupButton(deleteButton).setOnMouseEntered(e -> 
+            ((Button) dialogPane.lookupButton(deleteButton)).setStyle(
+                "-fx-background-color: #ff5252; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 20; " +
+                "-fx-padding: 8 20; " +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        dialogPane.lookupButton(deleteButton).setOnMouseExited(e -> 
+            ((Button) dialogPane.lookupButton(deleteButton)).setStyle(
+                "-fx-background-color: #ff6b6b; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 20; " +
+                "-fx-padding: 8 20; " +
+                "-fx-cursor: hand;"
+            )
+        );
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete Comment");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to delete this comment?");
-        alert.getButtonTypes().setAll(yes, no);
+        dialogPane.lookupButton(cancelButton).setOnMouseEntered(e -> 
+            ((Button) dialogPane.lookupButton(cancelButton)).setStyle(
+                "-fx-background-color: #d4cec8; " +
+                "-fx-text-fill: #666666; " +
+                "-fx-background-radius: 20; " +
+                "-fx-padding: 8 20; " +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        dialogPane.lookupButton(cancelButton).setOnMouseExited(e -> 
+            ((Button) dialogPane.lookupButton(cancelButton)).setStyle(
+                "-fx-background-color: #e0dad4; " +
+                "-fx-text-fill: #666666; " +
+                "-fx-background-radius: 20; " +
+                "-fx-padding: 8 20; " +
+                "-fx-cursor: hand;"
+            )
+        );
 
-        alert.showAndWait().ifPresent(buttonType -> {
-            if (buttonType == yes) {
+        // Show dialog and handle result
+        dialog.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == deleteButton) {
                 try {
                     commentService.supprimer(commentId, getCurrentUserId());
                     commentsContainer.getChildren().remove(commentBox);
                 } catch (SQLException e) {
                     e.printStackTrace();
                     showError("Could not delete comment.");
+                }
+            }
+        });
+    }
+
+    private void handleDeletePost() {
+        // Create custom styled dialog
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Delete Post");
+        dialog.setHeaderText(null);
+        
+        // Style the dialog pane
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle(
+            "-fx-background-color: #f0eae4; " +
+            "-fx-padding: 20; " +
+            "-fx-background-radius: 15;"
+        );
+        
+        // Create content with warning icon
+        HBox contentBox = new HBox(10);
+        contentBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Try to load warning icon, use text fallback if not found
+        try {
+            ImageView warningIcon = new ImageView(getClass().getResource("/Images/warning.png").toExternalForm());
+            warningIcon.setFitHeight(24);
+            warningIcon.setFitWidth(24);
+            contentBox.getChildren().add(warningIcon);
+        } catch (Exception e) {
+            // If icon fails to load, use a text symbol instead
+            Label warningSymbol = new Label("⚠");
+            warningSymbol.setStyle(
+                "-fx-text-fill: #ff6b6b; " +
+                "-fx-font-size: 18px; " +
+                "-fx-font-weight: bold;"
+            );
+            contentBox.getChildren().add(warningSymbol);
+        }
+        
+        VBox messageBox = new VBox(5);
+        Label titleLabel = new Label("Delete Post");
+        titleLabel.setStyle(
+            "-fx-font-family: 'Segoe UI'; " +
+            "-fx-font-size: 16px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #ff6b6b;"
+        );
+        
+        Label messageLabel = new Label(
+            "Are you sure you want to delete this post?\nThis action cannot be undone."
+        );
+        messageLabel.setStyle(
+            "-fx-font-family: 'Segoe UI'; " +
+            "-fx-font-size: 14px; " +
+            "-fx-text-fill: #666666;"
+        );
+        
+        messageBox.getChildren().addAll(titleLabel, messageLabel);
+        contentBox.getChildren().add(messageBox);
+        dialogPane.setContent(contentBox);
+        
+        // Create and style buttons
+        ButtonType deleteButton = new ButtonType("Delete Post", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialogPane.getButtonTypes().setAll(deleteButton, cancelButton);
+        
+        // Style the buttons
+        Button deleteBtn = (Button) dialogPane.lookupButton(deleteButton);
+        Button cancelBtn = (Button) dialogPane.lookupButton(cancelButton);
+        
+        String deleteButtonStyle = 
+            "-fx-background-color: #ff6b6b; " +
+            "-fx-text-fill: white; " +
+            "-fx-background-radius: 20; " +
+            "-fx-padding: 8 20; " +
+            "-fx-cursor: hand; " +
+            "-fx-font-family: 'Segoe UI';";
+            
+        String cancelButtonStyle = 
+            "-fx-background-color: #e0dad4; " +
+            "-fx-text-fill: #666666; " +
+            "-fx-background-radius: 20; " +
+            "-fx-padding: 8 20; " +
+            "-fx-cursor: hand; " +
+            "-fx-font-family: 'Segoe UI';";
+        
+        deleteBtn.setStyle(deleteButtonStyle);
+        cancelBtn.setStyle(cancelButtonStyle);
+        
+        // Add hover effects
+        deleteBtn.setOnMouseEntered(e -> 
+            deleteBtn.setStyle(deleteButtonStyle.replace("#ff6b6b", "#ff5252"))
+        );
+        
+        deleteBtn.setOnMouseExited(e -> 
+            deleteBtn.setStyle(deleteButtonStyle)
+        );
+        
+        cancelBtn.setOnMouseEntered(e -> 
+            cancelBtn.setStyle(cancelButtonStyle.replace("#e0dad4", "#d4cec8"))
+        );
+        
+        cancelBtn.setOnMouseExited(e -> 
+            cancelBtn.setStyle(cancelButtonStyle)
+        );
+
+        // Show dialog and handle result
+        dialog.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == deleteButton) {
+                try {
+                    postService.supprimer(postId, getCurrentUserId());
+                    goBack();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showError("Could not delete post: " + e.getMessage());
                 }
             }
         });
@@ -430,11 +620,22 @@ public class PostViewController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
-            Scene scene = deletePostButton.getScene();
+
+            ForumMainController controller = loader.getController();
+            controller.setApplication(this.application);
+
+            // Update current page to forum
+            Scene scene = postTitleLabel.getScene();
+            NavbarController navController = (NavbarController) scene.lookup("#navbar").getProperties().get("controller");
+            if (navController != null) {
+                navController.updateButtonStyles("forum");
+            }
+
             scene.setRoot(root);
+
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not return to main view: " + e.getMessage());
+            showError("Could not return to forum page: " + e.getMessage());
         }
     }
 

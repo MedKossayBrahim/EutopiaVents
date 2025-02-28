@@ -232,22 +232,22 @@ public class GererEvenementsController implements Initializable {
         if (result.isPresent() && result.get() == confirmButton) {
             try {
                 this.connection = DataSource.getInstance().getConnection();
-                
+
                 // Debug: Print event details before modification
                 System.out.println("Event ID before modification: " + evenement.getId());
-                
+
                 // First update the event status
                 evenement.setStatut("acceptée");
                 evenementService.modifier(evenement);
-                
+
                 // Verify the event exists and get its actual ID from the database
                 String verifyEventQuery = "SELECT id FROM events WHERE id = ?";
                 int confirmedEventId;
-                
+
                 try (PreparedStatement pst = connection.prepareStatement(verifyEventQuery)) {
                     pst.setInt(1, evenement.getId());
                     System.out.println("Verifying event with ID: " + evenement.getId());
-                    
+
                     ResultSet rs = pst.executeQuery();
                     if (!rs.next()) {
                         // If not found by ID, try to find by other criteria
@@ -256,7 +256,7 @@ public class GererEvenementsController implements Initializable {
                             findPst.setString(1, evenement.getTitre());
                             findPst.setString(2, evenement.getDateDebut());
                             ResultSet findRs = findPst.executeQuery();
-                            
+
                             if (findRs.next()) {
                                 confirmedEventId = findRs.getInt("id");
                                 System.out.println("Found event with different ID: " + confirmedEventId);
@@ -305,7 +305,7 @@ public class GererEvenementsController implements Initializable {
                         double prix = rs.getDouble("prix");
 
                         System.out.println("Creating reservation with confirmed event ID: " + confirmedEventId);
-                        
+
                         Reservation reservationMateriel = new Reservation(
                                 confirmedEventId,  // Use confirmed ID
                                 materielId,

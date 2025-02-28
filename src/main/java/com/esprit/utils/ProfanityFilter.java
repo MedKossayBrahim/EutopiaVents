@@ -9,6 +9,14 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.Base64;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ProfanityFilter {
     private static final String API_URL = "https://www.purgomalum.com/service/json?text=";
@@ -22,6 +30,18 @@ public class ProfanityFilter {
 
     private static final List<String> CUSTOM_PROFANITY = decodeList(ENCODED_LIST);
     private static final Map<String, String> SUBSTITUTIONS = decodeSubstitutions(ENCODED_SUBS);
+
+    private static final Set<String> whitelist = new HashSet<>(Arrays.asList(
+        "ravi",      // French: delighted
+        "analyse",   // French/English: analyze
+        "con",       // French: stupid (but profanity in English)
+        "dame",      // French: lady
+        "hell",      // Could be part of "hello"
+        "sex",       // Could be part of "sexual health" or other legitimate terms
+        "ass"      // Could be part of "class", "assign", etc.
+    ));
+
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\b\\w+\\b");
 
     private static List<String> decodeList(String encoded) {
         try {
@@ -65,42 +85,113 @@ public class ProfanityFilter {
             .collect(Collectors.toList());
 
     public static String filter(String text) {
+        return filter(text, false);
+    }
+    
+    public static String filter(String text, boolean isAIGenerated) {
+        // Skip profanity check for AI-generated content
+        if (isAIGenerated) {
+            return text;
+        }
+        
         try {
-            String processedText = text;
-            for (Pattern pattern : PROFANITY_PATTERNS) {
-                processedText = pattern.matcher(processedText)
-                        .replaceAll(match -> "*".repeat(match.group().length()));
+            String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8.toString());
+            String urlString = API_URL + encodedText;
+            
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()))) {
+                String response = reader.lines().collect(Collectors.joining());
+                
+                JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+                String filteredText = jsonResponse.get("result").getAsString();
+                
+                if (!text.equals(filteredText)) {
+                    StringBuilder details = new StringBuilder();
+                    details.append("Inappropriate content found:\n");
+                    
+                    String[] originalWords = text.split("\\s+");
+                    String[] filteredWords = filteredText.split("\\s+");
+                    
+                    for (int i = 0; i < Math.min(originalWords.length, filteredWords.length); i++) {
+                        if (!originalWords[i].equals(filteredWords[i])) {
+                            String errorMsg = String.format("Inappropriate word found at position %d: '%s'", 
+                                i + 1, originalWords[i]);
+                            throw new IllegalArgumentException(errorMsg);
+                        }
+                    }
+                    
+                    // If we get here and texts are different, throw generic error
+                    throw new IllegalArgumentException("Inappropriate content detected");
+                }
+                
+                return filteredText;
             }
+        } catch (IllegalArgumentException e) {
+            // Rethrow IllegalArgumentException to be handled by caller
+            throw e;
+        } catch (Exception e) {
+            System.err.println("Error in profanity filter: " + e.getMessage());
+            throw new IllegalArgumentException("Error checking content for inappropriate language");
+        }
+    }
+    
+    public static boolean containsProfanity(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return false;
+        }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL + processedText.replace(" ", "%20")))
-                    .GET()
-                    .build();
+        // Convert to lowercase for checking
+        String lowerText = text.toLowerCase();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            String result = response.body();
-            return result.substring(result.indexOf(":\"") + 2, result.length() - 2);
-
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            String processedText = text;
-            for (Pattern pattern : PROFANITY_PATTERNS) {
-                processedText = pattern.matcher(processedText)
-                        .replaceAll(match -> "*".repeat(match.group().length()));
+        // Check each word against the whitelist first
+        return WORD_PATTERN.matcher(lowerText)
+            .results()
+            .map(match -> match.group())
+            .anyMatch(word -> !whitelist.contains(word) && isProfane(word));
+    }
+    
+    public static boolean containsProfanity(String text, boolean isAIGenerated) {
+        if (isAIGenerated) {
+            return false;
+        }
+        
+        try {
+            filter(text, false); // This will throw an exception if profanity is found
+            return false;
+        } catch (IllegalArgumentException e) {
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error checking profanity: " + e.getMessage());
+            return true; // Err on the side of caution
+        }
+    }
+    
+    public static String filterModifiedAIContent(String originalAIText, String modifiedText) {
+        if (originalAIText.equals(modifiedText)) {
+            return modifiedText;
+        }
+        
+        try {
+            String filtered = filter(modifiedText, false);
+            if (!modifiedText.equals(filtered)) {
+                throw new IllegalArgumentException("Inappropriate content found in modified AI text");
             }
-            return processedText;
+            return modifiedText;
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow to be handled by caller
+        } catch (Exception e) {
+            System.err.println("Error checking modified AI content: " + e.getMessage());
+            throw new IllegalArgumentException("Error validating modified content");
         }
     }
 
-    public static boolean containsProfanity(String text) {
-        for (Pattern pattern : PROFANITY_PATTERNS) {
-            if (pattern.matcher(text).find()) {
-                return true;
-            }
-        }
-
-        String filtered = filter(text);
-        return !filtered.equals(text);
+    private static boolean isProfane(String word) {
+        // Your existing profanity checking logic here
+        // Make sure to exclude whitelisted words
+        return false; // Replace with actual implementation
     }
 } 

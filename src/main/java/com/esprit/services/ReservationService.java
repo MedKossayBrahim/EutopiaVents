@@ -180,18 +180,18 @@ public class ReservationService implements IService<Reservation> {
     public String getUserName(int userId) {
         String userName = "Inconnu";
         String query = "SELECT fullName FROM users WHERE userID = ?";
-        
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            
+
             if (resultSet.next()) {
                 userName = resultSet.getString("full_name");
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération du nom d'utilisateur: " + e.getMessage());
         }
-        
+
         return userName;
     }
 

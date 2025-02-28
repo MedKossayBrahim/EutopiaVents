@@ -4,7 +4,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.canvas.Canvas?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.esprit.controllers.LieuDetailsController"
@@ -47,12 +46,6 @@
                 <Label text="Catégorie :" styleClass="field-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                 <Label fx:id="categorieLabel" styleClass="field-value" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
             </GridPane>
-
-            <!-- Section de la carte ajoutée ici -->
-            <VBox styleClass="map-container" alignment="CENTER" spacing="10">
-                <Label text="Emplacement sur la carte" styleClass="field-label"/>
-                <Canvas fx:id="mapCanvas" width="400" height="300"/>
-            </VBox>
         </VBox>
     </ScrollPane>
 

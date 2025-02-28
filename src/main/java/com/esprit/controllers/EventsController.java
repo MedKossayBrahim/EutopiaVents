@@ -28,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Button;
 import com.esprit.models.User;
 import com.esprit.tests.Eutopia;
+import com.esprit.utils.SceneManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -347,41 +348,40 @@ public class EventsController {
 
     @FXML
     private void goToAjouterCateg() {
-        loadPage("/AjouterCategEvent.fxml");
+        SceneManager.switchScene(rootPane.getScene(), "/AjouterCategEvent.fxml");
     }
+    
     @FXML
     private void goToAjouterEvenement() {
-        loadPage("/AjouterEvenement.fxml");
+        SceneManager.switchScene(rootPane.getScene(), "/AjouterEvenement.fxml");
     }
-
 
     @FXML
     private void goToModifierEvenement() {
-        loadPage("/ModifierEvenement.fxml");
+        SceneManager.switchScene(rootPane.getScene(), "/ModifierEvenement.fxml");
     }
 
     @FXML
     private void goToEventsView() {
-        loadPage("/events-view.fxml");
+        SceneManager.switchScene(rootPane.getScene(), "/events-view.fxml");
     }
 
     @FXML
     private void goToGererEvenements() {
-        loadPage("/GererEvenements.fxml");
+        SceneManager.switchScene(rootPane.getScene(), "/GererEvenements.fxml");
     }
-    @FXML private void goToPanier() {
-        loadPage("/Panier.fxml");
+    
+    @FXML 
+    private void goToPanier() {
+        SceneManager.switchScene(rootPane.getScene(), "/Panier.fxml");
     }
 
     private void loadPage(String page) {
         try {
-            Parent newPage = FXMLLoader.load(getClass().getResource(page));
-            Scene scene = rootPane.getScene();
-            scene.setRoot(newPage);
+            SceneManager.switchScene(rootPane.getScene(), page);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 }

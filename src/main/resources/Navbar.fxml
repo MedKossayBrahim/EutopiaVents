@@ -19,11 +19,16 @@
         <Label text="EutopiaVents" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
     </HBox>
 
-    <Button fx:id="eventsButton" text="Events" onAction="#onEventsButtonClick"/>
-    <Button fx:id="dashboardButton" text="Ressource Materiels" onAction="#onDashboardButtonClick"/>
-    <Button fx:id="settingsButton" text="GestionDesSalles" onAction="#onSettingsButtonClick"/>
-    <Button fx:id="forumButton" text="Blog" onAction="#onForumButtonClick"/>
-    <Button fx:id="storeButton" text="Store" onAction="#onStoreButtonClick"/>
+    <Button fx:id="eventsButton" text="Events" onAction="#onEventsButtonClick"
+            style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <Button fx:id="dashboardButton" text="Materiels" onAction="#onDashboardButtonClick"
+            style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px; -fx-text-alignment: center; -fx-wrap-text: true; -fx-padding: 10 16;"/>
+    <Button fx:id="settingsButton" text="Éspaces" onAction="#onSettingsButtonClick"
+            style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;"/>
+    <Button fx:id="forumButton" text="Blog" onAction="#onForumButtonClick"
+            style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;"/>
+    <Button fx:id="storeButton" text="Store" onAction="#onStoreButtonClick"
+            style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;"/>
     <Button fx:id="logoutButton" text="Logout" onAction="#onLogoutButtonClick"
             style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;"/>
 </VBox>

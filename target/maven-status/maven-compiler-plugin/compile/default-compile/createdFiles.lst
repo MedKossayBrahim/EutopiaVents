@@ -5,6 +5,7 @@ com\esprit\services\LieuServiceImpl.class
 com\esprit\controllers\LieuDetailsController.class
 com\esprit\controllers\PostViewController$1.class
 com\esprit\controllers\ModifierCommande.class
+com\esprit\controllers\LieuDetailsController$1.class
 com\esprit\controllers\Listeproduit$1.class
 com\esprit\models\User.class
 com\esprit\services\ProduitService.class
@@ -12,6 +13,7 @@ com\esprit\services\ReservationsService.class
 com\esprit\services\AdminService.class
 com\esprit\models\Lieu.class
 com\esprit\models\PhotoLieu.class
+com\esprit\components\AutocompleteTextField.class
 com\esprit\services\CommandeService.class
 com\esprit\controllers\ModifierProduit.class
 com\esprit\controllers\ModifierEvenementController.class
@@ -33,6 +35,7 @@ com\esprit\controllers\MainMenuController.class
 com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
 com\esprit\services\CategoriesEventService.class
+com\esprit\utils\TextUtils.class
 com\esprit\controllers\EventDetailsController.class
 com\esprit\controllers\AjouterEvenementController$2.class
 com\esprit\models\categorieproduit.class
@@ -93,4 +96,6 @@ com\esprit\services\ChatService$UserChatMessage.class
 com\esprit\controllers\ModifierEvenementController$1.class
 com\esprit\controllers\LieuController.class
 com\esprit\controllers\OtpView.class
+com\esprit\services\AutocompleteService.class
+com\esprit\controllers\LieuDetailsController$LocationCallback.class
 com\esprit\controllers\Reservation1$1.class

@@ -38,10 +38,32 @@ public class NavbarController {
     @FXML
     private Button refreshPostsButton;
 
-    private String currentPage = "Forum";
+    private String currentPage = "events";
     private SearchableController currentController;
-    private static final String ACTIVE_STYLE = "-fx-pref-width: 150; -fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 16px;";
-    private static final String INACTIVE_STYLE = "-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;";
+    private static final String ACTIVE_STYLE = "-fx-pref-width: 150; " +
+            "-fx-background-color: #e6ddd4; " + // Light warm background
+            "-fx-text-fill: #7d6d61; " +        // Darker warm text
+            "-fx-font-size: 16px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +       // Rounded corners
+            "-fx-padding: 8 16; " +              // Padding for better appearance
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);"; // Subtle shadow
+
+    private static final String BUTTON_STYLE = "-fx-pref-width: 150; " +
+            "-fx-background-color: transparent; " +
+            "-fx-text-fill: #b0a8a0; " +
+            "-fx-font-size: 16px; " +
+            "-fx-background-radius: 8; " +       // Matching radius for consistency
+            "-fx-padding: 8 16;";                // Matching padding for consistency
+
+    public String getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(String page) {
+        this.currentPage = page;
+        updateButtonStyles(page);
+    }
 
     @FXML
     public void initialize() {
@@ -49,14 +71,7 @@ public class NavbarController {
             String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
             System.out.println("*************" + userRole);
 
-            // Set initial styles for all buttons
-            dashboardButton.setStyle(INACTIVE_STYLE);
-            eventsButton.setStyle(INACTIVE_STYLE);
-            forumButton.setStyle(INACTIVE_STYLE);
-            settingsButton.setStyle(INACTIVE_STYLE);
-            storeButton.setStyle(INACTIVE_STYLE);
-
-            // Update button styles based on current page
+            // Set initial styles based on current page
             updateButtonStyles(currentPage);
 
             if (searchField != null) {
@@ -87,8 +102,35 @@ public class NavbarController {
 
     @FXML
     public void onDashboardButtonClick(ActionEvent event) {
-        currentPage = "dashboard";
-        updateButtonStyles(currentPage);
+        setCurrentPage("dashboard");
+        navigateToDashboard(event);
+    }
+
+    @FXML
+    public void onEventsButtonClick(ActionEvent event) {
+        setCurrentPage("events");
+        navigateToEvents(event);
+    }
+
+    @FXML
+    public void onForumButtonClick(ActionEvent event) {
+        setCurrentPage("forum");
+        navigateToForum(event);
+    }
+
+    @FXML
+    public void onSettingsButtonClick(ActionEvent event) {
+        setCurrentPage("settings");
+        navigateToSettings(event);
+    }
+
+    @FXML
+    public void onStoreButtonClick(ActionEvent event) {
+        setCurrentPage("store");
+        navigateToStore(event);
+    }
+
+    private void navigateToDashboard(ActionEvent event) {
         try {
             URL url = getClass().getResource("/MaterielGridView.fxml");
             if (url == null) {
@@ -97,23 +139,24 @@ public class NavbarController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            
             Scene scene = ((Button) event.getSource()).getScene();
-            scene.setRoot(root);
+            VBox existingNavbar = navbar;
+            
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            container.getChildren().addAll(existingNavbar, root);
+            
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            
+            scene.setRoot(container);
         } catch (IOException e) {
-            System.err.println("Error loading forum main page: " + e.getMessage());
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the Main page: " + e.getMessage());
-            alert.showAndWait();
+            handleNavigationError(e, "Main");
         }
     }
 
-    @FXML
-    public void onEventsButtonClick(ActionEvent event) {
-        currentPage = "events";
-        updateButtonStyles(currentPage);
+    private void navigateToEvents(ActionEvent event) {
         try {
             URL url = getClass().getResource("/events-view.fxml");
             if (url == null) {
@@ -122,23 +165,16 @@ public class NavbarController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            
             Scene scene = ((Button) event.getSource()).getScene();
             scene.setRoot(root);
+            
         } catch (IOException e) {
-            System.err.println("Error loading events view: " + e.getMessage());
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the events page: " + e.getMessage());
-            alert.showAndWait();
+            handleNavigationError(e, "events");
         }
     }
 
-    @FXML
-    public void onForumButtonClick(ActionEvent event) {
-        currentPage = "forum";
-        updateButtonStyles(currentPage);
+    private void navigateToForum(ActionEvent event) {
         try {
             URL url = getClass().getResource("/forum_main_page.fxml");
             if (url == null) {
@@ -147,23 +183,24 @@ public class NavbarController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            
             Scene scene = ((Button) event.getSource()).getScene();
-            scene.setRoot(root);
+            VBox existingNavbar = navbar;
+            
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            container.getChildren().addAll(existingNavbar, root);
+            
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            
+            scene.setRoot(container);
         } catch (IOException e) {
-            System.err.println("Error loading forum main page: " + e.getMessage());
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the forum page: " + e.getMessage());
-            alert.showAndWait();
+            handleNavigationError(e, "forum");
         }
     }
 
-    @FXML
-    public void onSettingsButtonClick(ActionEvent event) {
-        currentPage = "dashboard";
-        updateButtonStyles(currentPage);
+    private void navigateToSettings(ActionEvent event) {
         try {
             URL url = getClass().getResource("/MainMenu.fxml");
             if (url == null) {
@@ -172,133 +209,99 @@ public class NavbarController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            
             Scene scene = ((Button) event.getSource()).getScene();
-            scene.setRoot(root);
+            VBox existingNavbar = navbar;
+            
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            container.getChildren().addAll(existingNavbar, root);
+            
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            
+            scene.setRoot(container);
         } catch (IOException e) {
-            System.err.println("Error loading forum main page: " + e.getMessage());
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the Main page: " + e.getMessage());
-            alert.showAndWait();
+            handleNavigationError(e, "settings");
         }
     }
 
-    @FXML
-    public void onStoreButtonClick(ActionEvent event) {
-        currentPage = "store";
-        updateButtonStyles(currentPage);
+    private void navigateToStore(ActionEvent event) {
         try {
             URL url = getClass().getResource("/MainProduit.fxml");
             if (url == null) {
-                throw new IOException("Cannot find Main.fxml");
+                throw new IOException("Cannot find MainProduit.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            
             Scene scene = ((Button) event.getSource()).getScene();
-            scene.setRoot(root);
+            VBox existingNavbar = navbar;
+            
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            container.getChildren().addAll(existingNavbar, root);
+            
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            
+            scene.setRoot(container);
         } catch (IOException e) {
-            System.err.println("Error loading forum main page: " + e.getMessage());
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Navigation Error");
-            alert.setContentText("Could not load the Main page: " + e.getMessage());
-            alert.showAndWait();
+            handleNavigationError(e, "store");
         }
+    }
+
+    private void handleNavigationError(IOException e, String page) {
+        System.err.println("Error loading " + page + " page: " + e.getMessage());
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Navigation Error");
+        alert.setContentText("Could not load the " + page + " page: " + e.getMessage());
+        alert.showAndWait();
     }
 
     @FXML
     public void onLogoutButtonClick() throws IOException {
-//        try {
-//            Path sessionPath = Paths.get("user_session.json");
-//            if (Files.exists(sessionPath)) {
-//                // Try to close any open file handles
-//                System.gc();
-//                Thread.sleep(100); // Give a small delay for resources to be released
-//
-//                // Try multiple times to delete the file
-//                int maxAttempts = 5;
-//                for (int i = 0; i < maxAttempts; i++) {
-//                    try {
-//                        Files.delete(sessionPath);
-//                        System.out.println("Session file deleted successfully");
-//                        break;
-//                    } catch (IOException e) {
-//                        if (i == maxAttempts - 1) {
-//                            // If all attempts fail, try to delete on exit
-//                            sessionPath.toFile().deleteOnExit();
-//                            System.out.println("File will be deleted on application exit");
-//                        } else {
-//                            Thread.sleep(100); // Wait before next attempt
-//                        }
-//                    }
-//                }
-//            }
-//
-//            // Load the login view
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
-//            Parent root = loader.load();
-//            Stage stage = (Stage) logoutButton.getScene().getWindow();
-//            stage.setScene(new Scene(root));
-//            stage.show();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            showError("Error during logout: " + e.getMessage());
-//        }
         Eutopia.setCurrentUser(null);
         UserSession.saveUser(null);
-        //UserSession.clearUser();
-        Eutopia.getSceneManager().switchScene("/login-view.fxml", null); // Start at Page1.fxml
+        Eutopia.getSceneManager().switchScene("/login-view.fxml", null);
     }
 
     public void setCurrentController(SearchableController controller) {
         this.currentController = controller;
     }
 
-    private void updateButtonStyles(String activeButton) {
-        System.out.println("Updating styles for: " + activeButton); // Debug line
+    public void updateButtonStyles(String activeButton) {
+        // Only update styles if the page has changed
+        if (!activeButton.equals(currentPage)) {
+            return;
+        }
 
-        // Force reset all buttons first
-        if (dashboardButton != null) dashboardButton.setStyle(INACTIVE_STYLE);
-        if (eventsButton != null) eventsButton.setStyle(INACTIVE_STYLE);
-        if (forumButton != null) forumButton.setStyle(INACTIVE_STYLE);
-        if (settingsButton != null) settingsButton.setStyle(INACTIVE_STYLE);
-        if (storeButton != null) storeButton.setStyle(INACTIVE_STYLE);
+        // Reset all buttons to default style
+        if (dashboardButton != null) dashboardButton.setStyle(BUTTON_STYLE);
+        if (eventsButton != null) eventsButton.setStyle(BUTTON_STYLE);
+        if (forumButton != null) forumButton.setStyle(BUTTON_STYLE);
+        if (settingsButton != null) settingsButton.setStyle(BUTTON_STYLE);
+        if (storeButton != null) storeButton.setStyle(BUTTON_STYLE);
 
-        // Apply active style
+        // Apply active style to the selected button
         switch (activeButton.toLowerCase()) {
             case "dashboard":
-                if (dashboardButton != null) {
-                    dashboardButton.setStyle(ACTIVE_STYLE);
-                    System.out.println("Dashboard style applied: " + dashboardButton.getStyle());
-                }
+                if (dashboardButton != null) dashboardButton.setStyle(ACTIVE_STYLE);
                 break;
             case "events":
-                if (eventsButton != null) {
-                    eventsButton.setStyle(ACTIVE_STYLE);
-                    System.out.println("Events style applied: " + eventsButton.getStyle());
-                }
+                if (eventsButton != null) eventsButton.setStyle(ACTIVE_STYLE);
                 break;
             case "forum":
-                if (forumButton != null) {
-                    forumButton.setStyle(ACTIVE_STYLE);
-                    System.out.println("Forum style applied: " + forumButton.getStyle());
-                }
+                if (forumButton != null) forumButton.setStyle(ACTIVE_STYLE);
                 break;
             case "settings":
-                if (settingsButton != null) {
-                    settingsButton.setStyle(ACTIVE_STYLE);
-                    System.out.println("Settings style applied: " + settingsButton.getStyle());
-                }
+                if (settingsButton != null) settingsButton.setStyle(ACTIVE_STYLE);
                 break;
             case "store":
-                if (storeButton != null) {
-                    storeButton.setStyle(ACTIVE_STYLE);
-                    System.out.println("Store style applied: " + storeButton.getStyle());
-                }
+                if (storeButton != null) storeButton.setStyle(ACTIVE_STYLE);
                 break;
         }
     }

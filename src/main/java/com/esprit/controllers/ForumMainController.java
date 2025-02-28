@@ -303,6 +303,7 @@ public class ForumMainController implements SearchableController, Initializable 
                             Parent root = loader.load();
 
                             PostViewController controller = loader.getController();
+                            controller.setApplication(application);
                             controller.setPostData(
                                 post.getId(),
                                 post.getTitle(),
@@ -592,23 +593,63 @@ public class ForumMainController implements SearchableController, Initializable 
     @FXML
     protected void onViewAllPostsClick() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/all-posts-page.fxml"));
+            URL url = getClass().getResource("/all-posts-page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find all-posts-page.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
 
             AllPostsController controller = loader.getController();
             controller.setApplication(application);
 
-            // Convert Post objects to strings for display
+            // Update current page to forum
+            NavbarController navController = (NavbarController) rootPane.getScene().lookup("#navbar").getProperties().get("controller");
+            if (navController != null) {
+                navController.updateButtonStyles("forum");
+            }
+
+            Scene scene = latestUpdatesList.getScene();
+            scene.setRoot(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load all posts page: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleShowAllPosts() {
+        try {
+            URL url = getClass().getResource("/all-posts-page.fxml");
+            if (url == null) {
+                throw new IOException("Cannot find all-posts-page.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("All Posts");
+            stage.setScene(new Scene(root));
+
+            AllPostsController controller = loader.getController();
+            controller.setApplication(application);
+
+            // Update current page to forum
+            NavbarController navController = (NavbarController) rootPane.getScene().lookup("#navbar").getProperties().get("controller");
+            if (navController != null) {
+                navController.updateButtonStyles("forum");
+            }
+
+            // Convert Post objects to strings
             ArrayList<String> postsList = new ArrayList<>();
             for (Post post : pinnedPostsList.getItems()) {
                 postsList.add(post.getTitle() + ": " + post.getContent());
             }
             controller.setPosts(postsList, "Latest Updates");
 
-            // Get the current scene and set the new content
-            Scene scene = pinnedPostsList.getScene();
-            scene.setRoot(root);
-
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showError("Could not load all posts view");
@@ -944,37 +985,6 @@ public class ForumMainController implements SearchableController, Initializable 
 
     private int getCurrentUserId() {
         return 1;  // Just use a dummy user ID
-    }
-
-    @FXML
-    private void handleShowAllPosts() {
-        try {
-            URL url = getClass().getResource("/all-posts-page.fxml");
-            if (url == null) {
-                throw new IOException("Cannot find all-posts-page.fxml");
-            }
-
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("All Posts");
-            stage.setScene(new Scene(root));
-
-            AllPostsController controller = loader.getController();
-            controller.setApplication(application);
-
-            // Convert Post objects to strings
-            ArrayList<String> postsList = new ArrayList<>();
-            for (Post post : pinnedPostsList.getItems()) {
-                postsList.add(post.getTitle() + ": " + post.getContent());
-            }
-            controller.setPosts(postsList, "Latest Updates");
-
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Could not load all posts view");
-        }
     }
 
     private String getUsernameById(int userId) {
