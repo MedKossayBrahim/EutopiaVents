@@ -24,44 +24,78 @@
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #faf6f3;">
             <VBox spacing="20" style="-fx-padding: 30;">
                 <VBox style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
-                    <HBox style="-fx-background-color: #f0eae4; 
+                    <HBox style="-fx-background-color: linear-gradient(to right, #f0eae4, #f5e6d3); 
                                 -fx-background-radius: 12; 
-                                -fx-padding: 15 20;
-                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 1);
-                                -fx-margin-bottom: 20;">
+                                -fx-padding: 25 30;
+                                -fx-effect: dropshadow(three-pass-box, rgba(245,148,92,0.25), 20, 0.2, 0, 6);
+                                -fx-margin-bottom: 30;
+                                -fx-border-color: rgba(245,148,92,0.1);
+                                -fx-border-radius: 12;
+                                -fx-border-width: 2;">
                         <Label fx:id="postTitleLabel" text="POST TITLE" 
                                style="-fx-font-family: 'Segoe UI'; 
-                                      -fx-font-size: 28px; 
+                                      -fx-font-size: 32px; 
                                       -fx-font-weight: bold; 
-                                      -fx-text-fill: #2D3250;"/>
+                                      -fx-text-fill: #f5945c;
+                                      -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 2, 0, 0, 1);"/>
                     </HBox>
                     
-                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 20 0;">
-                        <Label text="Published By: " style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #666; -fx-font-size: 13px;"/>
-                        <Label fx:id="authorLabel" text="Username" style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #424874; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" 
+                          style="-fx-padding: 15 5 25 5;
+                                 -fx-border-color: transparent transparent rgba(0,0,0,0.05) transparent;
+                                 -fx-border-width: 0 0 1 0;">
+                        <Label text="Published By: " style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #888; -fx-font-size: 13px;"/>
+                        <Label fx:id="authorLabel" text="Username" style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #f5945c; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Label text="On: " style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #666; -fx-font-size: 13px;"/>
-                        <Label fx:id="dateLabel" text="15/01/2025" style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #424874; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <Label text="On: " style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #888; -fx-font-size: 13px;"/>
+                        <Label fx:id="dateLabel" text="15/01/2025" style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #f5945c; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                     </HBox>
                     
                     <HBox spacing="10" alignment="CENTER_RIGHT">
                         <Button fx:id="deletePostButton" visible="false"/>
                     </HBox>
                     
-                    <TextFlow fx:id="contentFlow" style="-fx-padding: 20 0;">
-                        <Text fx:id="contentText" style="-fx-font-family: 'Segoe UI'; -fx-font-size: 15px; -fx-fill: #333; -fx-line-spacing: 1.5;"/>
+                    <TextFlow fx:id="contentFlow" 
+                             style="-fx-padding: 30 35;
+                                    -fx-background-color: linear-gradient(to right, #f0eae4, #f5e6d3);
+                                    -fx-background-radius: 15;
+                                    -fx-effect: dropshadow(three-pass-box, rgba(245,148,92,0.15), 15, 0.2, 0, 4);
+                                    -fx-border-color: rgba(245,148,92,0.1);
+                                    -fx-border-radius: 15;
+                                    -fx-border-width: 1;
+                                    -fx-margin: 20 0;">
+                        <Text fx:id="contentText" 
+                              style="-fx-font-family: 'Segoe UI'; 
+                                     -fx-font-size: 16px; 
+                                     -fx-fill: #2D3250; 
+                                     -fx-line-spacing: 1.8;
+                                     -fx-letter-spacing: 0.3px;
+                                     -fx-effect: dropshadow(gaussian, rgba(45,50,80,0.1), 1, 0, 0, 1);
+                                     -fx-smooth: true;"/>
                     </TextFlow>
                     
-                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 20 0;">
+                    <HBox spacing="10" alignment="CENTER_LEFT" 
+                          style="-fx-padding: 25 0 20 0;">
                         <Button fx:id="likeButton" text="♡"
-                                style="-fx-font-size: 22px; -fx-background-color: transparent; -fx-text-fill: #424874; -fx-cursor: hand;"/>
+                                style="-fx-font-size: 24px; 
+                                       -fx-background-color: transparent; 
+                                       -fx-text-fill: #f5945c; 
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 1, 0, 0, 1);"/>
                         <Label fx:id="likesCount" text="500 likes" 
-                               style="-fx-font-family: 'Segoe UI'; -fx-text-fill: #666; -fx-font-size: 13px;"/>
+                               style="-fx-font-family: 'Segoe UI'; 
+                                      -fx-text-fill: #666; 
+                                      -fx-font-size: 14px;
+                                      -fx-font-weight: bold;"/>
                     </HBox>
                     
                     <VBox spacing="15" style="-fx-padding: 20 0;">
                         <Label text="Comments" 
-                               style="-fx-font-family: 'Segoe UI'; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2D3250;"/>
+                               style="-fx-font-family: 'Segoe UI'; 
+                                      -fx-font-size: 20px; 
+                                      -fx-font-weight: bold; 
+                                      -fx-text-fill: #f5945c;
+                                      -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 1, 0, 0, 1);"/>
                         
                         <VBox fx:id="commentsContainer" spacing="15" 
                               style="-fx-background-color: #f0eae4; 
