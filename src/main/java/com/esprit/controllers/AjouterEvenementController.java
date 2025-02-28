@@ -462,6 +462,7 @@ public class AjouterEvenementController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez vérifier les valeurs numériques (capacité, prix).");
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue lors de la création de l'événement: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 

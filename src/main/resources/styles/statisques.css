@@ -1,0 +1,99 @@
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-font-size: 18px;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 8px;
+}
+
+.icon-button:hover {
+    -fx-background-color: derive(-background, -5%);
+    -fx-text-fill: -primary;
+}
+
+/* Style des cartes de statistiques */
+.stats-cards {
+    -fx-alignment: CENTER;
+    -fx-spacing: 20;
+}
+
+.stat-card {
+    -fx-background-color: -card-bg;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-alignment: CENTER;
+    -fx-min-width: 200;
+    -fx-effect: dropshadow(three-pass-box, -shadow, 10, 0, 0, 0);
+    -fx-spacing: 10;
+}
+
+.stat-icon {
+    -fx-font-size: 24px;
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+}
+
+/* Style des onglets */
+.stats-tabs {
+    -fx-tab-min-height: 50px;
+    -fx-tab-max-height: 50px;
+}
+
+.stats-tabs .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 0 20;
+}
+
+.stats-tabs .tab:selected {
+    -fx-background-color: derive(-background, -5%);
+}
+
+.stats-tabs .tab-header-background {
+    -fx-background-color: -card-bg;
+    -fx-background-radius: 15 15 0 0;
+}
+
+.stats-tabs .tab .tab-label {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 14px;
+}
+
+.stats-tabs .tab:selected .tab-label {
+    -fx-text-fill: -primary;
+    -fx-font-weight: bold;
+}
+
+/* Style de la zone des graphiques */
+.chart-area {
+    -fx-background-color: -card-bg;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, -shadow, 10, 0, 0, 0);
+}
+
+/* Style du pied de page */
+.footer {
+    -fx-padding: 10 20;
+    -fx-background-color: -card-bg;
+    -fx-background-radius: 15;
+}
+
+.status-label {
+    -fx-text-fill: -text-secondary;
+}
+
+.update-time {
+    -fx-text-fill: -text-primary;
+    -fx-font-weight: bold;
+}

@@ -35,6 +35,7 @@
         <Button text="Gestion des Catégories" onAction="#goToGestionCategories" styleClass="nav-button"/>
         <Button text="Gestion des Réservations" onAction="#goToGestionReservations" styleClass="nav-button"/>
         <Button text="Gestion des Photos" onAction="#goToGestionPhotos" styleClass="nav-button"/>
+        <Button text="Statistiques" onAction="#goToStatistiques" styleClass="nav-button"/>
     </HBox>
 
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">

@@ -329,4 +329,15 @@ public class MainMenuController {
     public void refreshLieux() {
         loadLieux();
     }
+    @FXML
+    private void goToStatistiques() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/statistiquesimpl.fxml"));
+            Scene scene = lieuxGrid.getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'afficher les statistiques.");
+        }
+    }
 }
