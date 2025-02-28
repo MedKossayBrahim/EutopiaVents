@@ -54,4 +54,24 @@ public class SceneManager {
             stage.setScene(history.pop());
         }
     }
+
+    public static void loadScene(Scene currentScene, String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            currentScene.setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void switchScene(Scene currentScene, String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            currentScene.setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

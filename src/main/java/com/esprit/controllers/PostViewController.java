@@ -70,6 +70,11 @@ public class PostViewController {
     private final CommentService commentService = new CommentService();
     private boolean isLiked = false;
     private PostService postService = new PostService();
+    private Eutopia application;
+
+    public void setApplication(Eutopia application) {
+        this.application = application;
+    }
 
     @FXML
     public void initialize() {
@@ -615,11 +620,22 @@ public class PostViewController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
-            Scene scene = deletePostButton.getScene();
+
+            ForumMainController controller = loader.getController();
+            controller.setApplication(this.application);
+
+            // Update current page to forum
+            Scene scene = postTitleLabel.getScene();
+            NavbarController navController = (NavbarController) scene.lookup("#navbar").getProperties().get("controller");
+            if (navController != null) {
+                navController.updateButtonStyles("forum");
+            }
+
             scene.setRoot(root);
+
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not return to main view: " + e.getMessage());
+            showError("Could not return to forum page: " + e.getMessage());
         }
     }
 

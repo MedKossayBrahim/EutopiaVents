@@ -7,195 +7,176 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.shape.Rectangle?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+<ScrollPane fitToWidth="true" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.esprit.controllers.Main"
-            style="-fx-background-color: #f4f4f4;"
-            fx:id="rootPane">
+            style="-fx-background: transparent; -fx-background-color: transparent;">
+    <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
 
-    <!-- Left Navbar -->
-    <left>
-        <VBox style="-fx-background-color: #faf6f3;
-                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
-                     -fx-background-radius: 0 10 10 0;"
-              BorderPane.alignment="TOP_LEFT"
-              VBox.vgrow="ALWAYS"
-              prefHeight="${rootPane.height}">
-            <fx:include source="Navbar.fxml"/>
+        <!-- Header -->
+        <Text text="Gestion des Catégories, Produits et Commandes"
+              style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #333333;"
+              textAlignment="CENTER"/>
+
+        <!-- Gestion des Catégories -->
+        <VBox spacing="15" alignment="CENTER">
+            <Label text="Gestion des Catégories" 
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
+                <Button fx:id="btnAjoutCategorie"
+                        text="Ajouter une Catégorie"
+                        onAction="#openAjoutCategorie"
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/categoriesIcon.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnListeCategorie"
+                        text="Liste des Catégories"
+                        onAction="#openListeCategorie"
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/list.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </GridPane>
         </VBox>
-    </left>
 
-    <!-- Main Content Area -->
-    <center>
-        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
-            <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-                <padding>
-                    <Insets top="30" right="40" bottom="30" left="40"/>
-                </padding>
+        <!-- Gestion des Produits -->
+        <VBox spacing="15" alignment="CENTER">
+            <Label text="Gestion des Produits" 
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
+                <Button fx:id="btnAjoutProduit"
+                        text="Ajouter un Produit"
+                        onAction="#openAjoutProduit"
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/tshirt.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnListeProduit"
+                        text="Liste des Produits"
+                        onAction="#openListeProduit"
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/tshirts.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </GridPane>
+        </VBox>
 
-                <!-- Header -->
-                <Text text="Gestion des Catégories, Produits et Commandes"
-                      style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #333333;"
-                      textAlignment="CENTER"/>
-
-                <!-- Gestion des Catégories -->
-                <VBox spacing="15" alignment="CENTER">
-                    <Label text="Gestion des Catégories" 
-                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                    <GridPane hgap="30" vgap="30" alignment="CENTER">
-                        <Button fx:id="btnAjoutCategorie"
-                                text="Ajouter une Catégorie"
-                                onAction="#openAjoutCategorie"
-                                style="-fx-background-color: white; 
-                                       -fx-border-color: #e0e0e0; 
-                                       -fx-border-radius: 10; 
-                                       -fx-background-radius: 10; 
-                                       -fx-pref-width: 250; 
-                                       -fx-pref-height: 200; 
-                                       -fx-content-display: TOP; 
-                                       -fx-padding: 20; 
-                                       -fx-font-size: 16px; 
-                                       -fx-font-weight: bold; 
-                                       -fx-text-fill: #333333; 
-                                       -fx-alignment: CENTER; 
-                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                                GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <graphic>
-                                <ImageView fitHeight="64" fitWidth="80" 
-                                         style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                                    <Image url="@Images/categoriesIcon.png"/>
-                                    <clip>
-                                        <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                                    </clip>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnListeCategorie"
-                                text="Liste des Catégories"
-                                onAction="#openListeCategorie"
-                                style="-fx-background-color: white; 
-                                       -fx-border-color: #e0e0e0; 
-                                       -fx-border-radius: 10; 
-                                       -fx-background-radius: 10; 
-                                       -fx-pref-width: 250; 
-                                       -fx-pref-height: 200; 
-                                       -fx-content-display: TOP; 
-                                       -fx-padding: 20; 
-                                       -fx-font-size: 16px; 
-                                       -fx-font-weight: bold; 
-                                       -fx-text-fill: #333333; 
-                                       -fx-alignment: CENTER; 
-                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                                GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <graphic>
-                                <ImageView fitHeight="64" fitWidth="80" 
-                                         style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                                    <Image url="@Images/list.png"/>
-                                    <clip>
-                                        <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                                    </clip>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                    </GridPane>
-                </VBox>
-
-                <!-- Gestion des Produits -->
-                <VBox spacing="15" alignment="CENTER">
-                    <Label text="Gestion des Produits" 
-                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                    <GridPane hgap="30" vgap="30" alignment="CENTER">
-                        <Button fx:id="btnAjoutProduit"
-                                text="Ajouter un Produit"
-                                onAction="#openAjoutProduit"
-                                style="-fx-background-color: white; 
-                                       -fx-border-color: #e0e0e0; 
-                                       -fx-border-radius: 10; 
-                                       -fx-background-radius: 10; 
-                                       -fx-pref-width: 250; 
-                                       -fx-pref-height: 200; 
-                                       -fx-content-display: TOP; 
-                                       -fx-padding: 20; 
-                                       -fx-font-size: 16px; 
-                                       -fx-font-weight: bold; 
-                                       -fx-text-fill: #333333; 
-                                       -fx-alignment: CENTER; 
-                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                                GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <graphic>
-                                <ImageView fitHeight="64" fitWidth="80" 
-                                         style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                                    <Image url="@Images/tshirt.png"/>
-                                    <clip>
-                                        <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                                    </clip>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnListeProduit"
-                                text="Liste des Produits"
-                                onAction="#openListeProduit"
-                                style="-fx-background-color: white; 
-                                       -fx-border-color: #e0e0e0; 
-                                       -fx-border-radius: 10; 
-                                       -fx-background-radius: 10; 
-                                       -fx-pref-width: 250; 
-                                       -fx-pref-height: 200; 
-                                       -fx-content-display: TOP; 
-                                       -fx-padding: 20; 
-                                       -fx-font-size: 16px; 
-                                       -fx-font-weight: bold; 
-                                       -fx-text-fill: #333333; 
-                                       -fx-alignment: CENTER; 
-                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                                GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <graphic>
-                                <ImageView fitHeight="64" fitWidth="80" 
-                                         style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                                    <Image url="@Images/tshirts.png"/>
-                                    <clip>
-                                        <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                                    </clip>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                    </GridPane>
-                </VBox>
-
-                <!-- Gestion des Commandes -->
-                <VBox spacing="15" alignment="CENTER">
-                    <Label text="Paniers de Produit" 
-                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                    <GridPane hgap="30" vgap="30" alignment="CENTER">
-                        <Button fx:id="btnListeCommande"
-                                text="Liste des Commandes"
-                                onAction="#openListeCommande"
-                                style="-fx-background-color: white; 
-                                       -fx-border-color: #e0e0e0; 
-                                       -fx-border-radius: 10; 
-                                       -fx-background-radius: 10; 
-                                       -fx-pref-width: 250; 
-                                       -fx-pref-height: 200; 
-                                       -fx-content-display: TOP; 
-                                       -fx-padding: 20; 
-                                       -fx-font-size: 16px; 
-                                       -fx-font-weight: bold; 
-                                       -fx-text-fill: #333333; 
-                                       -fx-alignment: CENTER; 
-                                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                                GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <graphic>
-                                <ImageView fitHeight="64" fitWidth="80" 
-                                         style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
-                                    <Image url="@Images/panierproduit.png"/>
-                                    <clip>
-                                        <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
-                                    </clip>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                    </GridPane>
-                </VBox>
-            </VBox>
-        </ScrollPane>
-    </center>
-</BorderPane>
+        <!-- Gestion des Commandes -->
+        <VBox spacing="15" alignment="CENTER">
+            <Label text="Paniers de Produit" 
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <GridPane hgap="30" vgap="30" alignment="CENTER">
+                <Button fx:id="btnListeCommande"
+                        text="Liste des Commandes"
+                        onAction="#openListeCommande"
+                        style="-fx-background-color: white; 
+                               -fx-border-color: #e0e0e0; 
+                               -fx-border-radius: 10; 
+                               -fx-background-radius: 10; 
+                               -fx-pref-width: 250; 
+                               -fx-pref-height: 200; 
+                               -fx-content-display: TOP; 
+                               -fx-padding: 20; 
+                               -fx-font-size: 16px; 
+                               -fx-font-weight: bold; 
+                               -fx-text-fill: #333333; 
+                               -fx-alignment: CENTER; 
+                               -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);"
+                        GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <graphic>
+                        <ImageView fitHeight="64" fitWidth="80" 
+                                 style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 0);">
+                            <Image url="@Images/panierproduit.png"/>
+                            <clip>
+                                <Rectangle width="80" height="64" arcWidth="10" arcHeight="10"/>
+                            </clip>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </GridPane>
+        </VBox>
+    </VBox>
+</ScrollPane>

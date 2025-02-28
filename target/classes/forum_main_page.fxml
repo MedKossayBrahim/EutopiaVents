@@ -4,6 +4,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.ForumMainController"
@@ -13,7 +16,6 @@
               BorderPane.alignment="TOP_LEFT"
               VBox.vgrow="ALWAYS"
               prefHeight="${rootPane.height}">
-            <fx:include source="Navbar.fxml"/>
         </VBox>
     </left>
 

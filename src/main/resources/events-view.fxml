@@ -2,28 +2,35 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.text.Text?>
-
-
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 
 <BorderPane fx:id="rootPane"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.esprit.controllers.EventsController"
-            style="-fx-background-color: #faf6f3;">
-
+            fx:controller="com.esprit.controllers.EventsController">
+            
     <left>
         <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
               BorderPane.alignment="TOP_LEFT"
-              VBox.vgrow="ALWAYS">
+              VBox.vgrow="ALWAYS"
+              prefHeight="${rootPane.height}">
             <fx:include source="Navbar.fxml"/>
         </VBox>
     </left>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox spacing="24" style="-fx-padding: 32;">
+        <ScrollPane fitToWidth="true" 
+                   style="-fx-background: #faf6f3; 
+                          -fx-background-color: #faf6f3;
+                          -fx-background-insets: 0;
+                          -fx-padding: 0;"
+                   vbarPolicy="AS_NEEDED"
+                   hbarPolicy="NEVER">
+            <VBox spacing="24" style="-fx-padding: 32; -fx-background-color: #faf6f3;">
                 <!-- Header Section with Cart Icon -->
                 <HBox alignment="CENTER_LEFT" spacing="20">
                     <VBox spacing="8" HBox.hgrow="ALWAYS">
@@ -67,8 +74,26 @@
                                 style="-fx-page-information-visible: false;"/>
                 </VBox>
             </VBox>
+
+            <style>
+                /* Hide scrollbars */
+                .scroll-pane .scroll-bar:vertical {
+                    -fx-scale-x: 0;
+                }
+                .scroll-pane .scroll-bar:horizontal {
+                    -fx-scale-y: 0;
+                }
+                .scroll-pane {
+                    -fx-background-color: transparent;
+                }
+                .scroll-pane .viewport {
+                    -fx-background-color: transparent;
+                }
+                .scroll-pane .content {
+                    -fx-background-color: transparent;
+                }
+            </style>
         </ScrollPane>
     </center>
-
 </BorderPane>
 
