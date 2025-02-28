@@ -1,7 +1,9 @@
 package com.esprit.controllers;
 
+import com.esprit.models.User;
 import com.esprit.models.reservation1;
 import com.esprit.services.ReservationServiceImpl;
+import com.esprit.utils.UserSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
@@ -26,31 +29,40 @@ import java.util.stream.IntStream;
 public class Reservation1 implements Initializable {
 
     @FXML private ComboBox<String> lieuComboBox;
-    @FXML private ComboBox<String> eventComboBox;
     @FXML private DatePicker dateDebutPicker;
     @FXML private DatePicker dateFinPicker;
     @FXML private ComboBox<String> heureDebutCombo;
     @FXML private ComboBox<String> heureFinCombo;
     @FXML private Label lieuCapaciteLabel;
-    @FXML private Label eventDetailsLabel;
     @FXML private TableView<reservation1> reservationsTable;
     @FXML private TableColumn<reservation1, String> lieuColumn;
-    @FXML private TableColumn<reservation1, String> eventColumn;
     @FXML private TableColumn<reservation1, LocalDateTime> dateDebutColumn;
     @FXML private TableColumn<reservation1, LocalDateTime> dateFinColumn;
+    @FXML private TableColumn<reservation1, String> typeReservationColumn;
+    @FXML private Label userInfoLabel;
 
     private ReservationServiceImpl reservationService;
     private Map<String, Integer> lieuxMap = new HashMap<>();
-    private Map<String, Integer> eventsMap = new HashMap<>();
+    private User currentUser;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
+            currentUser = UserSession.loadUser();
+            if (currentUser == null) {
+                showAlert("Erreur", "Vous devez être connecté pour accéder à cette fonctionnalité.");
+                return;
+            }
+
+            if (userInfoLabel != null) {
+                userInfoLabel.setText("Connecté en tant que: " + currentUser.getUserName());
+            }
+
             reservationService = new ReservationServiceImpl();
             initializeTimeComboBoxes();
-            loadLieuxAndEvents();
+            loadLieux();
             setupTableColumns();
-            loadReservations();
+            loadUserReservations();
             setupListeners();
         } catch (RuntimeException | SQLException e) {
             System.err.println("Erreur d'initialisation : " + e.getMessage());
@@ -69,9 +81,8 @@ public class Reservation1 implements Initializable {
         heureFinCombo.setItems(heures);
     }
 
-    private void loadLieuxAndEvents() {
+    private void loadLieux() {
         try {
-            // Chargement des lieux
             ObservableList<String> lieux = FXCollections.observableArrayList();
             for (Map<String, Object> lieu : reservationService.getAllLieux()) {
                 String nomLieu = (String) lieu.get("nom");
@@ -80,20 +91,10 @@ public class Reservation1 implements Initializable {
                 lieuxMap.put(nomLieu, idLieu);
             }
             lieuComboBox.setItems(lieux);
-
-            // Chargement des événements
-            ObservableList<String> events = FXCollections.observableArrayList();
-            for (Map<String, Object> event : reservationService.getAllEvenements()) {
-                String nomEvent = (String) event.get("titre");
-                Integer idEvent = ((Number) event.get("id")).intValue();
-                events.add(nomEvent);
-                eventsMap.put(nomEvent, idEvent);
-            }
-            eventComboBox.setItems(events);
         } catch (RuntimeException e) {
-            System.err.println("Erreur lors du chargement des lieux et événements : " + e.getMessage());
+            System.err.println("Erreur lors du chargement des lieux : " + e.getMessage());
             e.printStackTrace();
-            showAlert("Erreur", "Erreur lors du chargement des lieux et événements : " + e.getMessage());
+            showAlert("Erreur", "Erreur lors du chargement des lieux : " + e.getMessage());
         }
     }
 
@@ -104,15 +105,11 @@ public class Reservation1 implements Initializable {
                 String nomLieu = reservationService.getNomLieuById(idLieu);
                 return new SimpleStringProperty(nomLieu);
             });
-            eventColumn.setCellValueFactory(cellData -> {
-                int idEvenement = cellData.getValue().getIdEvenement();
-                String titreEvent = reservationService.getTitreEventById(idEvenement);
-                return new SimpleStringProperty(titreEvent);
-            });
             dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
             dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
+            typeReservationColumn.setCellValueFactory(new PropertyValueFactory<>("typeReservation"));
 
-            // Formateur pour les colonnes de date
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             dateDebutColumn.setCellFactory(column -> new TableCell<reservation1, LocalDateTime>() {
                 @Override
                 protected void updateItem(LocalDateTime item, boolean empty) {
@@ -120,11 +117,10 @@ public class Reservation1 implements Initializable {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                        setText(item.format(formatter));
                     }
                 }
             });
-
             dateFinColumn.setCellFactory(column -> new TableCell<reservation1, LocalDateTime>() {
                 @Override
                 protected void updateItem(LocalDateTime item, boolean empty) {
@@ -132,7 +128,7 @@ public class Reservation1 implements Initializable {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        setText(item.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                        setText(item.format(formatter));
                     }
                 }
             });
@@ -142,12 +138,18 @@ public class Reservation1 implements Initializable {
         }
     }
 
-    private void loadReservations() {
+    private void loadUserReservations() {
         try {
-            ObservableList<reservation1> reservations = FXCollections.observableArrayList(
-                    reservationService.rechercher()
-            );
-            reservationsTable.setItems(reservations);
+            if (currentUser != null) {
+                List<reservation1> userReservations = reservationService.rechercherReservationsUtilisateur(currentUser.getUserID());
+                ObservableList<reservation1> reservations = FXCollections.observableArrayList(userReservations);
+                reservationsTable.setItems(reservations);
+            } else {
+                ObservableList<reservation1> reservations = FXCollections.observableArrayList(
+                        reservationService.rechercher()
+                );
+                reservationsTable.setItems(reservations);
+            }
         } catch (RuntimeException e) {
             System.err.println("Erreur lors du chargement des réservations : " + e.getMessage());
             e.printStackTrace();
@@ -158,12 +160,31 @@ public class Reservation1 implements Initializable {
     @FXML
     private void handleAjouter() {
         try {
+            if (currentUser == null) {
+                showAlert("Erreur", "Vous devez être connecté pour effectuer une réservation.");
+                return;
+            }
+
             if (validateInputs()) {
                 reservation1 newReservation = createReservationFromInputs();
-                reservationService.ajouter(newReservation);
-                loadReservations();
-                clearInputs();
-                showSuccessAlert("Succès", "La réservation a été ajoutée avec succès.");
+                newReservation.setUserID(currentUser.getUserID());
+
+                try {
+                    if (!reservationService.checkEventAvailability(
+                            newReservation.getIdLieu(),
+                            newReservation.getDateDebut(),
+                            newReservation.getDateFin())) {
+                        showAlert("Erreur", "Le lieu est déjà réservé pour un événement pendant cette période.");
+                        return;
+                    }
+
+                    reservationService.ajouter(newReservation);
+                    loadUserReservations();
+                    clearInputs();
+                    showSuccessAlert("Succès", "La réservation a été ajoutée avec succès.");
+                } catch (RuntimeException e) {
+                    showDetailedAlert("Erreur", "Erreur lors de l'ajout de la réservation", e.getMessage());
+                }
             }
         } catch (RuntimeException e) {
             showDetailedAlert("Erreur", "Erreur lors de l'ajout de la réservation", e.getMessage());
@@ -173,14 +194,42 @@ public class Reservation1 implements Initializable {
     @FXML
     private void handleModifier() {
         try {
+            if (currentUser == null) {
+                showAlert("Erreur", "Vous devez être connecté pour modifier une réservation.");
+                return;
+            }
+
             reservation1 selectedReservation = reservationsTable.getSelectionModel().getSelectedItem();
-            if (selectedReservation != null && validateInputs()) {
-                reservation1 updatedReservation = createReservationFromInputs();
-                updatedReservation.setId(selectedReservation.getId());
-                reservationService.modifier(updatedReservation);
-                loadReservations();
-                clearInputs();
-                showSuccessAlert("Succès", "La réservation a été modifiée avec succès.");
+            if (selectedReservation != null) {
+                if (selectedReservation.getUserID() != currentUser.getUserID()) {
+                    showAlert("Erreur", "Vous ne pouvez modifier que vos propres réservations.");
+                    return;
+                }
+
+                if (validateInputs()) {
+                    reservation1 updatedReservation = createReservationFromInputs();
+                    updatedReservation.setId(selectedReservation.getId());
+                    updatedReservation.setUserID(currentUser.getUserID());
+
+                    try {
+                        if (!reservationService.checkEventAvailability(
+                                updatedReservation.getIdLieu(),
+                                updatedReservation.getDateDebut(),
+                                updatedReservation.getDateFin())) {
+                            showAlert("Erreur", "Le lieu est déjà réservé pour un événement pendant cette période.");
+                            return;
+                        }
+
+                        reservationService.modifier(updatedReservation);
+                        loadUserReservations();
+                        clearInputs();
+                        showSuccessAlert("Succès", "La réservation a été modifiée avec succès.");
+                    } catch (RuntimeException e) {
+                        showDetailedAlert("Erreur", "Erreur lors de la modification de la réservation", e.getMessage());
+                    }
+                }
+            } else {
+                showAlert("Erreur", "Veuillez sélectionner une réservation à modifier.");
             }
         } catch (RuntimeException e) {
             showDetailedAlert("Erreur", "Erreur lors de la modification de la réservation", e.getMessage());
@@ -190,8 +239,18 @@ public class Reservation1 implements Initializable {
     @FXML
     private void handleSupprimer() {
         try {
+            if (currentUser == null) {
+                showAlert("Erreur", "Vous devez être connecté pour supprimer une réservation.");
+                return;
+            }
+
             reservation1 selectedReservation = reservationsTable.getSelectionModel().getSelectedItem();
             if (selectedReservation != null) {
+                if (selectedReservation.getUserID() != currentUser.getUserID()) {
+                    showAlert("Erreur", "Vous ne pouvez supprimer que vos propres réservations.");
+                    return;
+                }
+
                 Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
                 confirmAlert.setTitle("Confirmation");
                 confirmAlert.setHeaderText("Supprimer la réservation");
@@ -199,10 +258,12 @@ public class Reservation1 implements Initializable {
 
                 if (confirmAlert.showAndWait().get() == ButtonType.OK) {
                     reservationService.supprimer(selectedReservation);
-                    loadReservations();
+                    loadUserReservations();
                     clearInputs();
                     showSuccessAlert("Succès", "La réservation a été supprimée avec succès.");
                 }
+            } else {
+                showAlert("Erreur", "Veuillez sélectionner une réservation à supprimer.");
             }
         } catch (RuntimeException e) {
             showDetailedAlert("Erreur", "Erreur lors de la suppression de la réservation", e.getMessage());
@@ -217,10 +278,6 @@ public class Reservation1 implements Initializable {
     private boolean validateInputs() {
         if (lieuComboBox.getValue() == null) {
             showAlert("Erreur", "Veuillez sélectionner un lieu.");
-            return false;
-        }
-        if (eventComboBox.getValue() == null) {
-            showAlert("Erreur", "Veuillez sélectionner un événement.");
             return false;
         }
         if (dateDebutPicker.getValue() == null) {
@@ -252,24 +309,27 @@ public class Reservation1 implements Initializable {
                 LocalTime.parse(heureFinCombo.getValue() + ":00")
         );
 
-        return new reservation1(
+        reservation1 newReservation = new reservation1(
                 0,
                 lieuxMap.get(lieuComboBox.getValue()),
-                eventsMap.get(eventComboBox.getValue()),
+                0,  // idEvenement is always 0 for direct rentals
                 dateDebut,
                 dateFin
         );
+        newReservation.setTypeReservation("location");
+        if (currentUser != null) {
+            newReservation.setUserID(currentUser.getUserID());
+        }
+        return newReservation;
     }
 
     private void clearInputs() {
         lieuComboBox.setValue(null);
-        eventComboBox.setValue(null);
         dateDebutPicker.setValue(null);
         dateFinPicker.setValue(null);
         heureDebutCombo.setValue(null);
         heureFinCombo.setValue(null);
         lieuCapaciteLabel.setVisible(false);
-        eventDetailsLabel.setVisible(false);
     }
 
     private void showAlert(String title, String content) {
@@ -277,17 +337,6 @@ public class Reservation1 implements Initializable {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
-
-        // Create expandable Exception.
-        TextArea textArea = new TextArea(content);
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
-        textArea.setMaxWidth(Double.MAX_VALUE);
-        textArea.setMaxHeight(Double.MAX_VALUE);
-
-        alert.getDialogPane().setExpandableContent(textArea);
-        alert.getDialogPane().setExpanded(true);
-
         alert.showAndWait();
     }
 
@@ -304,7 +353,6 @@ public class Reservation1 implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(content);
 
-        // Create expandable Exception.
         TextArea textArea = new TextArea(content);
         textArea.setEditable(false);
         textArea.setWrapText(true);
@@ -317,7 +365,6 @@ public class Reservation1 implements Initializable {
         alert.showAndWait();
     }
 
-
     private void setupListeners() {
         lieuComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
@@ -328,15 +375,6 @@ public class Reservation1 implements Initializable {
                             int capacite = capaciteNum.intValue();
                             lieuCapaciteLabel.setText("Capacité: " + capacite + " personnes");
                             lieuCapaciteLabel.setVisible(true);
-
-                            eventComboBox.getItems().clear();
-                            for (Map<String, Object> event : reservationService.getAllEvenements()) {
-                                Number eventCapaciteNum = (Number) event.get("capacite");
-                                int eventCapacite = eventCapaciteNum.intValue();
-                                if (eventCapacite <= capacite) {
-                                    eventComboBox.getItems().add((String) event.get("titre"));
-                                }
-                            }
                             break;
                         }
                     }
@@ -347,40 +385,6 @@ public class Reservation1 implements Initializable {
                 }
             } else {
                 lieuCapaciteLabel.setVisible(false);
-            }
-        });
-
-        eventComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                try {
-                    for (Map<String, Object> event : reservationService.getAllEvenements()) {
-                        if (event.get("titre").equals(newVal)) {
-                            LocalDateTime dateDebut = (LocalDateTime) event.get("date_debut");
-                            LocalDateTime dateFin = (LocalDateTime) event.get("date_fin");
-                            Number capaciteNum = (Number) event.get("capacite");
-                            int capacite = capaciteNum.intValue();
-
-                            String details = String.format("Du %s au %s - %d participants",
-                                    dateDebut.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                                    dateFin.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                                    capacite);
-                            eventDetailsLabel.setText(details);
-                            eventDetailsLabel.setVisible(true);
-
-                            dateDebutPicker.setValue(dateDebut.toLocalDate());
-                            dateFinPicker.setValue(dateFin.toLocalDate());
-                            heureDebutCombo.setValue(String.format("%02d:00", dateDebut.getHour()));
-                            heureFinCombo.setValue(String.format("%02d:00", dateFin.getHour()));
-
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    System.err.println("Erreur lors de la mise à jour des détails de l'événement : " + e.getMessage());
-                    e.printStackTrace();
-                }
-            } else {
-                eventDetailsLabel.setVisible(false);
             }
         });
 
@@ -426,13 +430,6 @@ public class Reservation1 implements Initializable {
                                 }
                             }
 
-                            for (Map<String, Object> event : reservationService.getAllEvenements()) {
-                                if (((Number)event.get("id")).intValue() == newSelection.getIdEvenement()) {
-                                    eventComboBox.setValue((String)event.get("titre"));
-                                    break;
-                                }
-                            }
-
                             dateDebutPicker.setValue(newSelection.getDateDebut().toLocalDate());
                             dateFinPicker.setValue(newSelection.getDateFin().toLocalDate());
                             heureDebutCombo.setValue(String.format("%02d:00", newSelection.getDateDebut().getHour()));
@@ -470,6 +467,7 @@ public class Reservation1 implements Initializable {
             }
         }
     }
+
     @FXML
     private void goToPhotoView() {
         try {

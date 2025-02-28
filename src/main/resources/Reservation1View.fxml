@@ -15,7 +15,7 @@
 
         <!-- En-tête -->
         <HBox styleClass="header-container" alignment="CENTER">
-            <Label styleClass="main-title" text="Gestion des Réservations"/>
+            <Label styleClass="main-title" text="Gestion des Réservations de Lieux"/>
         </HBox>
 
         <!-- Contenu principal -->
@@ -23,20 +23,13 @@
 
             <!-- Panneau gauche : Formulaire -->
             <VBox styleClass="form-section" spacing="15">
-                <Label styleClass="section-title" text="Nouvelle Réservation"/>
+                <Label styleClass="section-title" text="Nouvelle Réservation de Lieu"/>
 
                 <!-- Sélection du lieu -->
                 <VBox spacing="5">
-                    <Label text="Lieu de l'événement *"/>
+                    <Label text="Lieu *"/>
                     <ComboBox fx:id="lieuComboBox" prefWidth="300"/>
                     <Label fx:id="lieuCapaciteLabel" styleClass="info-label"/>
-                </VBox>
-
-                <!-- Sélection de l'événement -->
-                <VBox spacing="5">
-                    <Label text="Événement *"/>
-                    <ComboBox fx:id="eventComboBox" prefWidth="300"/>
-                    <Label fx:id="eventDetailsLabel" styleClass="info-label"/>
                 </VBox>
 
                 <!-- Dates de réservation -->
@@ -73,10 +66,10 @@
 
                 <TableView fx:id="reservationsTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="lieuColumn" text="Lieu" prefWidth="150"/>
-                        <TableColumn fx:id="eventColumn" text="Événement" prefWidth="150"/>
+                        <TableColumn fx:id="lieuColumn" text="Lieu" prefWidth="200"/>
                         <TableColumn fx:id="dateDebutColumn" text="Début" prefWidth="150"/>
                         <TableColumn fx:id="dateFinColumn" text="Fin" prefWidth="150"/>
+                        <TableColumn fx:id="typeReservationColumn" text="Type" prefWidth="100"/>
                     </columns>
                     <placeholder>
                         <Label text="Aucune réservation disponible"/>
@@ -91,3 +84,4 @@
             styleClass="button-back"/>
 
 </AnchorPane>
+
