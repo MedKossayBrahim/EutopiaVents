@@ -12,6 +12,7 @@ public class Reservation {
     private double prixTotal; // Prix total = prix du matériel * quantité
     private java.sql.Timestamp dateDebut;
     private java.sql.Timestamp dateFin;
+    private boolean paye;  // true si payé, false sinon
 
     public Reservation(int id, int userId, Integer evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
