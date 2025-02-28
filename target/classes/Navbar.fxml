@@ -21,7 +21,7 @@
 
     <Button fx:id="eventsButton" text="Events" onAction="#onEventsButtonClick"
             style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
-    <Button fx:id="dashboardButton" text="Materiel" onAction="#onDashboardButtonClick"
+    <Button fx:id="dashboardButton" text="Materiels" onAction="#onDashboardButtonClick"
             style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px; -fx-text-alignment: center; -fx-wrap-text: true; -fx-padding: 10 16;"/>
     <Button fx:id="settingsButton" text="Éspaces" onAction="#onSettingsButtonClick"
             style="-fx-pref-width: 150; -fx-background-color: transparent; -fx-text-fill: #b0a8a0; -fx-font-size: 16px;"/>

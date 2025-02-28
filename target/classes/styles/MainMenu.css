@@ -13,12 +13,12 @@
 }
 
 .root {
-    -fx-background-color: #faf6f3;
+    -fx-background-color: -#faf6f3;
     -fx-font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .main-container {
-    -fx-background-color: #faf6f3;
+    -fx-background-color: -#faf6f3;
 }
 
 .sidebar-placeholder {

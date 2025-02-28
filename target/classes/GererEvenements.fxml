@@ -25,16 +25,41 @@
             <Label text="Gérer Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
 
             <!-- Barre de navigation en haut -->
-            <HBox spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
-                <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie" onAction="#goToAjouterCateg"
-                        style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
-                <Button fx:id="btnAjouterEvenement" text="Ajouter Événement" onAction="#goToAjouterEvenement"
-                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
-                <Button fx:id="btnModifierEvenement" text="Modifier Événement" onAction="#goToModifierEvenement"
-                        style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
-                <Button fx:id="btnGererEvenements" text="Gérer Événements" onAction="#goToGererEvenements"
-                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
-            </HBox>
+            <VBox fx:id="navigationBox" alignment="CENTER"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 20px;
+                         -fx-padding: 20px;
+                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
+                <HBox spacing="20" alignment="CENTER">
+                    <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie" 
+                            onAction="#goToAjouterCateg"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnAjouterEvenement" text="Ajouter Événement" 
+                            onAction="#goToAjouterEvenement"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnModifierEvenement" text="Modifier Événement" 
+                            onAction="#goToModifierEvenement"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnGererEvenements" text="Gérer Événements" 
+                            onAction="#goToGererEvenements"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+                </HBox>
+            </VBox>
 
             <!-- Table avec style moderne -->
             <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">

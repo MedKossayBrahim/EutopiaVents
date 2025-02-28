@@ -1,59 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.scene.web.*?>
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.esprit.controllers.LieuDetailsController"
-      spacing="20" alignment="CENTER"
-      style="-fx-background-color: white; -fx-padding: 20;"
+      spacing="15" alignment="CENTER"
+      style="-fx-background-color: #faf6f3; -fx-padding: 20;"
       stylesheets="@/styles/lieu-details.css">
 
-    <HBox spacing="20" alignment="CENTER_LEFT">
-        <ImageView fx:id="imageView" fitWidth="300" fitHeight="200" preserveRatio="true" styleClass="image-view"/>
-        
-        <VBox spacing="10">
-            <Label fx:id="nomLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Label fx:id="categorieLabel" style="-fx-font-size: 16px; -fx-text-fill: #666;"/>
-            <Label fx:id="prixLabel" style="-fx-font-size: 18px; -fx-text-fill: #f5945c; -fx-font-weight: bold;"/>
-            <Label fx:id="capaciteLabel" style="-fx-font-size: 14px;"/>
+    <Label text="Détails du lieu" styleClass="title"/>
+
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+        <VBox spacing="20" styleClass="details-container">
+            <StackPane styleClass="image-view-container">
+                <ImageView fx:id="imageView" fitWidth="400" fitHeight="300" preserveRatio="true" styleClass="image-view"/>
+            </StackPane>
+
+            <GridPane hgap="15" vgap="15" alignment="CENTER_LEFT" styleClass="grid-pane">
+                <columnConstraints>
+                    <ColumnConstraints prefWidth="120"/>
+                    <ColumnConstraints prefWidth="300"/>
+                </columnConstraints>
+
+                <Label text="Nom :" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="nomLabel" styleClass="field-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Adresse :" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="adresseLabel" styleClass="field-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Ville :" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="villeLabel" styleClass="field-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Code Postal :" styleClass="field-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Label fx:id="codePostalLabel" styleClass="field-value" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Capacité :" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="capaciteLabel" styleClass="field-value" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Prix :" styleClass="field-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <Label fx:id="prixLabel" styleClass="field-value" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <Label text="Catégorie :" styleClass="field-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <Label fx:id="categorieLabel" styleClass="field-value" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            </GridPane>
         </VBox>
-    </HBox>
-    
-    <VBox spacing="10" style="-fx-padding: 20 0;">
-        <Label text="Location Details" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-        <Label fx:id="adresseLabel" style="-fx-font-size: 14px;"/>
-        <HBox spacing="10">
-            <Label fx:id="villeLabel" style="-fx-font-size: 14px;"/>
-            <Label fx:id="codePostalLabel" style="-fx-font-size: 14px;"/>
-        </HBox>
-        
-        <VBox alignment="CENTER" style="-fx-padding: 20 0;">
-            <Canvas fx:id="mapCanvas" width="400" height="300"/>
-            <Button fx:id="directionsButton" 
-                    text="Show Directions" 
-                    onAction="#handleGetDirections"
-                    style="-fx-background-color: #f5945c;
-                           -fx-text-fill: white;
-                           -fx-font-weight: bold;
-                           -fx-padding: 10 20;
-                           -fx-background-radius: 20;
-                           -fx-cursor: hand;
-                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);
-                           -fx-margin: 15 0 0 0;">
-                <VBox.margin>
-                    <Insets top="10"/>
-                </VBox.margin>
-            </Button>
-            
-            <!-- Hidden WebView for geolocation -->
-            <WebView fx:id="hiddenWebView" visible="false" managed="false" prefHeight="1" prefWidth="1"/>
-        </VBox>
-    </VBox>
+    </ScrollPane>
 
     <HBox alignment="CENTER" spacing="10">
         <Button text="Fermer" onAction="#handleClose" prefWidth="120"/>
