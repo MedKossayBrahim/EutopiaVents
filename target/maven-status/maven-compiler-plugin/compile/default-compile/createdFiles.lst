@@ -5,6 +5,7 @@ com\esprit\services\LieuServiceImpl.class
 com\esprit\controllers\LieuDetailsController.class
 com\esprit\controllers\PostViewController$1.class
 com\esprit\controllers\ModifierCommande.class
+com\esprit\controllers\LieuDetailsController$1.class
 com\esprit\controllers\Listeproduit$1.class
 com\esprit\models\User.class
 com\esprit\services\ProduitService.class
@@ -96,4 +97,5 @@ com\esprit\controllers\ModifierEvenementController$1.class
 com\esprit\controllers\LieuController.class
 com\esprit\controllers\OtpView.class
 com\esprit\services\AutocompleteService.class
+com\esprit\controllers\LieuDetailsController$LocationCallback.class
 com\esprit\controllers\Reservation1$1.class
