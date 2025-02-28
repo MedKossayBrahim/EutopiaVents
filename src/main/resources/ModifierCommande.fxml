@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.ModifierCommande"> <!-- Updated controller reference -->
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Modifier la commande" style="-fx-font-size: 20px;"/> <!-- Updated label text -->
+
+    <GridPane vgap="10" hgap="10">
+        <Label text="Client ID:" GridPane.columnIndex="0" GridPane.rowIndex="0"/> <!-- Changed from Nom to Client ID -->
+        <TextField fx:id="clientIdField" GridPane.columnIndex="1" GridPane.rowIndex="0"/> <!-- Updated fx:id -->
+
+        <Label text="Produit:" GridPane.columnIndex="0" GridPane.rowIndex="1"/> <!-- Added label for Produit -->
+        <ComboBox fx:id="produitComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1"/> <!-- ComboBox for selecting a product -->
+
+        <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2"/> <!-- Changed from Quantité to Quantité -->
+        <TextField fx:id="quantiteField" GridPane.columnIndex="1" GridPane.rowIndex="2"/> <!-- Updated fx:id -->
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Sauvegarder" onAction="#handleSauvegarder"/> <!-- Keep the same action -->
+
+    </HBox>
+</VBox>

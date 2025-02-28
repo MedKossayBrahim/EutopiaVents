@@ -11,6 +11,9 @@ public class CategorieServiceImpl implements IService<categorie_salle>{
     //etablir la connexion a l base de donnes
     Connection connection = DataSource.getInstance().getConnection();
 
+    public CategorieServiceImpl() throws SQLException {
+    }
+
 
     public void ajouter(categorie_salle categoriesalle) {
         String req = "INSERT INTO categorie_salle (nom, description) VALUES (?, ?)";

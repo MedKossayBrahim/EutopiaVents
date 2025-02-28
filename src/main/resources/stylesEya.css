@@ -1,0 +1,27 @@
+/* style.css */
+.anchor-pane {
+    -fx-background-color: #f0f0f0; /* Couleur de fond */
+}
+
+.label {
+    -fx-font-size: 14px; /* Taille de la police */
+    -fx-text-fill: #333; /* Couleur du texte */
+}
+
+.text-field {
+    -fx-background-color: #ffffff; /* Couleur de fond du champ de texte */
+    -fx-border-color: #cccccc; /* Couleur de la bordure */
+    -fx-border-radius: 5px; /* Arrondi des coins */
+}
+
+.button {
+    -fx-background-color: #4CAF50; /* Couleur de fond du bouton */
+    -fx-text-fill: white; /* Couleur du texte du bouton */
+    -fx-font-size: 14px; /* Taille de la police du bouton */
+    -fx-padding: 10px 20px; /* Espacement interne */
+    -fx-background-radius: 5px; /* Arrondi des coins */
+}
+
+.button:hover {
+    -fx-background-color: #45a049; /* Couleur de fond au survol */
+}

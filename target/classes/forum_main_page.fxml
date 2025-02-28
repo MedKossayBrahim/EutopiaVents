@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.ForumMainController"
+            fx:id="rootPane">
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS"
+              prefHeight="${rootPane.height}">
+        </VBox>
+    </left>
+
+    <right>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background: transparent;
+                          -fx-background-color: #faf6f3;
+                          -fx-background-insets: 0;
+                          -fx-padding: 0;">
+            <VBox spacing="20" style="-fx-background-color: #faf6f3;">
+                <!-- Calendar first -->
+                <VBox fx:id="calendarContainer"
+                      VBox.vgrow="NEVER"
+                      style="-fx-background-color: #faf6f3;
+                             -fx-background-radius: 15;
+                             -fx-padding: 15;"/>
+
+                <!-- Chat below calendar -->
+                <VBox fx:id="chatArea"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: #faf6f3;
+                             -fx-background-radius: 15;
+                             -fx-padding: 15;">
+                    <!-- Chat content here -->
+                </VBox>
+            </VBox>
+
+            <style>
+                /* Hide scrollbars */
+                .scroll-pane .scroll-bar:vertical {
+                -fx-scale-x: 0;
+                }
+                .scroll-pane .scroll-bar:horizontal {
+                -fx-scale-y: 0;
+                }
+                .scroll-pane {
+                -fx-background-color: transparent;
+                }
+                .scroll-pane .viewport {
+                -fx-background-color: transparent;
+                }
+                .scroll-pane .content {
+                -fx-background-color: transparent;
+                }
+            </style>
+        </ScrollPane>
+    </right>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background: #faf6f3; -fx-background-color: #faf6f3;
+                          -fx-background-insets: 0;
+                          -fx-padding: 0;"
+                    vbarPolicy="AS_NEEDED"
+                    hbarPolicy="NEVER">
+            <VBox spacing="15" style="-fx-background-color: #faf6f3;">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+
+                <HBox spacing="15" alignment="CENTER">
+                    <HBox spacing="10" alignment="CENTER" maxWidth="500" HBox.hgrow="ALWAYS"
+                          fx:id="searchContainer"
+                          style="-fx-background-color: white; -fx-background-radius: 25;
+                                 -fx-padding: 10 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 2);">
+                        <ComboBox fx:id="searchFilterComboBox"
+                                  promptText="Filter by"
+                                  style="-fx-background-color: transparent;
+                                       -fx-font-size: 14;
+                                       -fx-border-color: transparent;">
+                        </ComboBox>
+                        <ImageView fitHeight="18" fitWidth="18" onMouseClicked="#activateSearch"
+                                   style="-fx-cursor: hand; -fx-opacity: 0.6;">
+                            <Image url="@Images/search_icon.jpg"/>
+                        </ImageView>
+                        <TextField fx:id="searchField"
+                                   promptText="Search Posts..."
+                                   onKeyReleased="#onSearchKeyReleased"
+                                   focusTraversable="false"
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: transparent;
+                                          -fx-font-size: 14;
+                                          -fx-padding: 0;
+                                          -fx-background-radius: 25;"/>
+                    </HBox>
+                </HBox>
+
+                <HBox spacing="15" HBox.hgrow="ALWAYS">
+                    <HBox spacing="15" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: linear-gradient(to right, #e6e6e6, #c2d6d6);
+                                 -fx-background-radius: 15; -fx-padding: 15;">
+                        <ImageView fitHeight="80" fitWidth="80">
+                            <Image url="@Images/eutopia1_logo.png"/>
+                        </ImageView>
+                        <VBox spacing="5">
+                            <Label fx:id="welcomeUsernameLabel" text="Hi, Username_here" style="-fx-font-size: 16px; -fx-text-fill: #333333;"/>
+                            <Label text="Welcome to the Blog" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
+                            <Label text="Offers, demands and updates are gonna be here."
+                                   style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="addButton" text="Add post" onAction="#onAddPostClick"
+                                style="-fx-background-color: #FFE5EC; -fx-text-fill: #333333;
+                                       -fx-background-radius: 20; -fx-padding: 10 25;
+                                       -fx-font-size: 14; -fx-cursor: hand;"/>
+                    </HBox>
+                </HBox>
+
+                <VBox spacing="15" VBox.vgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Latest Updates"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;">
+                            <VBox.margin>
+                                <Insets left="20"/>
+                            </VBox.margin>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="viewAllUpdatesButton" text="View All"
+                                onAction="#onViewAllUpdatesClick"
+                                style="-fx-background-color: white;
+                                       -fx-text-fill: #666666;
+                                       -fx-font-size: 13;
+                                       -fx-cursor: hand;
+                                       -fx-border-color: #dee2e6;
+                                       -fx-border-radius: 20;
+                                       -fx-background-radius: 20;
+                                       -fx-padding: 8 16;">
+                            <HBox.margin>
+                                <Insets right="20"/>
+                            </HBox.margin>
+                        </Button>
+                    </HBox>
+
+                    <ListView fx:id="latestUpdatesList"
+                              maxHeight="300"
+                              style="-fx-background-color: #ffffff;
+                                     -fx-background-radius: 20;
+                                     -fx-border-radius: 20;
+                                     -fx-padding: 10;
+                                     -fx-background-insets: 0;
+                                     -fx-fixed-cell-size: 140;
+                                     -fx-selection-bar: transparent;
+                                     -fx-selection-bar-non-focused: transparent;
+                                     -fx-background: transparent;
+                                     -fx-control-inner-background: transparent;
+                                     -fx-focus-color: transparent;
+                                     -fx-faint-focus-color: transparent;">
+                        <VBox.margin>
+                            <Insets left="20" right="20"/>
+                        </VBox.margin>
+                    </ListView>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Pinned Posts"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;">
+                            <VBox.margin>
+                                <Insets left="20"/>
+                            </VBox.margin>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="viewAllPinnedButton" text="View All"
+                                onAction="#onViewAllPinnedClick"
+                                style="-fx-background-color: white;
+                                       -fx-text-fill: #666666;
+                                       -fx-font-size: 13;
+                                       -fx-cursor: hand;
+                                       -fx-border-color: #dee2e6;
+                                       -fx-border-radius: 20;
+                                       -fx-background-radius: 20;
+                                       -fx-padding: 8 16;">
+                            <HBox.margin>
+                                <Insets right="20"/>
+                            </HBox.margin>
+                        </Button>
+                    </HBox>
+
+                    <ListView fx:id="pinnedPostsList"
+                              maxHeight="300"
+                              style="-fx-background-color: #ffffff;
+                                     -fx-background-radius: 20;
+                                     -fx-border-radius: 20;
+                                     -fx-padding: 10;
+                                     -fx-background-insets: 0;
+                                     -fx-fixed-cell-size: 140;
+                                     -fx-selection-bar: transparent;
+                                     -fx-selection-bar-non-focused: transparent;
+                                     -fx-background: transparent;
+                                     -fx-control-inner-background: transparent;
+                                     -fx-focus-color: transparent;
+                                     -fx-faint-focus-color: transparent;">
+                        <VBox.margin>
+                            <Insets left="20" right="20" bottom="20"/>
+                        </VBox.margin>
+                    </ListView>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

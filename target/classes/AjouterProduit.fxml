@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="500.0" prefWidth="600.0" 
+            xmlns="http://javafx.com/javafx/23.0.1" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.esprit.controllers.AjouterProduit"
+            stylesheets="@styles/listeproduit.css">
+    <VBox spacing="20" alignment="CENTER" AnchorPane.topAnchor="20.0" 
+          AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+        
+        <Label text="Ajouter un Produit" styleClass="main-title"/>
+        
+        <GridPane vgap="15" hgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="100" prefWidth="120"/>
+                <ColumnConstraints minWidth="200" prefWidth="300"/>
+            </columnConstraints>
+
+            <Label text="Nom" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="nomField" promptText="Nom du produit" 
+                      GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="descriptionField" promptText="Description du produit" 
+                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Prix" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="prixField" promptText="Prix en DT" 
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Stock" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="stockField" promptText="Quantité en stock" 
+                      GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Catégorie" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="categorieComboBox" promptText="Sélectionner une catégorie" 
+                     GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Image" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                <TextField fx:id="imagePathField" promptText="Chemin de l'image" HBox.hgrow="ALWAYS" editable="false"/>
+                <Button text="Parcourir" onAction="#handleImageUpload" styleClass="button-secondary"/>
+            </HBox>
+        </GridPane>
+
+        <ImageView fx:id="imagePreview" fitHeight="150.0" fitWidth="150.0" preserveRatio="true"/>
+        
+        <Label fx:id="imageNameLabel" styleClass="image-name-label"/>
+
+        <HBox spacing="15" alignment="CENTER">
+            <Button text="Ajouter" onAction="#ajouterProduit" styleClass="button-primary"/>
+            <Button text="Annuler" onAction="#annuler" styleClass="button-cancel"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

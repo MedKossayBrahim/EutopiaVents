@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AjoutCategorie">
+    <children>
+        <VBox alignment="CENTER" layoutX="50.0" layoutY="50.0" spacing="20.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+            <children>
+                <Label text="Ajouter une nouvelle catégorie" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <VBox spacing="10.0">
+                    <children>
+                        <Label text="Nom de la catégorie :">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="nom" prefHeight="40.0" prefWidth="499.0" promptText="Entrez le nom de la catégorie">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </TextField>
+                    </children>
+                </VBox>
+                <VBox spacing="10.0">
+                    <children>
+                        <Label text="Description :">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="des" prefHeight="39.0" prefWidth="499.0" promptText="Entrez la description de la catégorie">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </TextField>
+                    </children>
+                </VBox>
+                <Button mnemonicParsing="false" onAction="#ajouter" style="-fx-background-color: #4CAF50;" text="Ajouter la catégorie" textFill="WHITE">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                    </padding>
+                </Button>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

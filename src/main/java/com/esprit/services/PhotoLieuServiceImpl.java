@@ -8,6 +8,10 @@ import java.util.List;
 
 public class PhotoLieuServiceImpl implements IService<PhotoLieu> {
     private Connection connection = DataSource.getInstance().getConnection();
+
+    public PhotoLieuServiceImpl() throws SQLException {
+    }
+
     @Override
     public void ajouter(PhotoLieu photo) {
         String sql = "INSERT INTO photoslieu (lieu_id, url_image) VALUES (?, ?)";

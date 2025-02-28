@@ -10,14 +10,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import com.esprit.tests.Eutopia;
+import javafx.application.Platform;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,11 +39,50 @@ public class MainMenuController {
     private ObservableList<Lieu> allLieux;
     private ObservableList<Lieu> filteredLieux;
 
+    public MainMenuController() throws SQLException {
+    }
+
     @FXML
     public void initialize() {
+        // Get current user role
+        String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
+
         loadLieux();
         setupSearch();
         setupCategoryFilter();
+
+        // Wait for scene to be available before configuring buttons
+        Platform.runLater(() -> configureButtonsByRole(userRole));
+    }
+
+    private void configureButtonsByRole(String userRole) {
+        boolean isAdmin = "Admin".equals(userRole);
+
+        // Configure "Ajouter Lieu" button
+        Button ajouterButton = (Button) searchField.getParent().lookup("Button");
+        if (ajouterButton != null) {
+            ajouterButton.setVisible(isAdmin);
+            ajouterButton.setManaged(isAdmin);
+        }
+
+        // Configure all management buttons
+        if (lieuxGrid.getScene() != null) {
+            HBox navButtonsContainer = (HBox) lieuxGrid.getScene().lookup(".nav-buttons");
+
+            if (navButtonsContainer != null) {
+                System.out.println("Found nav buttons container, setting visibility: " + isAdmin); // Debug line
+                navButtonsContainer.setVisible(isAdmin);
+                navButtonsContainer.setManaged(isAdmin);
+
+                // Also hide all children buttons individually
+                navButtonsContainer.getChildren().forEach(node -> {
+                    node.setVisible(isAdmin);
+                    node.setManaged(isAdmin);
+                });
+            } else {
+                System.out.println("Nav buttons container not found!"); // Debug line
+            }
+        }
     }
 
     public void loadLieux() {
@@ -114,39 +158,88 @@ public class MainMenuController {
         Label nomLabel = new Label(lieu.getNom());
         nomLabel.getStyleClass().add("card-title");
 
-        Button modifierBtn = new Button("Modifier");
-        modifierBtn.getStyleClass().addAll("button", "modifier");
-        Button supprimerBtn = new Button("Supprimer");
-        supprimerBtn.getStyleClass().addAll("button", "supprimer");
+        // Add click event to the card
+        card.setOnMouseClicked(event -> ouvrirDetailsLieu(lieu));
 
-        modifierBtn.setOnAction(e -> modifierLieu(lieu));
-        supprimerBtn.setOnAction(e -> supprimerLieu(lieu));
+        // Only create admin buttons if user is admin
+        String userRole = String.valueOf(Eutopia.getCurrentUser().getRole());
+        if ("Admin".equals(userRole)) {
+            Button modifierBtn = new Button("Modifier");
+            modifierBtn.getStyleClass().addAll("button", "modifier");
+            Button supprimerBtn = new Button("Supprimer");
+            supprimerBtn.getStyleClass().addAll("button", "supprimer");
 
-        VBox buttonContainer = new VBox(5, modifierBtn, supprimerBtn);
-        buttonContainer.getStyleClass().add("button-container");
+            modifierBtn.setOnAction(e -> {
+                e.consume(); // Prevent event from bubbling up to the card
+                modifierLieu(lieu);
+            });
+            supprimerBtn.setOnAction(e -> {
+                e.consume(); // Prevent event from bubbling up to the card
+                supprimerLieu(lieu);
+            });
 
-        card.getChildren().addAll(imageView, nomLabel, buttonContainer);
+            VBox buttonContainer = new VBox(5, modifierBtn, supprimerBtn);
+            buttonContainer.getStyleClass().add("button-container");
+
+            card.getChildren().addAll(imageView, nomLabel, buttonContainer);
+        } else {
+            // For non-admin users, only show the image and name
+            card.getChildren().addAll(imageView, nomLabel);
+        }
+
         return card;
     }
 
-    private ImageView createImageView(String imageUrl) {
-        Image image;
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            // Créer une ImageView vide ou définir un comportement alternatif
-            return new ImageView();
-        } else {
-            image = new Image(imageUrl, 520, 390, true, true);
+    private void ouvrirDetailsLieu(Lieu lieu) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LieuDetails.fxml"));
+            Parent root = loader.load();
+            LieuDetailsController controller = loader.getController();
+            controller.setLieu(lieu);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Détails du lieu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir la fenêtre de détails du lieu.");
         }
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(260);
-        imageView.setFitHeight(195);
-        imageView.setPreserveRatio(false);
-        imageView.setSmooth(true);
-        imageView.setCache(true);
-        return imageView;
     }
 
+    private ImageView createImageView(String imageUrl) {
+        try {
+            Image image;
+            if (imageUrl == null || imageUrl.trim().isEmpty()) {
+                // Use default image
+                image = new Image(getClass().getResourceAsStream("/Images/defaultPlace.png"));
+            } else {
+                try {
+                    // First try to load as URL/file path
+                    image = new Image(imageUrl);
+                    if (image.isError()) {
+                        // If URL fails, try as resource
+                        image = new Image(getClass().getResourceAsStream(imageUrl));
+                    }
+                } catch (Exception e) {
+                    // If both attempts fail, use default
+                    image = new Image(getClass().getResourceAsStream("/Images/defaultPlace.png"));
+                }
+            }
 
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(260);
+            imageView.setFitHeight(195);
+            imageView.setPreserveRatio(false);
+            imageView.setSmooth(true);
+            imageView.setCache(true);
+            return imageView;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback to default image in case of any error
+            return new ImageView(new Image(getClass().getResourceAsStream("/Images/defaultPlace.png")));
+        }
+    }
 
     private void modifierLieu(Lieu lieu) {
         try {
@@ -236,5 +329,15 @@ public class MainMenuController {
     public void refreshLieux() {
         loadLieux();
     }
+    @FXML
+    private void goToStatistiques() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/statistiquesimpl.fxml"));
+            Scene scene = lieuxGrid.getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'afficher les statistiques.");
+        }
+    }
 }
-

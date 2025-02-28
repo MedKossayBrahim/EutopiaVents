@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import java.lang.String?>
+<AnchorPane prefHeight="600.0" prefWidth="800.0"
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/11"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.esprit.controllers.PanierController">
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane"
+                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <VBox styleClass="cart-container">
+            <Label text="Mon Panier" styleClass="title-label"/>
+            <VBox fx:id="reservationsContainer" spacing="15"/>
+            <HBox styleClass="total-section" alignment="CENTER_RIGHT" spacing="20">
+                <Label text="Total:" styleClass="subtitle-label"/>
+                <Label fx:id="totalLabel" styleClass="subtitle-label"/>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+    <Button fx:id="retourButton" text="Retour" onAction="#handleRetour"/>
+
+</AnchorPane>
+

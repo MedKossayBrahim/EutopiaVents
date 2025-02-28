@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane fx:id="rootPane"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.esprit.controllers.EventsController">
+            
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS"
+              prefHeight="${rootPane.height}">
+            <fx:include source="Navbar.fxml"/>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true" 
+                   style="-fx-background: #faf6f3; 
+                          -fx-background-color: #faf6f3;
+                          -fx-background-insets: 0;
+                          -fx-padding: 0;"
+                   vbarPolicy="AS_NEEDED"
+                   hbarPolicy="NEVER">
+            <VBox spacing="24" style="-fx-padding: 32; -fx-background-color: #faf6f3;">
+                <!-- Header Section with Cart Icon -->
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Text text="Découvrez nos événements"
+                              style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
+                        <Text text="Explorez et participez à des événements passionnants"
+                              style="-fx-font-size: 16px; -fx-fill: #6c757d;"/>
+                    </VBox>
+                    <ImageView fx:id="cartIcon" onMouseClicked="#goToPanier"
+                               fitHeight="30" fitWidth="30"
+                               style="-fx-cursor: hand;">
+                        <Image url="@/Images/panierproduit.png"/>
+                    </ImageView>
+                </HBox>
+
+                <!-- Navigation Bar -->
+                <HBox spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                    <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie" onAction="#goToAjouterCateg"
+                            style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                    <Button fx:id="btnAjouterEvenement" text="Ajouter Événement" onAction="#goToAjouterEvenement"
+                            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                    <Button fx:id="btnModifierEvenement" text="Modifier Événement" onAction="#goToModifierEvenement"
+                            style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                    <Button fx:id="btnGererEvenements" text="Gérer Événements" onAction="#goToGererEvenements"
+                            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                </HBox>
+
+                <!-- Search and Filter Bar -->
+                <HBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                    <TextField fx:id="searchField" promptText="Rechercher un événement..."
+                               style="-fx-pref-height: 40; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-padding: 8;"
+                               HBox.hgrow="ALWAYS"/>
+                    <ComboBox fx:id="categoryFilter" promptText="Filtrer par catégorie"
+                              style="-fx-pref-height: 40; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;"/>
+                </HBox>
+
+                <!-- Events Grid in a white container -->
+                <VBox spacing="16" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                    <GridPane fx:id="eventsGrid" hgap="20" vgap="20"/>
+                    <Pagination fx:id="eventsPagination"
+                                style="-fx-page-information-visible: false;"/>
+                </VBox>
+            </VBox>
+
+            <style>
+                /* Hide scrollbars */
+                .scroll-pane .scroll-bar:vertical {
+                    -fx-scale-x: 0;
+                }
+                .scroll-pane .scroll-bar:horizontal {
+                    -fx-scale-y: 0;
+                }
+                .scroll-pane {
+                    -fx-background-color: transparent;
+                }
+                .scroll-pane .viewport {
+                    -fx-background-color: transparent;
+                }
+                .scroll-pane .content {
+                    -fx-background-color: transparent;
+                }
+            </style>
+        </ScrollPane>
+    </center>
+</BorderPane>
+

@@ -3,55 +3,56 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 
-<HBox xmlns:fx="http://javafx.com/fxml"
+<VBox spacing="15" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.esprit.controllers.MainMenuController"
-      styleClass="main-container"
-      stylesheets="@/styles/MainMenu.css">
+      style="-fx-background-color: white; -fx-padding: 20px;"
+      stylesheets="@styles/MainMenu.css">
 
-    <VBox styleClass="sidebar-placeholder" prefWidth="250" />
+    <HBox styleClass="header" alignment="CENTER" 
+          style="-fx-background-radius: 15; -fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <padding>
+            <Insets top="15" right="20" bottom="15" left="20"/>
+        </padding>
+        <VBox alignment="CENTER">
+            <Label text="Gestion des Salles" styleClass="title"/>
+            <Label text="Gérez vos salles et leurs caractéristiques" styleClass="subtitle"/>
+        </VBox>
+    </HBox>
 
-    <VBox spacing="10" HBox.hgrow="ALWAYS">
-        <HBox styleClass="header" alignment="CENTER_LEFT">
-            <padding>
-                <Insets top="15" right="20" bottom="15" left="20"/>
-            </padding>
-            <VBox>
-                <Label text="Gestion des Salles" styleClass="title"/>
-                <Label text="Gérez vos salles et leurs caractéristiques" styleClass="subtitle"/>
-            </VBox>
-            <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="10">
-                <TextField fx:id="searchField" promptText="Rechercher un lieu..." styleClass="search-input"/>
-                <Button text="Ajouter Lieu" onAction="#goToAjouterLieu" styleClass="primary-button"/>
-                <ComboBox fx:id="categoryFilter" promptText="Filtrer par catégorie"/>
-            </HBox>
-        </HBox>
+    <HBox spacing="10" alignment="CENTER" styleClass="search-bar"
+          style="-fx-background-radius: 15; -fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <TextField fx:id="searchField" promptText="Rechercher un lieu..." styleClass="search-input"/>
+        <ComboBox fx:id="categoryFilter" promptText="Filtrer par catégorie" styleClass="modern-combo-box"/>
+        <Button text="Ajouter Lieu" onAction="#goToAjouterLieu" styleClass="primary-button"/>
+    </HBox>
 
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="nav-buttons">
-            <padding>
-                <Insets left="20" right="20"/>
-            </padding>
-            <Button text="Gestion des Catégories" onAction="#goToGestionCategories" styleClass="nav-button"/>
-            <Button text="Gestion des Réservations" onAction="#goToGestionReservations" styleClass="nav-button"/>
-            <Button text="Gestion des Photos" onAction="#goToGestionPhotos" styleClass="nav-button"/>
-        </HBox>
+    <HBox spacing="10" alignment="CENTER" styleClass="nav-buttons"
+          style="-fx-background-radius: 15; -fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <Button text="Gestion des Catégories" onAction="#goToGestionCategories" styleClass="nav-button"/>
+        <Button text="Gestion des Réservations" onAction="#goToGestionReservations" styleClass="nav-button"/>
+        <Button text="Gestion des Photos" onAction="#goToGestionPhotos" styleClass="nav-button"/>
+        <Button text="Statistiques" onAction="#goToStatistiques" styleClass="nav-button"/>
+    </HBox>
 
-        <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="content-area">
-            <VBox spacing="15" alignment="CENTER">
-                <GridPane fx:id="lieuxGrid"
-                          vgap="15"
-                          hgap="15"
-                          alignment="CENTER"
-                          styleClass="lieux-grid">
-                    <padding>
-                        <Insets top="15" right="15" bottom="15" left="15"/>
-                    </padding>
-                </GridPane>
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox spacing="20">
+            <GridPane fx:id="lieuxGrid" 
+                     hgap="20" 
+                     vgap="20"
+                     alignment="CENTER"
+                     styleClass="lieux-grid">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+            </GridPane>
 
-                <Pagination fx:id="pagination"
-                            styleClass="custom-pagination"
-                            maxPageIndicatorCount="5"/>
-            </VBox>
-        </ScrollPane>
-    </VBox>
-</HBox>
+            <Pagination fx:id="pagination"
+                       styleClass="custom-pagination"
+                       maxPageIndicatorCount="5"/>
+        </VBox>
+    </ScrollPane>
+</VBox>

@@ -81,11 +81,6 @@ public class Lieu {
 
     @Override
     public String toString() {
-        return "Lieu{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                // ... autres champs ...
-                ", image='" + image + '\'' +
-                '}';
+        return "Lieu{id=" + id + ", nom='" + nom + "', ville='" + ville + "', capacite=" + capacite + ", prix=" + prix + "}";
     }
 }

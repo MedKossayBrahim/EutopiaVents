@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+
 public class LieuController {
 
     @FXML private TextField tfNom;
@@ -56,7 +58,7 @@ public class LieuController {
     private static final String IMAGE_URL_PREFIX = "http://localhost/images/";
 
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
         lieuService = new LieuServiceImpl();
         categorieService = new CategorieServiceImpl();
         photoLieuService = new PhotoLieuServiceImpl();

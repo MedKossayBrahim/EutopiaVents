@@ -11,6 +11,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.text.Text;
+import javafx.scene.layout.Region;
+
+import java.sql.SQLException;
 
 public class AjouterCategorie {
 
@@ -29,7 +33,7 @@ public class AjouterCategorie {
     private ObservableList<categorie_salle> categoriesList;
 
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
         // Initialisation du service
         categorieService = new CategorieServiceImpl();
 
@@ -39,8 +43,49 @@ public class AjouterCategorie {
 
         // Rendre la TableView éditable pour l'édition directe
         categoriesTable.setEditable(true);
-        nomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        descriptionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nomColumn.setCellFactory(tc -> {
+            TableCell<categorie_salle, String> cell = new TableCell<>() {
+                private Text text = new Text();
+                
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                    } else {
+                        text.setText(item);
+                        text.setWrappingWidth(tc.getWidth() - 10);
+                        setGraphic(text);
+                    }
+                }
+            };
+            return cell;
+        });
+
+        descriptionColumn.setCellFactory(tc -> {
+            TableCell<categorie_salle, String> cell = new TableCell<>() {
+                private Text text = new Text();
+                
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                    } else {
+                        text.setText(item);
+                        text.setWrappingWidth(tc.getWidth() - 10);
+                        setGraphic(text);
+                    }
+                }
+            };
+            return cell;
+        });
+
+        // Make sure columns resize with the table
+        categoriesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        // Allow rows to grow as needed
+        categoriesTable.setFixedCellSize(Region.USE_COMPUTED_SIZE);
 
         // Gestion de l'édition sur la colonne "nom"
         nomColumn.setOnEditCommit(event -> {

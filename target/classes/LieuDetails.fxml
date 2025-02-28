@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.LieuDetailsController"
+      spacing="20" alignment="CENTER"
+      style="-fx-background-color: white; -fx-padding: 20;"
+      stylesheets="@/styles/lieu-details.css">
+
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <ImageView fx:id="imageView" fitWidth="300" fitHeight="200" preserveRatio="true" styleClass="image-view"/>
+        
+        <VBox spacing="10">
+            <Label fx:id="nomLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label fx:id="categorieLabel" style="-fx-font-size: 16px; -fx-text-fill: #666;"/>
+            <Label fx:id="prixLabel" style="-fx-font-size: 18px; -fx-text-fill: #f5945c; -fx-font-weight: bold;"/>
+            <Label fx:id="capaciteLabel" style="-fx-font-size: 14px;"/>
+        </VBox>
+    </HBox>
+    
+    <VBox spacing="10" style="-fx-padding: 20 0;">
+        <Label text="Location Details" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label fx:id="adresseLabel" style="-fx-font-size: 14px;"/>
+        <HBox spacing="10">
+            <Label fx:id="villeLabel" style="-fx-font-size: 14px;"/>
+            <Label fx:id="codePostalLabel" style="-fx-font-size: 14px;"/>
+        </HBox>
+        
+        <VBox alignment="CENTER" style="-fx-padding: 20 0;">
+            <Canvas fx:id="mapCanvas" width="400" height="300"/>
+            <Button fx:id="directionsButton" 
+                    text="Show Directions" 
+                    onAction="#handleGetDirections"
+                    style="-fx-background-color: #f5945c;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-padding: 10 20;
+                           -fx-background-radius: 20;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);
+                           -fx-margin: 15 0 0 0;">
+                <VBox.margin>
+                    <Insets top="10"/>
+                </VBox.margin>
+            </Button>
+            
+            <!-- Hidden WebView for geolocation -->
+            <WebView fx:id="hiddenWebView" visible="false" managed="false" prefHeight="1" prefWidth="1"/>
+        </VBox>
+    </VBox>
+
+    <HBox alignment="CENTER" spacing="10">
+        <Button text="Fermer" onAction="#handleClose" prefWidth="120"/>
+    </HBox>
+</VBox>

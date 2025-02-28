@@ -11,6 +11,9 @@ import java.util.List;
 public class LieuServiceImpl implements IService<Lieu>{
     private Connection connection = DataSource.getInstance().getConnection();
 
+    public LieuServiceImpl() throws SQLException {
+    }
+
     @Override
     public void ajouter(Lieu lieu) {
         // Remplacer categorie_id par categorie_salle_id dans la requête

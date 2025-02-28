@@ -1,0 +1,127 @@
+* [33m23acdc6[m[33m ([m[1;36mHEAD -> [m[1;32mtest[m[33m)[m stats
+*   [33m3392433[m[33m ([m[1;31morigin/test[m[33m)[m essaie du map
+[32m|[m[33m\[m  
+[32m|[m * [33m241bec9[m adjusted the navbar styling and navigation
+[32m|[m * [33mc192eee[m map finally works as intended in lieudetails.fxml azure API
+[32m|[m * [33mcdb987e[m adjusted post-view.fxml styling
+[32m|[m * [33m3a86508[m restyled some stuff for the post view fxml, made the category selection role based in the post creation and added an autocmplete suggestiooooon functionality to the postview page
+[32m|[m * [33m94916b0[m dependencies commit
+[32m|[m * [33m5f944d8[m fixed some issues in the reservations
+[32m|[m * [33mf3c8e8f[m integration du reservation individuelle
+[32m|[m * [33m8d68c7b[m adjusted the profanity filter to understand the AI generated response and still filters bad words if the user adds them to the AI generated post in order to bypass the system
+[32m|[m * [33m7417a0a[m user can generate post content through the AI assistant
+* [33m|[m [33m8719533[m essaie du map
+[33m|[m[33m/[m  
+*   [33ma138ac0[m ajout du details lieu
+[34m|[m[35m\[m  
+[34m|[m * [33mf4ec57b[m khedmet raef matemchich reservation materiel
+[34m|[m * [33m99f1eb4[m youssef:modification reservation service
+* [35m|[m [33m0162a13[m ajout du details lieu
+[35m|[m[35m/[m  
+* [33mcb2e8b1[m[33m ([m[1;31morigin/preMain[m[33m)[m adjusted styling and image retrieving for the store module
+* [33m7bd8be8[m styling adjustments and new css file added
+* [33mbbe4269[m adjusted the button visibility for the GestionDesLieux main page
+* [33m90a2e00[m ajuster la visibilite des buttons
+* [33m5296ffe[m adjusted stylig for navbar.fxml"
+* [33m1e3c47a[m updated controllers for the gestion materiels, updated the services for gestion materiels and updated views for gestion materiels
+* [33me7de2be[m deleted unnecessary files
+* [33m36750dc[m updated the navbar controller and the welcoming message for the blog
+* [33m0695bb9[m Gestion des lieux controllers updated, Gestion des lieux services updated and gestion des lieux Views updated
+* [33m6bd4c12[m adjusted the navbar styling in events-view and category addiing page for events
+* [33mc3535dc[m ajout khedmet raef
+*   [33m1d6ead8[m Merged remote changes and resolved conflicts
+[36m|[m[1;31m\[m  
+[36m|[m * [33mba72bc3[m added a profanity filtering system to both posts and comments
+[36m|[m * [33m6106f7b[m added a chatbot to the main forum page
+* [1;31m|[m [33mcfe0c24[m Merged origin/test and resolved conflict in inputFiles.lst
+* [1;31m|[m [33m02f65b9[m controle de saisie
+[1;31m|[m[1;31m/[m  
+* [33m7caa677[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m styling redone
+* [33m89c28e9[m final
+* [33m995eb35[m styling redone
+* [33m2701df8[m new full DB
+* [33m42f9a6f[m everything works
+* [33m35ee843[m all modules work
+* [33m32844b7[m fixed something in the content
+* [33m238592f[m login styled
+* [33m421327e[m main events page styled
+* [33mf03cc35[m readjusted some stuff
+* [33m6ff3a30[m gestion materiel styled
+* [33m3444e9c[m gestion lieux styled
+* [33ma577c66[m Forum works with user Id in mind
+* [33m945186c[m Login+Materiel+Lieux+Event+Forum integrés
+* [33ma54a614[m login+materiels+event+forum working
+* [33m0613525[m login+materiels+event+forum working
+* [33m807b4e3[m talel+raef+youssef crud and interfaces work
+* [33m5e8cc6e[m adjusted some javafx version issues
+* [33meefbe82[m talel + youssef crud and gui
+* [33mfcc329d[m[33m ([m[1;31morigin/talel[m[33m)[m adjusted AllPostsController
+* [33m7b63e1c[m ressources and views adjsuted
+* [33m5e66b65[m Main app adjsuted
+* [33m9b6f7bb[m All controllers done
+* [33m102c5dd[m updated controllers and interfaces
+* [33m2ef30f4[m all interfaces should be working fine and crud works now through them as does the navigation
+* [33m6114665[m added needed dependencies for forum
+* [33m6b3a4dc[m added the all posts page and a service that will be needed later
+* [33m739699e[m made the needed view for forum
+* [33m43f87a4[m adjusted services
+* [33m0323678[m modified models
+* [33m5f69fc8[m added controllers for forum module
+[1;31m|[m * [33m658eefe[m[33m ([m[1;31morigin/youssef[m[33m)[m ajouter les fichers de reservation du materiel par un utilisateuer
+[1;31m|[m * [33maea9326[m suppression de main .fxml et la page d acceuil devienne la liste des MaterielGridView.fxml
+[1;31m|[m * [33mbaf2a30[m suppression de main .fxml et la page d acceuil devienne la liste des MaterielGridView.fxml
+[1;31m|[m * [33m15cf0a7[m ajout de  la page des statistiques
+[1;31m|[m * [33ma35932f[m amelioration de l interfaces MaterielGridView.fxml et la pagination
+[1;31m|[m * [33m3af973b[m ajouter des boutton de navigation dans la liste des materiel gridview vers liste materiel pour admin et aussi pour liste categorie
+[1;31m|[m * [33m2612776[m upload des images et les stocker sous htdocs
+[1;31m|[m * [33m773af45[m supression des interfaces des modification
+[1;31m|[m * [33m9ca77e8[m ajout des zone de recherche dans les liste avec filtre
+[1;31m|[m * [33mee44f72[m fixer la gridview avec pagination
+[1;31m|[m * [33mce9b2ee[m ajout de la page affichmateriel pour les ustilisateur dans un gridview
+[1;31m|[m * [33me7da716[m ajout de la page affichmateriel pour les ustilisateur dans un gridview
+[1;31m|[m * [33m2d7e9cc[m ajout de la page affichmateriel pour les ustilisateur dans un gridview
+[1;31m|[m * [33me6337a6[m some checks
+[1;31m|[m * [33m390196b[m interfacesMaJ+controle saisie
+[1;31m|[m * [33m64cd07e[m interfacesMaJ+cellule editable all interfaces
+[1;31m|[m * [33mb562e1e[m interfacesMaJ+cellule editable
+[1;31m|[m * [33m10b6949[m interfacesMaJ
+[1;31m|[m * [33meb93edf[m interfaceMaJ
+[1;31m|[m * [33m3b93dcc[m interface
+[1;31m|[m * [33m3f3b897[m interface
+[1;31m|[m * [33m08c997e[m interface
+[1;31m|[m * [33m88c05d2[m[33m ([m[1;31morigin/chahnez[m[33m, [m[1;32mchahnez[m[33m)[m rectification des fxml
+[1;31m|[m * [33m32a45fd[m test
+[1;31m|[m * [33m9737b10[m ajout du filre par categories  au niveau du main menu
+[1;31m|[m * [33m249bef3[m ajout du main MenuController
+[1;31m|[m * [33mb56665a[m modif logique de gestion des photos
+[1;31m|[m * [33m760dc32[m final
+[1;31m|[m * [33m9db4fc9[m navigation
+[1;31m|[m * [33mef1e3ae[m interface photoview
+[1;31m|[m * [33m3f820a6[m ajout interface reservation
+[1;31m|[m * [33m8e6656d[m categorie et lieux
+[1;31m|[m * [33m8887746[m module lieu commit
+[1;31m|[m [1;33m|[m * [33m2c21a7f[m[33m ([m[1;31morigin/eya[m[33m)[m affichage
+[1;31m|[m [1;33m|[m[1;33m/[m  
+[1;31m|[m * [33mfc64b52[m module store commit
+[1;31m|[m[1;31m/[m  
+[1;31m|[m * [33m6749c48[m[33m ([m[1;31morigin/Raef[m[33m)[m l'ajout d'un filtre et barre de recherche pour les evenements
+[1;31m|[m * [33m0c8237f[m ajout de fxml file de modifcation d'event + son controller
+[1;31m|[m * [33m2b9084e[m ajout des fichier FXML et controllers pour : reservations billet, lieu et matriel pour un event specifique + fichier fxml pour affichage des events et les details d'un event
+[1;31m|[m * [33mbd4dbd6[m ajout des fichier FXML et controllers pour : categorie event,gerrer event, panier,ajouter event
+[1;31m|[m * [33me1399d8[m Module events
+[1;31m|[m * [33mfd210cd[m Module events
+[1;31m|[m * [33m762f817[m module events
+[1;31m|[m [1;35m|[m * [33m0057478[m[33m ([m[1;31morigin/kossay[m[33m)[m session user
+[1;31m|[m [1;35m|[m * [33m32ea847[m otp working
+[1;31m|[m [1;35m|[m [1;36m|[m * [33m351b0a7[m[33m ([m[1;32mmain[m[33m)[m Merge branch 'talel'
+[1;31m|[m [1;35m|[m [1;36m|[m[1;35m/[m[1;31m|[m 
+[1;31m|[m [1;35m|[m[1;35m/[m[1;36m|[m[1;31m/[m  
+[1;31m|[m [1;35m|[m[1;31m/[m[1;36m|[m   
+[1;31m|[m[1;31m/[m[1;35m|[m [1;36m|[m   
+* [1;35m|[m [1;36m|[m [33m1ccbd16[m module forum commit
+[1;36m|[m [1;35m|[m[1;36m/[m  
+[1;36m|[m[1;36m/[m[1;35m|[m   
+* [1;35m|[m [33m0f455f6[m commit kossay
+[1;35m|[m[1;35m/[m  
+* [33m1ca123c[m ahhhhhhhhh
+* [33m6ef5ff8[m first commit

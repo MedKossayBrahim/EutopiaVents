@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+
 public class photo {
 
     @FXML private FlowPane flowPanePhotos;
@@ -40,6 +42,9 @@ public class photo {
     private static final String XAMPP_UPLOAD_DIR = "C:\\xampp\\htdocs\\images\\";
     private static final String UPLOAD_DIR = getUploadDir();
     private static final String IMAGE_URL_PREFIX = "http://localhost/images/";
+
+    public photo() throws SQLException {
+    }
 
     @FXML
     public void initialize() {
