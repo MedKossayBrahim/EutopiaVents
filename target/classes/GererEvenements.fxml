@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane fx:id="rootPane"
+            xmlns="http://javafx.com/javafx/11"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.esprit.controllers.GererEvenementsController"
+            style="-fx-background-color: #faf6f3;">
+
+    <left>
+        <VBox style="-fx-background-color: #faf6f3; -fx-border-color: transparent #dedad7 transparent transparent; -fx-border-width: 0 1px 0 0;"
+              BorderPane.alignment="TOP_LEFT"
+              VBox.vgrow="ALWAYS">
+            <fx:include source="Navbar.fxml"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            <Label text="Gérer Événements" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+            <!-- Barre de navigation en haut -->
+            <VBox fx:id="navigationBox" alignment="CENTER"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 20px;
+                         -fx-padding: 20px;
+                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);">
+                <HBox spacing="20" alignment="CENTER">
+                    <Button fx:id="btnAjouterCateg" text="Ajouter Catégorie"
+                            onAction="#goToAjouterCateg"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnAjouterEvenement" text="Ajouter Événement"
+                            onAction="#goToAjouterEvenement"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnModifierEvenement" text="Modifier Événement"
+                            onAction="#goToModifierEvenement"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+
+                    <Button fx:id="btnGererEvenements" text="Gérer Événements"
+                            onAction="#goToGererEvenements"
+                            style="-fx-background-color: #b0a8a0; -fx-text-fill: white;
+                                   -fx-background-radius: 8px; -fx-padding: 12px 24px;
+                                   -fx-font-size: 14px; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 2);"/>
+                </HBox>
+            </VBox>
+
+            <!-- Table avec style moderne -->
+            <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 0);">
+                <TableView fx:id="eventTable" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="titreColumn" text="Titre" style="-fx-alignment: CENTER-LEFT;"/>
+                        <TableColumn fx:id="descriptionColumn" text="Description" style="-fx-alignment: CENTER-LEFT;"/>
+                        <TableColumn fx:id="dateDebutColumn" text="Date Début" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="dateFinColumn" text="Date Fin" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="capaciteColumn" text="Capacité" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="categorieIdColumn" text="Catégorie" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="lieuColumn" text="Lieu" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="organisateurColumn" text="Organisateur" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="prixColumn" text="Prix" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="statutColumn" text="Statut" style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="actionsColumn" text="Actions" style="-fx-alignment: CENTER;"/>
+                    </columns>
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

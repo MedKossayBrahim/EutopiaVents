@@ -276,4 +276,103 @@ public class EvenementService implements IService<Evenement> {
         return evenements;
     }
 
+    public List<Evenement> rechercherEvenementsPasses() {
+        List<Evenement> evenementsPasses = new ArrayList<>();
+        
+        // Get current date in SQL format
+        String currentDate = java.time.LocalDate.now().toString();
+        
+        String req = "SELECT e.*, " +
+                "u.userName AS organisateur_nom, " +
+                "c.nom AS categorie_nom, " +
+                "l.nom AS lieu_nom " +
+                "FROM events e " +
+                "LEFT JOIN users u ON e.organisateur_id = u.userID " +
+                "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
+                "LEFT JOIN lieu l ON e.lieu_id = l.id " +
+                "WHERE e.date_fin < ? AND e.statut = 'acceptée'";
+
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setString(1, currentDate);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Evenement evt = new Evenement(
+                            rs.getInt("id"),
+                            rs.getString("titre"),
+                            rs.getString("description"),
+                            rs.getString("date_debut"),
+                            rs.getString("date_fin"),
+                            rs.getInt("capacite"),
+                            rs.getInt("categorie_id"),
+                            rs.getInt("lieu_id"),
+                            rs.getInt("organisateur_id"),
+                            rs.getDouble("prix"),
+                            rs.getString("statut"),
+                            rs.getString("lieu_proprietaire"),
+                            rs.getString("image")
+                    );
+                    evt.setOrganisateurNom(rs.getString("organisateur_nom"));
+                    evt.setCategorieNom(rs.getString("categorie_nom"));
+                    evt.setLieuNom(rs.getString("lieu_nom"));
+                    evenementsPasses.add(evt);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des événements passés: " + e.getMessage());
+        }
+        return evenementsPasses;
+    }
+    
+    public List<Evenement> rechercherEvenementsPassesParUtilisateur(int utilisateurId) {
+        List<Evenement> evenementsPasses = new ArrayList<>();
+        
+        // Get current date in SQL format
+        String currentDate = java.time.LocalDate.now().toString();
+        
+        String req = "SELECT DISTINCT e.*, " +
+                "u.userName AS organisateur_nom, " +
+                "c.nom AS categorie_nom, " +
+                "l.nom AS lieu_nom " +
+                "FROM events e " +
+                "JOIN reservations r ON e.id = r.evenement_id " +
+                "LEFT JOIN users u ON e.organisateur_id = u.userID " +
+                "LEFT JOIN categoriesevent c ON e.categorie_id = c.id " +
+                "LEFT JOIN lieu l ON e.lieu_id = l.id " +
+                "WHERE e.date_fin < ? " +
+                "AND e.statut = 'acceptée' " +
+                "AND r.utilisateur_id = ? " +
+                "AND r.statut = 'confirmé'";
+
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setString(1, currentDate);
+            pst.setInt(2, utilisateurId);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Evenement evt = new Evenement(
+                            rs.getInt("id"),
+                            rs.getString("titre"),
+                            rs.getString("description"),
+                            rs.getString("date_debut"),
+                            rs.getString("date_fin"),
+                            rs.getInt("capacite"),
+                            rs.getInt("categorie_id"),
+                            rs.getInt("lieu_id"),
+                            rs.getInt("organisateur_id"),
+                            rs.getDouble("prix"),
+                            rs.getString("statut"),
+                            rs.getString("lieu_proprietaire"),
+                            rs.getString("image")
+                    );
+                    evt.setOrganisateurNom(rs.getString("organisateur_nom"));
+                    evt.setCategorieNom(rs.getString("categorie_nom"));
+                    evt.setLieuNom(rs.getString("lieu_nom"));
+                    evenementsPasses.add(evt);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des événements passés par utilisateur: " + e.getMessage());
+        }
+        return evenementsPasses;
+    }
+
 }

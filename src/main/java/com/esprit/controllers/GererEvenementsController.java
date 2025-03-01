@@ -27,10 +27,9 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import com.esprit.utils.DataSource;
+
 public class GererEvenementsController implements Initializable {
     private Connection connection;
     @FXML private TableView<Evenement> eventTable;
@@ -45,25 +44,16 @@ public class GererEvenementsController implements Initializable {
     @FXML private TableColumn<Evenement, Double> prixColumn;
     @FXML private TableColumn<Evenement, String> statutColumn;
     @FXML private TableColumn<Evenement, Void> actionsColumn;
-    @FXML
-    private Button btnAjouterCateg;
-    @FXML
-    private Button btnAjouterEvenement;
-    @FXML
-    private Button btnModifierEvenement;
-    @FXML
-    private Button btnGererEvenements;
+    @FXML private Button btnAjouterCateg;
+    @FXML private Button btnAjouterEvenement;
+    @FXML private Button btnModifierEvenement;
+    @FXML private Button btnGererEvenements;
+    @FXML private BorderPane rootPane;
 
     private final EvenementService evenementService = new EvenementService();
     private final ReservationService reservationMaterielService = new ReservationService();
     private final ReservationServiceImpl reservationLieuService = new ReservationServiceImpl();
 
-
-
-
-
-    @FXML
-    private BorderPane rootPane;
     @FXML
     private void goToAjouterCateg() {
         loadPage("/AjouterCateg.fxml");
@@ -99,59 +89,41 @@ public class GererEvenementsController implements Initializable {
         }
     }
 
-
-
-
-
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupColumns();
         loadEvents();
+        configureButtonsBasedOnUserRole();
+    }
+    
+    private void configureButtonsBasedOnUserRole() {
         User currentUser = Eutopia.getCurrentUser();
-        if (currentUser != null) {
-            // Vérifier le type de service en fonction du rôle de l'utilisateur
-            switch (currentUser.getRole()) {
-                case Admin:
-                    // Admin peut voir tous les boutons
-                    break;
-
-                case Organisateur:
-                    // Organisateur peut voir tous les boutons sauf GererEvenements et AjouterCateg
-                    btnAjouterCateg.setVisible(false);
-                    btnAjouterCateg.setManaged(false);
-                    btnGererEvenements.setVisible(false);
-                    btnGererEvenements.setManaged(false);
-                    break;
-
-                case Participant:
-                    // Participant ne peut voir aucun bouton de gestion
-                    btnAjouterCateg.setVisible(false);
-                    btnAjouterCateg.setManaged(false);
-                    btnAjouterEvenement.setVisible(false);
-                    btnAjouterEvenement.setManaged(false);
-                    btnModifierEvenement.setVisible(false);
-                    btnModifierEvenement.setManaged(false);
-                    btnGererEvenements.setVisible(false);
-                    btnGererEvenements.setManaged(false);
-                    break;
-
-                default:
-                    // Par défaut, cacher tous les boutons de gestion
-                    btnAjouterCateg.setVisible(false);
-                    btnAjouterCateg.setManaged(false);
-                    btnAjouterEvenement.setVisible(false);
-                    btnAjouterEvenement.setManaged(false);
-                    btnModifierEvenement.setVisible(false);
-                    btnModifierEvenement.setManaged(false);
-                    btnGererEvenements.setVisible(false);
-                    btnGererEvenements.setManaged(false);
-                    break;
-            }
+        if (currentUser == null) return;
+        
+        switch (currentUser.getRole()) {
+            case Admin:
+                // Admin peut voir tous les boutons
+                break;
+            case Organisateur:
+                // Masquer certains boutons
+                btnAjouterCateg.setVisible(false);
+                btnAjouterCateg.setManaged(false);
+                btnGererEvenements.setVisible(false);
+                btnGererEvenements.setManaged(false);
+                break;
+            default:
+                // Masquer tous les boutons
+                btnAjouterCateg.setVisible(false);
+                btnAjouterCateg.setManaged(false);
+                btnAjouterEvenement.setVisible(false);
+                btnAjouterEvenement.setManaged(false);
+                btnModifierEvenement.setVisible(false);
+                btnModifierEvenement.setManaged(false);
+                btnGererEvenements.setVisible(false);
+                btnGererEvenements.setManaged(false);
+                break;
         }
     }
-
-
 
     private void setupColumns() {
         titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
@@ -179,15 +151,8 @@ public class GererEvenementsController implements Initializable {
                 private final HBox buttonBox = new HBox(5, acceptButton, refuserButton);
 
                 {
-                    acceptButton.setOnAction(event -> {
-                        Evenement evenement = getTableView().getItems().get(getIndex());
-                        handleAccept(evenement);
-                    });
-
-                    refuserButton.setOnAction(event -> {
-                        Evenement evenement = getTableView().getItems().get(getIndex());
-                        handleRefuse(evenement);
-                    });
+                    acceptButton.setOnAction(event -> handleAccept(getTableView().getItems().get(getIndex())));
+                    refuserButton.setOnAction(event -> handleRefuse(getTableView().getItems().get(getIndex())));
                 }
 
                 @Override
@@ -197,11 +162,7 @@ public class GererEvenementsController implements Initializable {
                         setGraphic(null);
                     } else {
                         Evenement evenement = getTableView().getItems().get(getIndex());
-                        if ("en attente".equals(evenement.getStatut())) {
-                            setGraphic(buttonBox);
-                        } else {
-                            setGraphic(null);
-                        }
+                        setGraphic("en attente".equals(evenement.getStatut()) ? buttonBox : null);
                     }
                 }
             };
@@ -233,104 +194,100 @@ public class GererEvenementsController implements Initializable {
         if (result.isPresent() && result.get() == confirmButton) {
             // Si l'utilisateur confirme, procéder à l'acceptation
             try {
-                // Si l'événement utilise un lieu existant (lieuId > 0), créer une réservation pour ce lieu
+                // Créer une réservation pour le lieu si nécessaire
                 if (evenement.getLieuId() > 0) {
-                    // Convertir les dates en LocalDateTime
                     LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
                     LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
 
                     reservation1 reservationLieu = new reservation1(
-                            0, // id sera généré
-                            evenement.getLieuId(),
-                            evenement.getId(),
-                            dateDebut,
-                            dateFin
-                    );
-
+                            0, evenement.getLieuId(), evenement.getId(), dateDebut, dateFin);
                     reservationLieuService.ajouter(reservationLieu);
                 }
 
-                // Initialiser la connexion
-                this.connection = DataSource.getInstance().getConnection();
-
-                // Créer des réservations pour chaque matériel
-                String req = "SELECT em.materiel_id, em.quantite, m.prix " +
-                        "FROM event_materiel em " +
-                        "JOIN materiel m ON em.materiel_id = m.id " +
-                        "WHERE em.evenement_id = ?";
-
-                try (PreparedStatement pst = connection.prepareStatement(req)) {
-                    pst.setInt(1, evenement.getId());
-                    ResultSet rs = pst.executeQuery();
-
-                    ReservationService reservationMaterielService = new ReservationService();
-                    while (rs.next()) {
-                        int materielId = rs.getInt("materiel_id");
-                        int quantite = rs.getInt("quantite");
-                        double prix = rs.getDouble("prix");
-
-                        Reservation reservationMateriel = new Reservation(
-                                evenement.getId(),
-                                materielId,
-                                quantite,
-                                prix * quantite,
-                                java.sql.Date.valueOf(evenement.getDateDebut().split(" ")[0]),
-                                java.sql.Date.valueOf(evenement.getDateFin().split(" ")[0])
-                        );
-                        reservationMaterielService.ajouter(reservationMateriel);
-                    }
-                }
+                // Créer des réservations pour les matériels
+                createMaterialReservations(evenement);
 
                 // Mettre à jour le statut de l'événement
                 evenement.setStatut("acceptée");
                 evenementService.modifier(evenement);
-
-                // Rafraîchir la table
                 loadEvents();
 
-                // Afficher un message de succès
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Succès");
-                successAlert.setContentText("Événement accepté avec succès. Les réservations ont été créées.");
-                successAlert.showAndWait();
-
+                showInfoDialog("Succès", "Événement accepté avec succès. Les réservations ont été créées.");
             } catch (Exception e) {
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Erreur");
-                errorAlert.setContentText("Erreur lors de l'acceptation de l'événement: " + e.getMessage());
-                errorAlert.showAndWait();
-                e.printStackTrace(); // Pour avoir plus de détails sur l'erreur dans la console
+                showErrorDialog("Erreur lors de l'acceptation de l'événement: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void createMaterialReservations(Evenement evenement) throws Exception {
+        this.connection = DataSource.getInstance().getConnection();
+        String req = "SELECT em.materiel_id, em.quantite, m.prix " +
+                    "FROM event_materiel em " +
+                    "JOIN materiel m ON em.materiel_id = m.id " +
+                    "WHERE em.evenement_id = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setInt(1, evenement.getId());
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                int materielId = rs.getInt("materiel_id");
+                int quantite = rs.getInt("quantite");
+                double prix = rs.getDouble("prix");
+
+                Reservation reservationMateriel = new Reservation(
+                        evenement.getId(),
+                        materielId,
+                        quantite,
+                        prix * quantite,
+                        java.sql.Date.valueOf(evenement.getDateDebut().split(" ")[0]),
+                        java.sql.Date.valueOf(evenement.getDateFin().split(" ")[0])
+                );
+                reservationMaterielService.ajouter(reservationMateriel);
             }
         }
     }
 
     private void handleRefuse(Evenement evenement) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Confirmer le refus de l'événement");
-        alert.setContentText("Êtes-vous sûr de vouloir refuser cet événement ?");
-
-        // Ajout des boutons "Confirmer" et "Annuler"
-        ButtonType confirmButton = new ButtonType("Confirmer");
-        ButtonType cancelButton = new ButtonType("Annuler");
-        alert.getButtonTypes().setAll(confirmButton, cancelButton);
-
-        // Afficher l'alerte et attendre la réponse de l'utilisateur
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == confirmButton) {
-            // Si l'utilisateur confirme, procéder au refus
+        if (showConfirmationDialog("Confirmer le refus de l'événement", 
+                                  "Êtes-vous sûr de vouloir refuser cet événement ?")) {
             evenement.setStatut("refusée");
             evenementService.modifier(evenement);
             loadEvents();
-
-            // Afficher un message de succès
-            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-            successAlert.setTitle("Succès");
-            successAlert.setContentText("Événement refusé avec succès.");
-            successAlert.showAndWait();
+            showInfoDialog("Succès", "Événement refusé avec succès.");
         }
     }
-
+    
+    private boolean showConfirmationDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        
+        ButtonType confirmButton = new ButtonType("Confirmer");
+        ButtonType cancelButton = new ButtonType("Annuler");
+        alert.getButtonTypes().setAll(confirmButton, cancelButton);
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == confirmButton;
+    }
+    
+    private void showInfoDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    private void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     public void refreshTable() {
         loadEvents();
