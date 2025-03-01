@@ -1,14 +1,11 @@
 package com.esprit.controllers;
 
-import com.esprit.models.Evenement;
-import com.esprit.models.Materiel;
-import com.esprit.models.MaterielSelection;
-import com.esprit.models.CategoriesEvent;
-import com.esprit.models.Lieu;
+import com.esprit.models.*;
 import com.esprit.services.EvenementService;
 import com.esprit.services.MaterielService;
 import com.esprit.services.CategoriesEventService;
 import com.esprit.services.LieuServiceImpl;
+import com.esprit.tests.Eutopia;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,7 +51,6 @@ public class AjouterEvenementController implements Initializable {
     @FXML private ComboBox<CategoriesEvent> categorieComboBox;
     @FXML private ComboBox<Lieu> lieuComboBox;
     @FXML private TextField lieuProprietaireField;
-    @FXML private TextField organisateurIdField;
     @FXML private TextField prixField;
 
     @FXML private RadioButton lieuExistantRadio;
@@ -79,6 +75,15 @@ public class AjouterEvenementController implements Initializable {
     private final LieuServiceImpl lieuService = new LieuServiceImpl();
     private final ObservableList<MaterielSelection> materielSelections = FXCollections.observableArrayList();
 
+
+    @FXML
+    private Button btnAjouterCateg;
+    @FXML
+    private Button btnAjouterEvenement;
+    @FXML
+    private Button btnModifierEvenement;
+    @FXML
+    private Button btnGererEvenements;
     @FXML
     private BorderPane rootPane;
 
@@ -122,6 +127,48 @@ public class AjouterEvenementController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        User currentUser = Eutopia.getCurrentUser();
+        if (currentUser != null) {
+            // Vérifier le type de service en fonction du rôle de l'utilisateur
+            switch (currentUser.getRole()) {
+                case Admin:
+                    // Admin peut voir tous les boutons
+                    break;
+
+                case Organisateur:
+                    // Organisateur peut voir tous les boutons sauf GererEvenements et AjouterCateg
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                case Participant:
+                    // Participant ne peut voir aucun bouton de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                default:
+                    // Par défaut, cacher tous les boutons de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+            }
+        }
+
         setupComboBoxes();
         setupMaterielTable();
         setupLieuSelection();
@@ -334,14 +381,6 @@ public class AjouterEvenementController implements Initializable {
             errors.append("Veuillez indiquer le propriétaire du lieu personnalisé.\n");
         }
         try {
-            int organisateurId = Integer.parseInt(organisateurIdField.getText().trim());
-            if (organisateurId <= 0) {
-                errors.append("L'ID de l'organisateur doit être valide.\n");
-            }
-        } catch (NumberFormatException e) {
-            errors.append("L'ID de l'organisateur doit être un nombre valide.\n");
-        }
-        try {
             double prix = Double.parseDouble(prixField.getText().trim());
             if (prix < 0) {
                 errors.append("Le prix ne peut pas être négatif.\n");
@@ -360,7 +399,11 @@ public class AjouterEvenementController implements Initializable {
 
     @FXML
     private void handleAjouterEvenement() {
-        if (!validateFields()) return;
+        User currentUser = Eutopia.getCurrentUser();
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Vous devez être connecté pour créer un événement.");
+            return;
+        }
 
         try {
             int lieuId = 0;
@@ -394,7 +437,7 @@ public class AjouterEvenementController implements Initializable {
                     Integer.parseInt(capaciteField.getText()),
                     categorieComboBox.getValue().getId(),
                     lieuId,
-                    Integer.parseInt(organisateurIdField.getText()),
+                    currentUser.getUserID(),
                     Double.parseDouble(prixField.getText()),
                     "en attente",
                     lieuProprietaire,
@@ -415,8 +458,10 @@ public class AjouterEvenementController implements Initializable {
 
             clearFields();
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez vérifier les valeurs numériques (capacité, prix).");
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue lors de la création de l'événement: " + e.getMessage());
         }
     }
 
@@ -432,7 +477,6 @@ public class AjouterEvenementController implements Initializable {
         categorieComboBox.setValue(null);
         lieuComboBox.setValue(null);
         lieuProprietaireField.clear();
-        organisateurIdField.clear();
         prixField.clear();
 
         materielSelections.clear();

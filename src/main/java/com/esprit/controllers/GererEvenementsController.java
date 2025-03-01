@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.*;
 import com.esprit.services.EvenementService;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -44,6 +45,14 @@ public class GererEvenementsController implements Initializable {
     @FXML private TableColumn<Evenement, Double> prixColumn;
     @FXML private TableColumn<Evenement, String> statutColumn;
     @FXML private TableColumn<Evenement, Void> actionsColumn;
+    @FXML
+    private Button btnAjouterCateg;
+    @FXML
+    private Button btnAjouterEvenement;
+    @FXML
+    private Button btnModifierEvenement;
+    @FXML
+    private Button btnGererEvenements;
 
     private final EvenementService evenementService = new EvenementService();
     private final ReservationService reservationMaterielService = new ReservationService();
@@ -99,6 +108,47 @@ public class GererEvenementsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         setupColumns();
         loadEvents();
+        User currentUser = Eutopia.getCurrentUser();
+        if (currentUser != null) {
+            // Vérifier le type de service en fonction du rôle de l'utilisateur
+            switch (currentUser.getRole()) {
+                case Admin:
+                    // Admin peut voir tous les boutons
+                    break;
+
+                case Organisateur:
+                    // Organisateur peut voir tous les boutons sauf GererEvenements et AjouterCateg
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                case Participant:
+                    // Participant ne peut voir aucun bouton de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+
+                default:
+                    // Par défaut, cacher tous les boutons de gestion
+                    btnAjouterCateg.setVisible(false);
+                    btnAjouterCateg.setManaged(false);
+                    btnAjouterEvenement.setVisible(false);
+                    btnAjouterEvenement.setManaged(false);
+                    btnModifierEvenement.setVisible(false);
+                    btnModifierEvenement.setManaged(false);
+                    btnGererEvenements.setVisible(false);
+                    btnGererEvenements.setManaged(false);
+                    break;
+            }
+        }
     }
 
 

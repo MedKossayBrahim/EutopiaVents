@@ -107,6 +107,30 @@ public class ReservationsService {
         return reservations;
     }
 
+    // Nouvelle méthode pour récupérer les réservations d'un utilisateur spécifique
+    public List<Reservations> rechercherParUtilisateur(int userId) {
+        List<Reservations> reservations = new ArrayList<>();
+        String req = "SELECT * FROM Reservations WHERE utilisateur_id = ?";
+        try {
+            PreparedStatement pst = connection.prepareStatement(req);
+            pst.setInt(1, userId);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                reservations.add(new Reservations(
+                        rs.getInt("id"),
+                        rs.getInt("evenement_id"),
+                        rs.getInt("utilisateur_id"),
+                        rs.getInt("quantite"),
+                        rs.getDouble("prix_total"),
+                        rs.getString("statut")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération des réservations : " + e.getMessage());
+        }
+        return reservations;
+    }
+
     // Méthode pour confirmer l'achat
     public void confirmerAchat(int reservationId, int quantite) {
         // Récupérer la réservation
