@@ -89,4 +89,27 @@ public class UserService {
         }
     }
 
+    /**
+     * Récupère l'email et le nom complet d'un utilisateur par son ID
+     * 
+     * @param userId ID de l'utilisateur
+     * @return Un tableau contenant l'email et le nom complet de l'utilisateur, ou null si l'utilisateur n'existe pas
+     */
+    public String[] getUserEmailAndName(int userId) {
+        String req = "SELECT email, fullName FROM users WHERE userID = ?;";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    String email = rs.getString("email");
+                    String fullName = rs.getString("fullName");
+                    return new String[]{email, fullName};
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération de l'email de l'utilisateur: " + e.getMessage());
+        }
+        return null;
+    }
+
 }

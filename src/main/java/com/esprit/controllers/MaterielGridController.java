@@ -111,7 +111,7 @@ public class MaterielGridController {
             int aiRating = OpenAIUtil.analyzeMaterielReviews(reviews);
             
             // Créer le label pour la note IA
-            Label aiLabel = new Label("Note IA : ");
+            Label aiLabel = new Label("Rate : ");
             aiLabel.setStyle("-fx-font-size: 12px;");
             
             // Afficher les étoiles

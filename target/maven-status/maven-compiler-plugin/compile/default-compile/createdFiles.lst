@@ -6,11 +6,13 @@ com\esprit\controllers\SignUpView.class
 com\esprit\models\Role.class
 com\esprit\models\Participant.class
 com\esprit\controllers\FeedbackController$1.class
+com\esprit\services\EmailService.class
 com\esprit\services\OrganisateurService.class
 com\esprit\controllers\ReservationWindowController$3.class
 com\esprit\controllers\AjoutMaterielController$1.class
 com\esprit\controllers\StatistiqueController.class
 com\esprit\models\User.class
+com\esprit\services\EmailService$1.class
 com\esprit\controllers\MaterielGridController.class
 com\esprit\services\ParticipantService.class
 com\esprit\services\AdminService.class

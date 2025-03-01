@@ -27,6 +27,7 @@ public class Reservation {
 
     private java.sql.Timestamp convertToSqlTimestamp(java.util.Date date) {
         if (date != null) {
+            // Assurer que le timestamp inclut les heures, minutes et secondes
             return new java.sql.Timestamp(date.getTime());
         }
         return null;

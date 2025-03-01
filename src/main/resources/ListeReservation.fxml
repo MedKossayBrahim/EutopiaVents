@@ -13,8 +13,6 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Text text="Feedback" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
-
     <Label text="Liste des Réservations" style="-fx-font-size: 20px;"/>
 
     <!-- Zone de filtrage -->

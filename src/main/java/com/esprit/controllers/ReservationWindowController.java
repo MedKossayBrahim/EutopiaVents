@@ -17,6 +17,8 @@ import javafx.util.Callback;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import com.esprit.services.UserService;
+import com.esprit.services.EmailService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,13 +102,13 @@ public class ReservationWindowController {
 
         // Configuration des autres colonnes
         libelleColumn.setCellValueFactory(param ->
-            new SimpleStringProperty(param.getValue().getLibelle()));
+                new SimpleStringProperty(param.getValue().getLibelle()));
         descriptionColumn.setCellValueFactory(param ->
-            new SimpleStringProperty(param.getValue().getDescription()));
+                new SimpleStringProperty(param.getValue().getDescription()));
         prixColumn.setCellValueFactory(param ->
-            new SimpleStringProperty(param.getValue().getPrix() + " TND"));
+                new SimpleStringProperty(param.getValue().getPrix() + " TND"));
         stockColumn.setCellValueFactory(param ->
-            new SimpleStringProperty(String.valueOf(param.getValue().getQuantite())));
+                new SimpleStringProperty(String.valueOf(param.getValue().getQuantite())));
 
         // Correction de la configuration de la colonne quantité avec Spinner
         quantiteColumn.setCellFactory(column -> new TableCell<>() {
@@ -195,7 +197,7 @@ public class ReservationWindowController {
                 // Si la date de début est effacée, afficher une erreur
                 dateDebutPicker.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
                 showAlert(Alert.AlertType.WARNING, "Date requise",
-                         "La date de début est obligatoire.");
+                        "La date de début est obligatoire.");
                 dateDebutPicker.setValue(today); // Remettre la date du jour
                 return;
             }
@@ -204,7 +206,7 @@ public class ReservationWindowController {
 
             // Vérifier et ajuster la date de fin si nécessaire
             if (dateFinPicker.getValue() != null &&
-                dateFinPicker.getValue().compareTo(newVal) < 0) {
+                    dateFinPicker.getValue().compareTo(newVal) < 0) {
                 dateFinPicker.setValue(newVal);
             }
             updatePrixTotal();
@@ -216,7 +218,7 @@ public class ReservationWindowController {
                 // Si la date de fin est effacée, afficher une erreur
                 dateFinPicker.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
                 showAlert(Alert.AlertType.WARNING, "Date requise",
-                         "La date de fin est obligatoire.");
+                        "La date de fin est obligatoire.");
                 dateFinPicker.setValue(dateDebutPicker.getValue()); // Mettre la même date que le début
                 return;
             }
@@ -224,7 +226,7 @@ public class ReservationWindowController {
             if (newVal.isBefore(dateDebutPicker.getValue())) {
                 dateFinPicker.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
                 showAlert(Alert.AlertType.WARNING, "Date invalide",
-                         "La date de fin doit être égale ou postérieure à la date de début.");
+                        "La date de fin doit être égale ou postérieure à la date de début.");
                 dateFinPicker.setValue(dateDebutPicker.getValue());
                 return;
             }
@@ -241,8 +243,8 @@ public class ReservationWindowController {
         // Calculer le nombre de jours si les dates sont sélectionnées
         if (dateDebutPicker.getValue() != null && dateFinPicker.getValue() != null) {
             nombreJours = java.time.temporal.ChronoUnit.DAYS.between(
-                dateDebutPicker.getValue(),
-                dateFinPicker.getValue()
+                    dateDebutPicker.getValue(),
+                    dateFinPicker.getValue()
             ) + 1; // +1 pour inclure le jour de début
         }
 
@@ -267,14 +269,14 @@ public class ReservationWindowController {
         if (dateDebutPicker.getValue() == null) {
             dateDebutPicker.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             showAlert(Alert.AlertType.WARNING, "Date manquante",
-                     "Veuillez sélectionner une date de début.");
+                    "Veuillez sélectionner une date de début.");
             return;
         }
 
         if (dateFinPicker.getValue() == null) {
             dateFinPicker.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             showAlert(Alert.AlertType.WARNING, "Date manquante",
-                     "Veuillez sélectionner une date de fin.");
+                    "Veuillez sélectionner une date de fin.");
             return;
         }
 
@@ -284,13 +286,13 @@ public class ReservationWindowController {
         // Vérification supplémentaire des dates
         if (dateDebut.isBefore(LocalDate.now())) {
             showAlert(Alert.AlertType.ERROR, "Date invalide",
-                     "La date de début ne peut pas être dans le passé.");
+                    "La date de début ne peut pas être dans le passé.");
             return;
         }
 
         if (dateFin.isBefore(dateDebut)) {
             showAlert(Alert.AlertType.ERROR, "Dates invalides",
-                     "La date de fin doit être égale ou postérieure à la date de début.");
+                    "La date de fin doit être égale ou postérieure à la date de début.");
             return;
         }
 
@@ -312,61 +314,63 @@ public class ReservationWindowController {
 
         if (selectedMateriels.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Aucune sélection",
-                     "Veuillez sélectionner au moins un matériel et spécifier une quantité.");
+                    "Veuillez sélectionner au moins un matériel et spécifier une quantité.");
             return;
         }
 
         // Vérification des quantités
         boolean quantitiesOk = reservations.entrySet().stream()
-            .allMatch(entry -> entry.getValue() <= entry.getKey().getQuantite());
+                .allMatch(entry -> entry.getValue() <= entry.getKey().getQuantite());
 
         if (!quantitiesOk) {
             showAlert(Alert.AlertType.ERROR, "Quantité invalide",
-                     "Une ou plusieurs quantités demandées dépassent le stock disponible.");
+                    "Une ou plusieurs quantités demandées dépassent le stock disponible.");
             return;
         }
 
         // Calculer le montant total
         double totalAmount = calculateTotalAmount();
+        // Conversion approximative de TND vers EUR (à ajuster selon le taux de change actuel)
+        double euroAmount = totalAmount * 0.3; // Approximation: 1 TND ≈ 0.3 EUR
 
-        // Demander à l'utilisateur s'il veut payer par PayPal ou non
-        Alert paymentChoice = new Alert(Alert.AlertType.CONFIRMATION);
-        paymentChoice.setTitle("Choix du paiement");
-        paymentChoice.setHeaderText("Total à payer : " + String.format("%.2f", totalAmount) + " EUR");
-        paymentChoice.setContentText("Voulez-vous payer maintenant via PayPal ?");
-
-        ButtonType paypalButton = new ButtonType("Payer par PayPal");
-        ButtonType laterButton = new ButtonType("Payer plus tard");
-        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        paymentChoice.getButtonTypes().setAll(paypalButton, laterButton, cancelButton);
-
-        Optional<ButtonType> result = paymentChoice.showAndWait();
+        // Créer une boîte de dialogue personnalisée avec deux boutons
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Options de paiement");
+        dialog.setHeaderText("Total à payer : " + String.format("%.2f", totalAmount) + " TND" + 
+                            " (≈ " + String.format("%.2f", euroAmount) + " EUR)");
+        
+        // Créer les boutons personnalisés
+        ButtonType paypalButtonType = new ButtonType("Payer avec PayPal", ButtonBar.ButtonData.OK_DONE);
+        ButtonType reserverButtonType = new ButtonType("Réserver sans paiement", ButtonBar.ButtonData.OTHER);
+        ButtonType annulerButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        
+        dialog.getDialogPane().getButtonTypes().addAll(paypalButtonType, reserverButtonType, annulerButtonType);
+        
+        Optional<ButtonType> result = dialog.showAndWait();
+        
         if (result.isPresent()) {
-            if (result.get() == paypalButton) {
+            if (result.get() == paypalButtonType) {
                 // Paiement PayPal
                 try {
                     Payment payment = createPayPalPayment(totalAmount);
                     if (payment.getState().equals("approved")) {
-                        processReservations();
+                        processReservations(true);
                         showAlert(Alert.AlertType.INFORMATION, "Succès",
-                            "Paiement effectué et réservation confirmée avec succès!");
+                                "Paiement effectué et réservation confirmée avec succès!");
                         ((Stage) confirmerButton.getScene().getWindow()).close();
                     }
                 } catch (PayPalRESTException e) {
                     showAlert(Alert.AlertType.ERROR, "Erreur de paiement",
-                        "Le paiement n'a pas pu être effectué: " + e.getMessage());
+                            "Le paiement n'a pas pu être effectué: " + e.getMessage());
                 }
-            } else if (result.get() == laterButton) {
+            } else if (result.get() == reserverButtonType) {
                 // Créer la réservation sans paiement
-                processReservations();
+                processReservations(false);
                 showAlert(Alert.AlertType.INFORMATION, "Succès",
-                    "Réservation enregistrée avec succès! Le paiement devra être effectué ultérieurement.");
+                        "Réservation enregistrée avec succès! Le paiement devra être effectué ultérieurement.");
                 ((Stage) confirmerButton.getScene().getWindow()).close();
-            } else {
-                // L'utilisateur a annulé
-                return;
             }
+            // Si l'utilisateur a cliqué sur Annuler, ne rien faire
         }
     }
 
@@ -376,7 +380,9 @@ public class ReservationWindowController {
         // Créer les détails du paiement
         Amount amount = new Amount();
         amount.setCurrency("EUR");
-        amount.setTotal(String.format(java.util.Locale.US, "%.2f", totalAmount));
+        // Conversion approximative de TND vers EUR (à ajuster selon le taux de change actuel)
+        double euroAmount = totalAmount * 0.3; // Approximation: 1 TND ≈ 0.3 EUR
+        amount.setTotal(String.format(java.util.Locale.US, "%.2f", euroAmount));
 
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
@@ -428,7 +434,7 @@ public class ReservationWindowController {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Erreur",
-                "Impossible d'ouvrir le navigateur. Veuillez copier ce lien : " + url);
+                    "Impossible d'ouvrir le navigateur. Veuillez copier ce lien : " + url);
         }
     }
 
@@ -456,8 +462,8 @@ public class ReservationWindowController {
     private double calculateTotalAmount() {
         double totalAmount = 0.0;
         long nombreJours = java.time.temporal.ChronoUnit.DAYS.between(
-            dateDebutPicker.getValue(),
-            dateFinPicker.getValue()
+                dateDebutPicker.getValue(),
+                dateFinPicker.getValue()
         ) + 1;
 
         for (Map.Entry<Materiel, SimpleBooleanProperty> entry : selectionProperties.entrySet()) {
@@ -473,32 +479,90 @@ public class ReservationWindowController {
         return totalAmount;
     }
 
-    private void processReservations() {
+    private void processReservations(boolean isPaid) {
+        boolean allSuccess = true;
+        String materielName = "";
+        int totalQuantity = 0;
+        double totalPrice = 0;
+        
         for (Map.Entry<Materiel, Integer> entry : reservations.entrySet()) {
             Materiel materiel = entry.getKey();
             int quantity = entry.getValue();
+            
+            // Garder les informations pour l'email
+            materielName = materiel.getLibelle();
+            totalQuantity += quantity;
+            totalPrice += materiel.getPrix() * quantity;
 
             try {
-                java.sql.Date dateDebutSql = java.sql.Date.valueOf(dateDebutPicker.getValue());
-                java.sql.Date dateFinSql = java.sql.Date.valueOf(dateFinPicker.getValue());
+                // Conversion de LocalDate vers java.util.Date pour correspondre au constructeur de Reservation
+                java.util.Date dateDebutUtil = java.util.Date.from(dateDebutPicker.getValue().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                java.util.Date dateFinUtil = java.util.Date.from(dateFinPicker.getValue().atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toInstant());
+                
+                // Log pour débogage
+                System.out.println("Date début (LocalDate): " + dateDebutPicker.getValue());
+                System.out.println("Date fin (LocalDate): " + dateFinPicker.getValue());
+                System.out.println("Date début (java.util.Date): " + dateDebutUtil);
+                System.out.println("Date fin (java.util.Date): " + dateFinUtil);
 
                 Reservation reservation = new Reservation(
-                    materiel.getId(),
-                    quantity,
-                    materiel.getPrix() * quantity,
-                    dateDebutSql,
-                    dateFinSql,
-                    currentUserId
+                        materiel.getId(),
+                        quantity,
+                        materiel.getPrix() * quantity,
+                        dateDebutUtil,
+                        dateFinUtil,
+                        currentUserId
                 );
 
                 ReservationService reservationService = new ReservationService();
                 reservationService.ajouter(reservation);
-                
+
             } catch (Exception e) {
+                allSuccess = false;
                 showAlert(Alert.AlertType.ERROR, "Erreur",
-                         "Une erreur est survenue lors de la réservation: " + e.getMessage());
+                        "Une erreur est survenue lors de la réservation: " + e.getMessage());
                 e.printStackTrace();
                 return;
+            }
+        }
+        
+        // Si toutes les réservations ont été ajoutées avec succès, envoyer un email de confirmation
+        if (allSuccess) {
+            try {
+                // Récupérer l'email et le nom de l'utilisateur
+                UserService userService = new UserService();
+                String[] userInfo = userService.getUserEmailAndName(currentUserId);
+                
+                if (userInfo != null) {
+                    String userEmail = userInfo[0];
+                    String userName = userInfo[1];
+                    
+                    // Formater les dates pour l'email
+                    String dateDebutStr = dateDebutPicker.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    String dateFinStr = dateFinPicker.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    
+                    // Envoyer l'email de confirmation
+                    EmailService emailService = new EmailService();
+                    boolean emailSent = emailService.sendReservationConfirmation(
+                            userEmail, 
+                            userName, 
+                            materielName, 
+                            totalQuantity, 
+                            dateDebutStr, 
+                            dateFinStr, 
+                            totalPrice, 
+                            isPaid
+                    );
+                    
+                    if (emailSent) {
+                        System.out.println("Email de confirmation envoyé à " + userEmail);
+                    } else {
+                        System.err.println("Échec de l'envoi de l'email à " + userEmail);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'envoi de l'email: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
