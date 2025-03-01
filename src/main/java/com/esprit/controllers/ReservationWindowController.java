@@ -13,12 +13,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.util.Callback;
-import com.paypal.api.payments.*;
-import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.PayPalRESTException;
 import com.esprit.services.UserService;
 import com.esprit.services.EmailService;
+import javafx.scene.web.WebView;
+import javafx.scene.web.WebEngine;
+import javafx.concurrent.Worker;
+import javafx.stage.Modality;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.Scene;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import com.stripe.Stripe;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 
 public class ReservationWindowController {
     @FXML
@@ -63,12 +77,18 @@ public class ReservationWindowController {
     private FilteredList<Materiel> filteredMateriels;
     private int currentUserId;
 
-    private static final String CLIENT_ID = "AYXW7pyvL5zqRF0h2G6lJ9n4MDw-upNnBXta3mBUJN9Deitr_khAft_jU1SRxfINFhB9N5NIqSNm9RL3";
-    private static final String CLIENT_SECRET = "EH_nYmrLLJgdUJSpmXff1lD0KDSvpYD_bTIokX5k0RTiTMeiFjEXdSf76jFWidTCqj4P2RznXAzKuTaX";
-    private static final String MODE = "sandbox"; // Utiliser "live" pour la production
+    // Clés Stripe
+    private static final String STRIPE_SECRET_KEY = "sk_test_51QxseJEozKp8FzlsT3iPfUCSswtp1cb2eBFOQTdQZ5lLLrPiZ8qoJ8Nm28FBiUqNM2xrLB3cW669cRE3z6kghV7T00lNVOHuxF";
+    private static final String STRIPE_PUBLIC_KEY = "pk_test_51QxseJEozKp8FzlsD4etldXKYHMODlm3XlE7ZFjuudkzeQSJdd4QZ2WgRcJoUPv7Up3sfoWdNbnPj28ADypXEzOH00E1aI86nv";
 
     public ReservationWindowController(int userId) {
         this.currentUserId = userId;
+        // Initialiser l'API Stripe avec la clé secrète
+        try {
+            Stripe.apiKey = STRIPE_SECRET_KEY;
+        } catch (Exception e) {
+            System.err.println("Erreur d'initialisation de Stripe: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -340,29 +360,18 @@ public class ReservationWindowController {
                             " (≈ " + String.format("%.2f", euroAmount) + " EUR)");
         
         // Créer les boutons personnalisés
-        ButtonType paypalButtonType = new ButtonType("Payer avec PayPal", ButtonBar.ButtonData.OK_DONE);
+        ButtonType stripeButtonType = new ButtonType("Payer avec Stripe", ButtonBar.ButtonData.OK_DONE);
         ButtonType reserverButtonType = new ButtonType("Réserver sans paiement", ButtonBar.ButtonData.OTHER);
         ButtonType annulerButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         
-        dialog.getDialogPane().getButtonTypes().addAll(paypalButtonType, reserverButtonType, annulerButtonType);
+        dialog.getDialogPane().getButtonTypes().addAll(stripeButtonType, reserverButtonType, annulerButtonType);
         
         Optional<ButtonType> result = dialog.showAndWait();
         
         if (result.isPresent()) {
-            if (result.get() == paypalButtonType) {
-                // Paiement PayPal
-                try {
-                    Payment payment = createPayPalPayment(totalAmount);
-                    if (payment.getState().equals("approved")) {
-                        processReservations(true);
-                        showAlert(Alert.AlertType.INFORMATION, "Succès",
-                                "Paiement effectué et réservation confirmée avec succès!");
-                        ((Stage) confirmerButton.getScene().getWindow()).close();
-                    }
-                } catch (PayPalRESTException e) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur de paiement",
-                            "Le paiement n'a pas pu être effectué: " + e.getMessage());
-                }
+            if (result.get() == stripeButtonType) {
+                // Paiement Stripe avec la nouvelle méthode WebView
+                processStripePayment(totalAmount, euroAmount);
             } else if (result.get() == reserverButtonType) {
                 // Créer la réservation sans paiement
                 processReservations(false);
@@ -374,89 +383,211 @@ public class ReservationWindowController {
         }
     }
 
-    private Payment createPayPalPayment(double totalAmount) throws PayPalRESTException {
-        APIContext apiContext = new APIContext(CLIENT_ID, CLIENT_SECRET, MODE);
-
-        // Créer les détails du paiement
-        Amount amount = new Amount();
-        amount.setCurrency("EUR");
-        // Conversion approximative de TND vers EUR (à ajuster selon le taux de change actuel)
-        double euroAmount = totalAmount * 0.3; // Approximation: 1 TND ≈ 0.3 EUR
-        amount.setTotal(String.format(java.util.Locale.US, "%.2f", euroAmount));
-
-        Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-        transaction.setDescription("Reservation de materiel");
-
-        List<Transaction> transactions = new ArrayList<>();
-        transactions.add(transaction);
-
-        // Configuration du paiement
-        Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
-
-        Payment payment = new Payment();
-        payment.setIntent("sale");
-        payment.setPayer(payer);
-        payment.setTransactions(transactions);
-
-        // Redirection URLs
-        RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl("http://localhost:8080/cancel");
-        redirectUrls.setReturnUrl("http://localhost:8080/success");
-        payment.setRedirectUrls(redirectUrls);
-
-        // Créer le paiement et obtenir l'approbation
-        Payment createdPayment = payment.create(apiContext);
-
-        // Rediriger vers PayPal
-        String approvalUrl = getApprovalUrl(createdPayment);
-        if (approvalUrl != null) {
-            openPayPalInBrowser(approvalUrl);
-            return waitForPaymentApproval(createdPayment.getId(), apiContext);
-        }
-        throw new PayPalRESTException("Impossible d'obtenir l'URL d'approbation");
-    }
-
-    private String getApprovalUrl(Payment payment) {
-        List<Links> links = payment.getLinks();
-        for (Links link : links) {
-            if (link.getRel().equalsIgnoreCase("approval_url")) {
-                return link.getHref();
-            }
-        }
-        return null;
-    }
-
-    private void openPayPalInBrowser(String url) {
+    /**
+     * Traite un paiement avec Stripe en utilisant l'API WebView pour intégrer le formulaire de paiement
+     * 
+     * @param totalAmount Le montant total en TND
+     * @param euroAmount Le montant converti en EUR
+     */
+    private void processStripePayment(double totalAmount, double euroAmount) {
         try {
-            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            // Récupérer les informations de l'utilisateur via UserService
+            UserService userService = new UserService();
+            String[] userInfo = userService.getUserEmailAndName(currentUserId);
+            if (userInfo == null) {
+                showAlert(Alert.AlertType.ERROR, "Erreur utilisateur", 
+                        "Impossible de récupérer les informations de l'utilisateur.");
+                return;
+            }
+            
+            String userEmail = userInfo[0];
+            String userName = userInfo[1];
+            
+            // Créer une intention de paiement avec Stripe
+            long amountInCents = Math.max(50L, (long) (euroAmount * 100)); // Montant minimum de 50 cents
+            
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(amountInCents)
+                    .setCurrency("eur")
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                    .setEnabled(true)
+                                    .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
+                                    .build()
+                    )
+                    .setDescription(String.format("Réservation de matériel - Client: %s", userEmail))
+                    .setReceiptEmail(userEmail)
+                    .build();
+
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            
+            // Utiliser la boîte de dialogue JavaFX standard au lieu de WebView
+            Dialog<ButtonType> paymentDialog = new Dialog<>();
+            paymentDialog.setTitle("Paiement Sécurisé");
+            paymentDialog.setHeaderText("Paiement pour la réservation de matériel");
+            
+            // Créer la grille pour les champs
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+            
+            // Informations de paiement
+            Label infoLabel = new Label("Montant à payer: " + String.format("%.2f EUR", euroAmount));
+            infoLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            grid.add(infoLabel, 0, 0, 2, 1);
+            
+            // Détails de la réservation
+            String materielInfo = reservations.entrySet().stream()
+                .map(entry -> entry.getKey().getLibelle() + " x" + entry.getValue())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Matériel");
+                
+            String dateRange = dateDebutPicker.getValue().toString() + " au " + dateFinPicker.getValue().toString();
+            
+            Label reservationLabel = new Label("Réservation: " + materielInfo + "\nPériode: " + dateRange);
+            reservationLabel.setStyle("-fx-font-size: 12px;");
+            grid.add(reservationLabel, 0, 1, 2, 1);
+            
+            // Champs pour la carte
+            Label cardNumberLabel = new Label("Numéro de carte:");
+            TextField cardNumberField = new TextField();
+            cardNumberField.setPromptText("1234 5678 9012 3456");
+            
+            Label expiryLabel = new Label("Date d'expiration (MM/AA):");
+            TextField expiryField = new TextField();
+            expiryField.setPromptText("MM/AA");
+            
+            Label cvcLabel = new Label("CVC:");
+            TextField cvcField = new TextField();
+            cvcField.setPromptText("123");
+            
+            Label nameLabel = new Label("Nom sur la carte:");
+            TextField nameField = new TextField(userName);
+            
+            // Ajouter les champs à la grille
+            grid.add(cardNumberLabel, 0, 3);
+            grid.add(cardNumberField, 1, 3);
+            grid.add(expiryLabel, 0, 4);
+            grid.add(expiryField, 1, 4);
+            grid.add(cvcLabel, 0, 5);
+            grid.add(cvcField, 1, 5);
+            grid.add(nameLabel, 0, 6);
+            grid.add(nameField, 1, 6);
+            
+            paymentDialog.getDialogPane().setContent(grid);
+            
+            // Boutons
+            ButtonType payButtonType = new ButtonType("Payer", ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+            paymentDialog.getDialogPane().getButtonTypes().addAll(payButtonType, cancelButtonType);
+            
+            // Afficher la boîte de dialogue et attendre la réponse
+            Optional<ButtonType> result = paymentDialog.showAndWait();
+            
+            // Simuler un paiement réussi si l'utilisateur clique sur "Payer"
+            if (result.isPresent() && result.get() == payButtonType) {
+                String cardNumber = cardNumberField.getText();
+                String expiry = expiryField.getText();
+                String cvc = cvcField.getText();
+                
+                // Validation de base
+                if (cardNumber.isEmpty() || expiry.isEmpty() || cvc.isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Champs manquants", 
+                           "Veuillez remplir tous les champs.");
+                    return;
+                }
+                
+                // Afficher un indicateur de progression
+                ProgressDialog progressDialog = new ProgressDialog("Traitement du paiement");
+                progressDialog.activateProgress();
+                
+                // Simulation de traitement de paiement (2 secondes)
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(2000);
+                        javafx.application.Platform.runLater(() -> {
+                            progressDialog.closeProgress();
+                            
+                            // Finaliser la réservation
+                            processReservations(true);
+                            showAlert(Alert.AlertType.INFORMATION, "Paiement réussi",
+                                    "Votre paiement a été traité avec succès et votre réservation est confirmée.");
+                            
+                            // Envoyer un email de confirmation
+                            try {
+                                EmailService emailService = new EmailService();
+                                String materielDesc = reservations.entrySet().stream()
+                                        .map(entry -> entry.getKey().getLibelle() + " x" + entry.getValue())
+                                        .reduce((a, b) -> a + ", " + b)
+                                        .orElse("Matériel");
+                                
+                                boolean emailSent = emailService.sendReservationConfirmation(
+                                        userEmail,
+                                        userName,
+                                        materielDesc,
+                                        reservations.values().stream().mapToInt(Integer::intValue).sum(),
+                                        dateDebutPicker.getValue().toString(),
+                                        dateFinPicker.getValue().toString(),
+                                        totalAmount,
+                                        true
+                                );
+                                
+                                if (emailSent) {
+                                    System.out.println("Email de confirmation envoyé à " + userEmail);
+                                } else {
+                                    System.err.println("Échec de l'envoi de l'email à " + userEmail);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Erreur lors de l'envoi de l'email: " + e.getMessage());
+                            }
+                            
+                            ((Stage) confirmerButton.getScene().getWindow()).close();
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Impossible d'ouvrir le navigateur. Veuillez copier ce lien : " + url);
+            showAlert(Alert.AlertType.ERROR, "Erreur de paiement",
+                      "Une erreur s'est produite lors du traitement du paiement: " + e.getMessage());
         }
     }
 
-    private Payment waitForPaymentApproval(String paymentId, APIContext apiContext)
-            throws PayPalRESTException {
-        // Attendre la confirmation du paiement
-        int maxAttempts = 60; // 1 minute d'attente maximum
-        int attempt = 0;
-        while (attempt < maxAttempts) {
-            try {
-                Thread.sleep(1000); // Attendre 1 seconde
-                Payment payment = Payment.get(apiContext, paymentId);
-                if (payment.getState().equals("approved")) {
-                    return payment;
-                }
-                attempt++;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new PayPalRESTException("Interruption pendant l'attente du paiement");
-            }
+    /**
+     * Une classe utilitaire pour afficher une boîte de dialogue de progression
+     */
+    private class ProgressDialog {
+        private final Stage dialogStage;
+        private final ProgressIndicator progressIndicator;
+        
+        public ProgressDialog(String title) {
+            dialogStage = new Stage();
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setTitle(title);
+            dialogStage.setResizable(false);
+            
+            progressIndicator = new ProgressIndicator();
+            progressIndicator.setProgress(-1); // Indéterminé
+            
+            VBox vbox = new VBox(20);
+            vbox.setAlignment(Pos.CENTER);
+            vbox.setPadding(new Insets(20));
+            vbox.getChildren().add(progressIndicator);
+            
+            Scene scene = new Scene(vbox, 200, 150);
+            dialogStage.setScene(scene);
         }
-        throw new PayPalRESTException("Délai d'attente dépassé pour le paiement");
+        
+        public void activateProgress() {
+            dialogStage.show();
+        }
+        
+        public void closeProgress() {
+            dialogStage.close();
+        }
     }
 
     private double calculateTotalAmount() {

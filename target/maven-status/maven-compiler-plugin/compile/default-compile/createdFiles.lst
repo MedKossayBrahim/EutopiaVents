@@ -26,6 +26,7 @@ com\esprit\controllers\ReservationWindowController$1.class
 com\esprit\models\Organisateur.class
 com\esprit\controllers\FeedbackController.class
 com\esprit\controllers\ListeReservationController$2.class
+com\esprit\controllers\ReservationWindowController$ProgressDialog.class
 com\esprit\services\FeedbackService.class
 com\esprit\models\Feedback.class
 com\esprit\controllers\AjoutMaterielController$2.class
