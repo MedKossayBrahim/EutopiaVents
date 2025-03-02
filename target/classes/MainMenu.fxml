@@ -12,7 +12,7 @@
       style="-fx-background-color: white; -fx-padding: 20px;"
       stylesheets="@styles/MainMenu.css">
 
-    <HBox styleClass="header" alignment="CENTER" 
+    <HBox styleClass="header" alignment="CENTER"
           style="-fx-background-radius: 15; -fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
         <padding>
             <Insets top="15" right="20" bottom="15" left="20"/>
@@ -35,23 +35,24 @@
         <Button text="Gestion des Catégories" onAction="#goToGestionCategories" styleClass="nav-button"/>
         <Button text="Gestion des Réservations" onAction="#goToGestionReservations" styleClass="nav-button"/>
         <Button text="Gestion des Photos" onAction="#goToGestionPhotos" styleClass="nav-button"/>
+        <Button text="Statistiques" onAction="#goToStatistiques" styleClass="nav-button"/>
     </HBox>
 
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
         <VBox spacing="20">
-            <GridPane fx:id="lieuxGrid" 
-                     hgap="20" 
-                     vgap="20"
-                     alignment="CENTER"
-                     styleClass="lieux-grid">
+            <GridPane fx:id="lieuxGrid"
+                      hgap="20"
+                      vgap="20"
+                      alignment="CENTER"
+                      styleClass="lieux-grid">
                 <padding>
                     <Insets top="15" right="15" bottom="15" left="15"/>
                 </padding>
             </GridPane>
 
             <Pagination fx:id="pagination"
-                       styleClass="custom-pagination"
-                       maxPageIndicatorCount="5"/>
+                        styleClass="custom-pagination"
+                        maxPageIndicatorCount="5"/>
         </VBox>
     </ScrollPane>
 </VBox>

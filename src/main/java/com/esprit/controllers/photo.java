@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +49,40 @@ public class photo {
 
     @FXML
     public void initialize() {
-        loadLieux();
-        comboBoxLieux.setOnAction(event -> afficherPhotosPourLieu());
+        try {
+            // Load locations into the combo box
+            loadLieux();
+            
+            // Initialize the photo list
+            photoList = FXCollections.observableArrayList();
+            
+            // Set up the flow pane for photos
+            flowPanePhotos.setHgap(15);
+            flowPanePhotos.setVgap(15);
+            
+            // Ensure CSS is loaded properly
+            Platform.runLater(() -> {
+                try {
+                    if (flowPanePhotos.getScene() != null) {
+                        String cssPath = getClass().getResource("/styles/photo.css").toExternalForm();
+                        if (!flowPanePhotos.getScene().getStylesheets().contains(cssPath)) {
+                            flowPanePhotos.getScene().getStylesheets().add(cssPath);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showAlert("Erreur", "Impossible de charger le fichier CSS: " + e.getMessage());
+                }
+            });
+            
+            // If a location is already selected, display its photos
+            if (comboBoxLieux.getValue() != null) {
+                afficherPhotosPourLieu();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Erreur lors de l'initialisation: " + e.getMessage());
+        }
     }
 
     private void loadLieux() {
@@ -244,32 +277,87 @@ public class photo {
         imagePreview.setImage(null);
     }
 
-    private void showAlert(String title, String content) {
+    /**
+     * Helper method to show an alert dialog
+     * @param title The title of the alert
+     * @param message The message to display
+     */
+    private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(content);
+        alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Helper method to navigate to a new view while preserving the navbar
+     * @param fxmlPath The path to the FXML file to load
+     * @param navbarSection The section to highlight in the navbar
+     */
+    private void navigateWithNavbar(String fxmlPath, String navbarSection) {
+        try {
+            // Get the current scene's root
+            javafx.scene.Parent currentRoot = txtUrlImage.getScene().getRoot();
+            
+            // Find the navbar in the current scene
+            javafx.scene.layout.VBox navbar = null;
+            if (currentRoot instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox container = (javafx.scene.layout.HBox) currentRoot;
+                for (javafx.scene.Node node : container.getChildren()) {
+                    if (node instanceof javafx.scene.layout.VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (javafx.scene.layout.VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the new view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent content = loader.load();
+            
+            // Create a container with navbar and content
+            javafx.scene.layout.HBox container = new javafx.scene.layout.HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, content);
+                
+                // Update the navbar to show the active section
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles(navbarSection);
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(content);
+            }
+            
+            javafx.scene.layout.HBox.setHgrow(content, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            txtUrlImage.getScene().setRoot(container);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir la page demandée.");
+        }
     }
 
     @FXML
     private void goToReservation() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Reservation1View.fxml"));
-            txtUrlImage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateWithNavbar("/Reservation1View.fxml", "settings");
     }
 
     @FXML
     private void goToLieu() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/LieuView.fxml"));
-            txtUrlImage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateWithNavbar("/LieuView.fxml", "settings");
+    }
+
+    @FXML
+    private void goBack() {
+        navigateWithNavbar("/MainMenu.fxml", "home");
     }
 
     private String uploadImage(String imagePath) throws IOException {

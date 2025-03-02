@@ -276,45 +276,127 @@ public class MainMenuController {
     @FXML
     private void goToAjouterLieu() {
         try {
+            // Get the current scene
+            Scene scene = lieuxGrid.getScene();
+            
+            // Get the current scene's root
+            Parent currentRoot = scene.getRoot();
+            
+            // Find the navbar in the current scene
+            VBox navbar = null;
+            if (currentRoot instanceof HBox) {
+                HBox container = (HBox) currentRoot;
+                for (Node node : container.getChildren()) {
+                    if (node instanceof VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the add lieu view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/LieuView.fxml"));
-            Parent root = loader.load();
+            Parent lieuViewContent = loader.load();
+            
+            // Set up the controller
             LieuController controller = loader.getController();
             controller.setMainMenuController(this);
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Ajouter un Lieu");
-            stage.show();
+            
+            // Create a container with navbar and content
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, lieuViewContent);
+                
+                // Update the navbar to show settings as active
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles("settings");
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(lieuViewContent);
+            }
+            
+            HBox.setHgrow(lieuViewContent, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            scene.setRoot(container);
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Erreur", "Impossible d'ouvrir la fenêtre d'ajout de lieu.");
+            showAlert("Erreur", "Impossible d'ouvrir la page d'ajout de lieu.");
         }
     }
 
     @FXML
     private void goToGestionCategories() {
-        loadView("/AjoutCategorie.fxml", "Gestion des Catégories");
+        navigateWithNavbar("/AjoutCategorie.fxml", "settings");
     }
 
     @FXML
     private void goToGestionReservations() {
-        loadView("/Reservation1View.fxml", "Gestion des Réservations");
+        navigateWithNavbar("/Reservation1View.fxml", "settings");
     }
 
     @FXML
     private void goToGestionPhotos() {
-        loadView("/photoView.fxml", "Gestion des Photos");
+        navigateWithNavbar("/photoView.fxml", "settings");
     }
-
-    private void loadView(String fxmlPath, String title) {
+    
+    // Helper method to navigate while preserving navbar
+    private void navigateWithNavbar(String fxmlPath, String activeNavButton) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
+            // Get the current scene
+            Scene scene = lieuxGrid.getScene();
+            
+            // Get the current scene's root
+            Parent currentRoot = scene.getRoot();
+            
+            // Find the navbar in the current scene
+            VBox navbar = null;
+            if (currentRoot instanceof HBox) {
+                HBox container = (HBox) currentRoot;
+                for (Node node : container.getChildren()) {
+                    if (node instanceof VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent content = loader.load();
+            
+            // Create a container with navbar and content
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, content);
+                
+                // Update the navbar to show the active button
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles(activeNavButton);
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(content);
+            }
+            
+            HBox.setHgrow(content, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            scene.setRoot(container);
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Erreur", "Impossible d'ouvrir la fenêtre " + title);
+            showAlert("Erreur", "Impossible d'ouvrir la page.");
         }
     }
 
@@ -328,5 +410,58 @@ public class MainMenuController {
 
     public void refreshLieux() {
         loadLieux();
+    }
+    @FXML
+    private void goToStatistiques() {
+        try {
+            // Get the current scene
+            Scene scene = lieuxGrid.getScene();
+            
+            // Get the current scene's root
+            Parent currentRoot = scene.getRoot();
+            
+            // Find the navbar in the current scene
+            VBox navbar = null;
+            if (currentRoot instanceof HBox) {
+                HBox container = (HBox) currentRoot;
+                for (Node node : container.getChildren()) {
+                    if (node instanceof VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the statistics view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/statistiquesimpl.fxml"));
+            Parent statisticsContent = loader.load();
+            
+            // Create a container with navbar and statistics content
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, statisticsContent);
+                
+                // Update the navbar to show settings as active
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles("settings");
+                }
+            } else {
+                // If navbar wasn't found, load statistics view directly
+                container.getChildren().add(statisticsContent);
+            }
+            
+            HBox.setHgrow(statisticsContent, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            scene.setRoot(container);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'afficher les statistiques.");
+        }
     }
 }

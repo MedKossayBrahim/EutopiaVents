@@ -40,12 +40,4 @@
             </VBox>
         </VBox>
     </children>
-
-    <Button fx:id="btnGoToLieu" text="Aller à Lieu" onAction="#goToLieu"
-            AnchorPane.bottomAnchor="10.0"
-            AnchorPane.leftAnchor="10.0"
-            AnchorPane.rightAnchor="10.0"
-            styleClass="button-bottom"/>
-
-
 </AnchorPane>

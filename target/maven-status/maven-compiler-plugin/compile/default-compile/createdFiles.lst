@@ -22,8 +22,10 @@ com\esprit\models\CategoriesEvent.class
 com\esprit\controllers\photo$1.class
 com\esprit\controllers\SignUpView.class
 com\esprit\models\Participant.class
+com\esprit\controllers\Ajoutercategorieevent$2.class
 com\esprit\controllers\ForumMainController$2.class
 com\esprit\controllers\AjouterEvenementController$1.class
+com\esprit\controllers\AjouterEvenementController$4.class
 com\esprit\controllers\AjouterProduit.class
 com\esprit\controllers\ModifierCategorie.class
 com\esprit\models\MaterielSelection.class
@@ -36,6 +38,7 @@ com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
 com\esprit\services\CategoriesEventService.class
 com\esprit\utils\TextUtils.class
+com\esprit\controllers\EventsController$1.class
 com\esprit\controllers\EventDetailsController.class
 com\esprit\controllers\AjouterEvenementController$2.class
 com\esprit\models\categorieproduit.class
@@ -56,8 +59,10 @@ com\esprit\controllers\Reservation1$2.class
 com\esprit\services\OrganisateurService.class
 com\esprit\controllers\Listecategorie.class
 com\esprit\models\Evenement.class
+com\esprit\controllers\GererEvenementsController$2.class
 com\esprit\controllers\MaterielGridController.class
 com\esprit\controllers\LieuController$1.class
+com\esprit\controllers\StatistiquesController.class
 com\esprit\services\ReservationServiceImpl.class
 com\esprit\controllers\LoginView.class
 com\esprit\models\Admin.class
@@ -74,6 +79,7 @@ com\esprit\utils\UserSession.class
 com\esprit\services\PhotoLieuServiceImpl.class
 com\esprit\controllers\Ajoutercategorieevent$1.class
 com\esprit\services\UserService.class
+com\esprit\services\StatistiquesServiceImpl.class
 com\esprit\controllers\photo.class
 com\esprit\controllers\AjouterCategorie.class
 com\esprit\utils\EmailSender.class
@@ -86,6 +92,7 @@ com\esprit\controllers\PostViewController$2.class
 com\esprit\controllers\StatistiqueController.class
 com\esprit\controllers\Ajoutercategorieevent.class
 com\esprit\models\categorie_salle.class
+com\esprit\controllers\ModifierEvenementController$2.class
 com\esprit\services\ParticipantService.class
 com\esprit\utils\DataReceiver.class
 com\esprit\controllers\ListeReservationController$3.class

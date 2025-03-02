@@ -259,7 +259,7 @@ public class PostDialogController {
         alert.showAndWait();
     }
     
-    private void setupCategoryComboBox() {
+    public void setupCategoryComboBox() {
         System.out.println("Setting up ComboBox");
         
         try {

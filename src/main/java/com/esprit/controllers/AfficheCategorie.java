@@ -86,16 +86,69 @@ public class AfficheCategorie {
         }
     }
 
+    /**
+     * Helper method to navigate to a new view while preserving the navbar
+     * @param fxmlPath The path to the FXML file to load
+     * @param navbarSection The section to highlight in the navbar
+     */
+    private void navigateWithNavbar(String fxmlPath, String navbarSection) {
+        try {
+            // Get the current scene's root
+            javafx.scene.Parent currentRoot = tfNom.getScene().getRoot();
+            
+            // Find the navbar in the current scene
+            javafx.scene.layout.VBox navbar = null;
+            if (currentRoot instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox container = (javafx.scene.layout.HBox) currentRoot;
+                for (javafx.scene.Node node : container.getChildren()) {
+                    if (node instanceof javafx.scene.layout.VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (javafx.scene.layout.VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the new view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent content = loader.load();
+            
+            // Create a container with navbar and content
+            javafx.scene.layout.HBox container = new javafx.scene.layout.HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, content);
+                
+                // Update the navbar to show the active section
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles(navbarSection);
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(content);
+            }
+            
+            javafx.scene.layout.HBox.setHgrow(content, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            tfNom.getScene().setRoot(container);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir la page demandée: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void retourAjout() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutCategorie.fxml"));
-            Parent root = loader.load();
-            tfNom.getScene().setRoot(root); //change l’interface actuelle en affichant AjoutCategorie.fxml
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur lors du retour: " + e.getMessage());
-        }
+        navigateWithNavbar("/AjoutCategorie.fxml", "settings");
+    }
+
+    @FXML
+    private void goToLieu() {
+        navigateWithNavbar("/LieuView.fxml", "settings");
     }
 
     private boolean validateInput() {
@@ -117,16 +170,4 @@ public class AfficheCategorie {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    @FXML
-    private void goToLieu() {
-        try {
-            // Charge le fichier FXML de l'interface Lieu
-            Parent root = FXMLLoader.load(getClass().getResource("/LieuView.fxml"));
-            // Remplace la racine de la scène actuelle par la nouvelle vue
-            tfNom.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

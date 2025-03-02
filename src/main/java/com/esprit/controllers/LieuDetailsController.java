@@ -100,13 +100,13 @@ public class LieuDetailsController {
         capaciteLabel.setText(String.valueOf(lieu.getCapacite()));
         prixLabel.setText(String.format("%.2f DT", lieu.getPrix()));
         categorieLabel.setText(lieu.getCategorie().getNom());
-        
+
         // Geocode the address and initialize map
-        String fullAddress = String.format("%s, %s %s, Tunisia", 
-            lieu.getAdresse(), 
-            lieu.getVille(), 
-            lieu.getCodePostal());
-            
+        String fullAddress = String.format("%s, %s %s, Tunisia",
+                lieu.getAdresse(),
+                lieu.getVille(),
+                lieu.getCodePostal());
+
         geocodeAddress(fullAddress);
 
         try {
@@ -129,9 +129,9 @@ public class LieuDetailsController {
             // Create URL for Azure Maps geocoding service
             String encodedAddress = java.net.URLEncoder.encode(address, "UTF-8");
             String geocodeUrl = String.format(
-                "https://atlas.microsoft.com/search/address/json?subscription-key=%s&api-version=1.0&query=%s&limit=1",
-                SUBSCRIPTION_KEY,
-                encodedAddress
+                    "https://atlas.microsoft.com/search/address/json?subscription-key=%s&api-version=1.0&query=%s&limit=1",
+                    SUBSCRIPTION_KEY,
+                    encodedAddress
             );
 
             // Make async HTTP request
@@ -142,7 +142,7 @@ public class LieuDetailsController {
                     conn.setRequestMethod("GET");
 
                     java.io.BufferedReader reader = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(conn.getInputStream())
+                            new java.io.InputStreamReader(conn.getInputStream())
                     );
                     StringBuilder response = new StringBuilder();
                     String line;
@@ -163,18 +163,18 @@ public class LieuDetailsController {
                         // Parse JSON response
                         org.json.JSONObject jsonResponse = new org.json.JSONObject(response);
                         org.json.JSONArray results = jsonResponse.getJSONArray("results");
-                        
+
                         if (results.length() > 0) {
                             org.json.JSONObject result = results.getJSONObject(0);
                             org.json.JSONObject position = result.getJSONObject("position");
-                            
+
                             // Get coordinates
                             markerLatitude = position.getDouble("lat");
                             markerLongitude = position.getDouble("lon");
                             centerLatitude = markerLatitude;
                             centerLongitude = markerLongitude;
                             locationName = lieu.getNom();
-                            
+
                             // Update map on JavaFX thread
                             javafx.application.Platform.runLater(this::renderMap);
                         }
@@ -215,30 +215,32 @@ public class LieuDetailsController {
                 .credential(new AzureKeyCredential(SUBSCRIPTION_KEY))
                 .buildClient();
 
+        // Check if mapCanvas is initialized
         if (mapCanvas != null) {
             setupCanvas();
             setupEventHandlers();
-            
+
             // Initialize default map bounds (will be updated when location is set)
             mapBounds = new double[]{
-                centerLatitude + 0.1,  // North
-                centerLongitude - 0.1, // West
-                centerLatitude - 0.1,  // South
-                centerLongitude + 0.1  // East
+                    centerLatitude + 0.1,  // North
+                    centerLongitude - 0.1, // West
+                    centerLatitude - 0.1,  // South
+                    centerLongitude + 0.1  // East
             };
-            
+
             initializeLocationServices();
         } else {
             System.err.println("Warning: mapCanvas is null during initialization");
+            // Handle the null case appropriately, e.g., show an error message or disable related features
         }
 
         // Style the directions button
         if (directionsButton != null) {
-            directionsButton.setOnMouseEntered(e -> 
-                directionsButton.setStyle(directionsButton.getStyle().replace("#f5945c", "#ff7f50"))
+            directionsButton.setOnMouseEntered(e ->
+                    directionsButton.setStyle(directionsButton.getStyle().replace("#f5945c", "#ff7f50"))
             );
-            directionsButton.setOnMouseExited(e -> 
-                directionsButton.setStyle(directionsButton.getStyle().replace("#ff7f50", "#f5945c"))
+            directionsButton.setOnMouseExited(e ->
+                    directionsButton.setStyle(directionsButton.getStyle().replace("#ff7f50", "#f5945c"))
             );
         }
 
@@ -248,6 +250,7 @@ public class LieuDetailsController {
             hiddenWebView.setPrefSize(1, 1);
         } else {
             System.err.println("Warning: hiddenWebView is null");
+            // Handle the null case appropriately, e.g., show an error message or disable related features
         }
     }
 
@@ -306,10 +309,10 @@ public class LieuDetailsController {
     private void getRouteFromAzure(double fromLat, double fromLon, double toLat, double toLon) {
         try {
             String routeUrl = String.format(
-                "https://atlas.microsoft.com/route/directions/json?subscription-key=%s&api-version=1.0&query=%f,%f:%f,%f&routeType=shortest&computeTravelTimeFor=all&traffic=true",
-                SUBSCRIPTION_KEY,
-                fromLat, fromLon,
-                toLat, toLon
+                    "https://atlas.microsoft.com/route/directions/json?subscription-key=%s&api-version=1.0&query=%f,%f:%f,%f&routeType=shortest&computeTravelTimeFor=all&traffic=true",
+                    SUBSCRIPTION_KEY,
+                    fromLat, fromLon,
+                    toLat, toLon
             );
 
             CompletableFuture.supplyAsync(() -> {
@@ -341,16 +344,16 @@ public class LieuDetailsController {
                             JSONObject route = routes.getJSONObject(0);
                             JSONArray legs = route.getJSONArray("legs");
                             JSONArray points = legs.getJSONObject(0).getJSONArray("points");
-                            
+
                             routePoints.clear();
                             for (int i = 0; i < points.length(); i++) {
                                 JSONObject point = points.getJSONObject(i);
                                 routePoints.add(new double[]{
-                                    point.getDouble("latitude"),
-                                    point.getDouble("longitude")
+                                        point.getDouble("latitude"),
+                                        point.getDouble("longitude")
                                 });
                             }
-                            
+
                             javafx.application.Platform.runLater(this::renderMap);
                         }
                     } catch (Exception e) {
@@ -370,7 +373,7 @@ public class LieuDetailsController {
 
         locationUpdateTimer = new javafx.animation.AnimationTimer() {
             private long lastUpdate = 0;
-            
+
             @Override
             public void handle(long now) {
                 // Update every 2 seconds
@@ -403,7 +406,7 @@ public class LieuDetailsController {
         try {
             if (!isShowingDirections) {
                 isShowingDirections = true;
-                
+
                 if (hiddenWebView == null) {
                     System.err.println("Error: hiddenWebView is null");
                     showError("WebView initialization error");
@@ -411,23 +414,23 @@ public class LieuDetailsController {
                 }
 
                 System.out.println("Initializing location request...");
-                
+
                 // Set default location for testing (Tunisia)
                 userLatitude = 36.8065;
                 userLongitude = 10.1815;
-                
+
                 // Get route using default location
-                System.out.println("Getting route from: " + userLatitude + "," + userLongitude + 
-                                 " to: " + markerLatitude + "," + markerLongitude);
+                System.out.println("Getting route from: " + userLatitude + "," + userLongitude +
+                        " to: " + markerLatitude + "," + markerLongitude);
                 getRouteFromAzure(userLatitude, userLongitude, markerLatitude, markerLongitude);
-                
+
                 // Update map view
                 updateMapBounds();
                 renderMap();
-                
+
                 // Start tracking after initial route is shown
                 startLocationTracking();
-                
+
                 // Try to get actual location
                 try {
                     System.out.println("Requesting actual location...");
@@ -462,10 +465,10 @@ public class LieuDetailsController {
             javafx.application.Platform.runLater(() -> {
                 userLatitude = latitude;
                 userLongitude = longitude;
-                
+
                 // Get new route based on current location
                 getRouteFromAzure(userLatitude, userLongitude, markerLatitude, markerLongitude);
-                
+
                 // Update map view
                 updateMapBounds();
                 renderMap();
@@ -488,31 +491,31 @@ public class LieuDetailsController {
         double latMax = Math.max(markerLatitude, userLatitude);
         double lonMin = Math.min(markerLongitude, userLongitude);
         double lonMax = Math.max(markerLongitude, userLongitude);
-        
+
         // Add padding (30% of the range)
         double latPadding = Math.max((latMax - latMin) * 0.3, 0.002);
         double lonPadding = Math.max((lonMax - lonMin) * 0.3, 0.002);
-        
+
         mapBounds = new double[]{
-            latMax + latPadding,  // North
-            lonMin - lonPadding,  // West
-            latMin - latPadding,  // South
-            lonMax + lonPadding   // East
+                latMax + latPadding,  // North
+                lonMin - lonPadding,  // West
+                latMin - latPadding,  // South
+                lonMax + lonPadding   // East
         };
-        
+
         // Update center point
         centerLatitude = (latMax + latMin) / 2;
         centerLongitude = (lonMax + lonMin) / 2;
-        
+
         // Calculate appropriate zoom level
         double latSpan = mapBounds[0] - mapBounds[2];
         double lonSpan = mapBounds[3] - mapBounds[1];
-        
+
         // Calculate zoom level based on the smaller span to ensure both points are visible
         double zoomLat = Math.log(170.1022 / latSpan) / Math.log(2);
         double zoomLon = Math.log(360 / lonSpan) / Math.log(2);
         zoomLevel = (int) Math.min(zoomLat, zoomLon);
-        
+
         // Ensure zoom level is within bounds and subtract 1 to give extra space
         zoomLevel = Math.max(Math.min(zoomLevel - 1, MAX_ZOOM), MIN_ZOOM);
     }
@@ -529,31 +532,31 @@ public class LieuDetailsController {
     private double[] convertToPixelCoordinates(double lat, double lon) {
         // Calculate world coordinates
         double worldSize = Math.pow(2, zoomLevel) * TILE_SIZE;
-        
+
         // Convert longitude to x position
         double x = (lon + 180) / 360 * worldSize;
-        
+
         // Convert latitude to y position
         double latRad = Math.toRadians(lat);
         double mercN = Math.log(Math.tan((Math.PI/4) + (latRad/2)));
         double y = (worldSize/2) - (worldSize * mercN / (2 * Math.PI));
-        
+
         // Adjust for current view
         double centerWorldX = ((centerLongitude + 180) / 360) * worldSize;
         double centerLatRad = Math.toRadians(centerLatitude);
         double centerMercN = Math.log(Math.tan((Math.PI/4) + (centerLatRad/2)));
         double centerWorldY = (worldSize/2) - (worldSize * centerMercN / (2 * Math.PI));
-        
+
         // Convert to screen coordinates
         double screenX = (x - centerWorldX) + mapCanvas.getWidth() / 2;
         double screenY = (y - centerWorldY) + mapCanvas.getHeight() / 2;
-        
+
         return new double[]{screenX, screenY};
     }
 
     private void drawDirectionsAndMarkers() {
         GraphicsContext gc = mapCanvas.getGraphicsContext2D();
-        
+
         // Draw the route if we have points
         if (!routePoints.isEmpty()) {
             gc.setStroke(javafx.scene.paint.Color.web("#f5945c"));
@@ -589,17 +592,17 @@ public class LieuDetailsController {
         // Draw marker shadow
         gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.2));
         gc.fillOval(pixelX - 12, pixelY - 8, 24, 16);
-        
+
         // Draw marker pin base (larger circle)
         gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
         gc.fillOval(pixelX - 10, pixelY - 25, 20, 20);
-        
+
         // Draw marker pin point (triangle)
         double[] xPoints = {pixelX - 10, pixelX + 10, pixelX};
         double[] yPoints = {pixelY - 15, pixelY - 15, pixelY + 5};
         gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
         gc.fillPolygon(xPoints, yPoints, 3);
-        
+
         // Draw white border around the marker
         gc.setStroke(javafx.scene.paint.Color.WHITE);
         gc.setLineWidth(2);
@@ -612,7 +615,7 @@ public class LieuDetailsController {
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 14));
             double textWidth = gc.getFont().getSize() * locationName.length() * 0.6;
             gc.fillRoundRect(pixelX - textWidth/2 - 10, pixelY - 50, textWidth + 20, 30, 10, 10);
-            
+
             gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
             gc.fillText(locationName, pixelX - textWidth/2, pixelY - 30);
         }
@@ -620,7 +623,7 @@ public class LieuDetailsController {
 
     private void renderMap() {
         if (mapCanvas == null) return;
-        
+
         GraphicsContext gc = mapCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
 
@@ -646,7 +649,7 @@ public class LieuDetailsController {
         // Create a set to track loaded tiles
         java.util.Set<String> loadedTiles = new java.util.HashSet<>();
         java.util.concurrent.atomic.AtomicInteger pendingTiles = new java.util.concurrent.atomic.AtomicInteger(0);
-        
+
         for (int x = -1; x < numTilesX; x++) {
             for (int y = -1; y < numTilesY; y++) {
                 final int currentX = x;
@@ -666,7 +669,7 @@ public class LieuDetailsController {
                     continue;
                 }
                 loadedTiles.add(tileKey);
-                
+
                 pendingTiles.incrementAndGet();
                 loadSingleTile(gc, currentX, currentY, tileX, tileY, numTilesX, numTilesY, () -> {
                     if (pendingTiles.decrementAndGet() == 0) {
@@ -683,7 +686,7 @@ public class LieuDetailsController {
                 });
             }
         }
-        
+
         // If no tiles were loaded, draw immediately
         if (pendingTiles.get() == 0) {
             if (isShowingDirections) {
@@ -751,17 +754,17 @@ public class LieuDetailsController {
         // Draw marker shadow
         gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.2));
         gc.fillOval(pixelX - 12, pixelY - 8, 24, 16);
-        
+
         // Draw marker pin base (larger circle)
         gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
         gc.fillOval(pixelX - 10, pixelY - 25, 20, 20);
-        
+
         // Draw marker pin point (triangle)
         double[] xPoints = {pixelX - 10, pixelX + 10, pixelX};
         double[] yPoints = {pixelY - 15, pixelY - 15, pixelY + 5};
         gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
         gc.fillPolygon(xPoints, yPoints, 3);
-        
+
         // Draw white border around the marker
         gc.setStroke(javafx.scene.paint.Color.WHITE);
         gc.setLineWidth(2);
@@ -774,7 +777,7 @@ public class LieuDetailsController {
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 14));
             double textWidth = gc.getFont().getSize() * locationName.length() * 0.6;
             gc.fillRoundRect(pixelX - textWidth/2 - 10, pixelY - 50, textWidth + 20, 30, 10, 10);
-            
+
             gc.setFill(javafx.scene.paint.Color.rgb(245, 148, 92, 1));
             gc.fillText(locationName, pixelX - textWidth/2, pixelY - 30);
         }
@@ -855,10 +858,10 @@ public class LieuDetailsController {
                     System.out.println("Setting up location callback...");
                     JSObject window = (JSObject) hiddenWebView.getEngine().executeScript("window");
                     window.setMember("locationCallback", new LocationCallback());
-                    
+
                     // Test the setup
                     hiddenWebView.getEngine().executeScript(
-                        "console.log('Location services initialized');"
+                            "console.log('Location services initialized');"
                     );
                     System.out.println("Location services setup complete");
                 } catch (Exception e) {
@@ -887,5 +890,12 @@ public class LieuDetailsController {
                 executorService.shutdownNow();
             }
         }
+    }
+
+    @FXML
+    private void handleUserLocation() {
+        // Logique pour gérer l'emplacement de l'utilisateur
+        System.out.println("Gestion de l'emplacement de l'utilisateur...");
+        // Vous pouvez appeler des méthodes pour obtenir la localisation de l'utilisateur ici
     }
 }

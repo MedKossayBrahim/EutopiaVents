@@ -245,14 +245,52 @@ public class AjouterCategorie {
     // Navigation vers l'interface détaillée (AfficheCategorie.fxml) en passant la catégorie sélectionnée
     private void navigateToAffichage(categorie_salle categorie) {
         try {
+            // Get the current scene's root
+            javafx.scene.Parent currentRoot = tfNom.getScene().getRoot();
+            
+            // Find the navbar in the current scene
+            javafx.scene.layout.VBox navbar = null;
+            if (currentRoot instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox container = (javafx.scene.layout.HBox) currentRoot;
+                for (javafx.scene.Node node : container.getChildren()) {
+                    if (node instanceof javafx.scene.layout.VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (javafx.scene.layout.VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the category details view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficheCategorie.fxml"));
-            Parent root = loader.load();
-            // Récupération du contrôleur associé à la nouvelle vue
-            com.esprit.controllers.AfficheCategorie ac = loader.getController();
-            // Passage des détails de la catégorie à la vue détaillée
+            Parent categorieContent = loader.load();
+            
+            // Get the controller and set category details
+            AfficheCategorie ac = loader.getController();
             ac.setCategorieDetails(categorie);
-            // Remplacement de la scène actuelle par la nouvelle vue
-            tfNom.getScene().setRoot(root);
+            
+            // Create a container with navbar and content
+            javafx.scene.layout.HBox container = new javafx.scene.layout.HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, categorieContent);
+                
+                // Update the navbar to show settings as active
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles("settings");
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(categorieContent);
+            }
+            
+            javafx.scene.layout.HBox.setHgrow(categorieContent, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            tfNom.getScene().setRoot(container);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la navigation: " + e.getMessage());
         }

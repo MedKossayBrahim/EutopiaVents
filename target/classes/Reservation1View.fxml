@@ -78,10 +78,5 @@
             </VBox>
         </HBox>
     </VBox>
-    <Button fx:id="btnGoToPhotoView" text="← Retour" onAction="#goToPhotoView"
-            AnchorPane.topAnchor="10.0"
-            AnchorPane.rightAnchor="10.0"
-            styleClass="button-back"/>
-
 </AnchorPane>
 

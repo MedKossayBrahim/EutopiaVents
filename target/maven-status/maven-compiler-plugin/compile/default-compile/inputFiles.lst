@@ -5,10 +5,12 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Cate
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Admin.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Reservation1.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\CategoryService.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\LieuDetailsController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\PostService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\PhotoLieu.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\IServiceF.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Comment.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\StatistiquesController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\categorie_salle.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AfficheCategorie.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AjoutCategorie.java
@@ -32,8 +34,11 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\tests\Eutopia
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Main.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\EmailSender.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\CategoriesEventService.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\StatistiquesServiceImpl.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\categorieproduit.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\TextUtils.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Listeproduit.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\components\AutocompleteTextField.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\EmailService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\SignUpView.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Event.java
@@ -65,6 +70,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Lieu
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Listecategorie.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\NavbarController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AjoutMaterielController.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\AutocompleteService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\MainController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\NewPassView.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercateg.java
@@ -104,3 +110,4 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Role.j
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\ParticipantService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\tests\MainProg.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AllPostsController.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ReservationWindowController.java

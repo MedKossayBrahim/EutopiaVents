@@ -65,7 +65,7 @@
             prefHeight="30.0"
             styleClass="button-bottom"/>
 
-    <Button fx:id="btnGoToLieu" text="← Retour" onAction="#goToLieu"
+    <Button fx:id="btnGoToLieu" text="← Retour" onAction="#goBack"
             AnchorPane.topAnchor="10.0"
             AnchorPane.rightAnchor="10.0"
             styleClass="button-back"/>

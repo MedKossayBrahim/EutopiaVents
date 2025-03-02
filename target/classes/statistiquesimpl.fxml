@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.esprit.controllers.StatistiquesController"
+      styleClass="main-container"
+      stylesheets="@styles/MainMenu.css, @styles/statisques.css"
+      spacing="20">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- En-tête stylisé -->
+    <HBox styleClass="header" alignment="CENTER">
+        <padding>
+            <Insets top="15" right="20" bottom="15" left="20"/>
+        </padding>
+        <Button fx:id="backButton" text="←" styleClass="back-button" onAction="#goBack">
+            <tooltip>
+                <Tooltip text="Retour à la page précédente"/>
+            </tooltip>
+        </Button>
+        <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <Label text="Tableau de Bord" styleClass="title"/>
+            <Label text="Analyse et visualisation des données" styleClass="subtitle"/>
+        </VBox>
+
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Button fx:id="refreshButton" text="⟳" styleClass="icon-button" onAction="#refreshData">
+                <tooltip>
+                    <Tooltip text="Rafraîchir les données"/>
+                </tooltip>
+            </Button>
+            <Button fx:id="exportButton" text="↓" styleClass="icon-button" onAction="#exportData">
+                <tooltip>
+                    <Tooltip text="Exporter les données"/>
+                </tooltip>
+            </Button>
+        </HBox>
+    </HBox>
+
+    <!-- Cartes de statistiques améliorées -->
+    <HBox spacing="20" styleClass="stats-cards">
+        <VBox styleClass="stat-card">
+            <Label text="🏢" styleClass="stat-icon"/>
+            <Label text="Total des Salles" styleClass="stat-label"/>
+            <Label fx:id="totalSallesLabel" text="0" styleClass="stat-value"/>
+            <Label text="Lieux disponibles" styleClass="stat-description"/>
+        </VBox>
+        <VBox styleClass="stat-card">
+            <Label text="📅" styleClass="stat-icon"/>
+            <Label text="Réservations" styleClass="stat-label"/>
+            <Label fx:id="totalReservationsLabel" text="0" styleClass="stat-value"/>
+            <Label text="Réservations actives" styleClass="stat-description"/>
+        </VBox>
+        <VBox styleClass="stat-card">
+            <Label text="💰" styleClass="stat-icon"/>
+            <Label text="Revenu Total" styleClass="stat-label"/>
+            <Label fx:id="revenuTotalLabel" text="0 DT" styleClass="stat-value"/>
+            <Label text="Chiffre d'affaires" styleClass="stat-description"/>
+        </VBox>
+    </HBox>
+
+    <!-- Onglets stylisés -->
+    <TabPane fx:id="tabPane" styleClass="stats-tabs" VBox.vgrow="ALWAYS">
+        <Tab text="Vue d'ensemble" closable="false">
+            <VBox styleClass="chart-area" spacing="10">
+                <Label text="Aperçu général des performances" styleClass="chart-title"/>
+                <WebView fx:id="webView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
+            </VBox>
+        </Tab>
+        <Tab text="Par Catégorie" closable="false">
+            <VBox styleClass="chart-area" spacing="10">
+                <Label text="Distribution par catégorie de salle" styleClass="chart-title"/>
+                <WebView fx:id="categoryWebView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
+            </VBox>
+        </Tab>
+        <Tab text="Distribution" closable="false">
+            <VBox styleClass="chart-area" spacing="10">
+                <Label text="Répartition des réservations" styleClass="chart-title"/>
+                <WebView fx:id="distributionWebView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
+            </VBox>
+        </Tab>
+        <Tab text="Évolution" closable="false">
+            <VBox styleClass="chart-area" spacing="10">
+                <Label text="Tendances et évolution temporelle" styleClass="chart-title"/>
+                <WebView fx:id="evolutionWebView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <!-- Pied de page amélioré -->
+    <HBox styleClass="footer" alignment="CENTER_RIGHT" spacing="10">
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" spacing="10">
+            <Label text="EutopiaVents Analytics" styleClass="footer-brand"/>
+        </HBox>
+        <Label fx:id="statusLabel" text="Dernière mise à jour: " styleClass="status-label"/>
+        <Label fx:id="lastUpdateLabel" styleClass="update-time"/>
+    </HBox>
+</VBox>

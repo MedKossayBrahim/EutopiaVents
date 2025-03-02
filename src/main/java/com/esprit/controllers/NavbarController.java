@@ -73,6 +73,35 @@ public class NavbarController {
 
             // Set initial styles based on current page
             updateButtonStyles(currentPage);
+            
+            // Create an array of all navigation buttons for easier management
+            Button[] navButtons = {eventsButton, dashboardButton, settingsButton, forumButton, storeButton};
+            
+            // Add hover effects to all navigation buttons
+            for (Button button : navButtons) {
+                if (button != null) {
+                    // When mouse enters the button
+                    button.setOnMouseEntered(e -> {
+                        // Skip if this is the active button
+                        if (!button.getStyle().contains("#e6ddd4")) {
+                            button.setStyle("-fx-pref-width: 150; " +
+                                    "-fx-background-color: #f0ebe7; " + // Lighter background for hover
+                                    "-fx-text-fill: #7d6d61; " +        // Darker text for better contrast
+                                    "-fx-font-size: 16px; " +
+                                    "-fx-background-radius: 8; " +
+                                    "-fx-padding: 8 16;");
+                        }
+                    });
+                    
+                    // When mouse exits the button
+                    button.setOnMouseExited(e -> {
+                        // If this is not the active button, reset to default style
+                        if (!button.getStyle().contains("#e6ddd4")) {
+                            button.setStyle(BUTTON_STYLE);
+                        }
+                    });
+                }
+            }
 
             if (searchField != null) {
                 searchField.setDisable(true);
@@ -274,10 +303,8 @@ public class NavbarController {
     }
 
     public void updateButtonStyles(String activeButton) {
-        // Only update styles if the page has changed
-        if (!activeButton.equals(currentPage)) {
-            return;
-        }
+        // Update the current page
+        this.currentPage = activeButton;
 
         // Reset all buttons to default style
         if (dashboardButton != null) dashboardButton.setStyle(BUTTON_STYLE);

@@ -6,6 +6,7 @@ import com.esprit.tests.Eutopia;
 import com.esprit.utils.DataSource;
 
 import java.sql.*;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Path;
@@ -166,7 +167,7 @@ public class PostService implements IServiceF<Post> {
 
     public Post getPostById(int postId) throws SQLException {
         Connection conn = getConnection();
-        String sql = "SELECT p.*, u.username FROM posts p LEFT JOIN users u ON p.user_id = u.id WHERE p.id = ?";
+        String sql = "SELECT p.*, u.username FROM posts p LEFT JOIN users u ON p.user_id = u.userID WHERE p.id = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, postId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -219,34 +220,132 @@ public class PostService implements IServiceF<Post> {
 
     
     public List<Post> getAllPosts() throws SQLException {
+        // First check if the posts table exists
+        checkPostsTable();
+        
         List<Post> posts = new ArrayList<>();
         Connection conn = DataSource.getInstance().getConnection();
-        String sql = "SELECT p.*, u.username FROM posts p " +
+        
+        // Print database connection info
+        System.out.println("Database connection: " + (conn != null ? "Successful" : "Failed"));
+        
+        // Modified query to use explicit column names
+        String sql = "SELECT p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at, " +
+                    "p.category_id, p.is_pinned, u.username " +
+                    "FROM posts p " +
                     "LEFT JOIN users u ON p.user_id = u.userID " +
                     "ORDER BY p.created_at DESC";
+        
+        System.out.println("Executing SQL: " + sql);
                     
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
             
-            while (rs.next()) {
-                Post post = new Post();
-                post.setId(rs.getInt("id"));
-                post.setUserId(rs.getInt("user_id"));
-                post.setTitle(rs.getString("title"));
-                post.setContent(rs.getString("content"));
-                post.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                post.setAuthor(rs.getString("username"));
-                post.setCategoryId(rs.getInt("category_id"));
-                posts.add(post);
-                
-                // Debug print
-                System.out.println("Loaded post: " + post.getTitle());
+            // Print column names from metadata
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            System.out.println("ResultSet has " + columnCount + " columns:");
+            for (int i = 1; i <= columnCount; i++) {
+                System.out.println("Column " + i + ": " + metaData.getColumnName(i) + 
+                                  " (" + metaData.getColumnTypeName(i) + ")");
             }
+            
+            int rowCount = 0;
+            while (rs.next()) {
+                rowCount++;
+                try {
+                    Post post = new Post();
+                    post.setId(rs.getInt("id"));
+                    post.setUserId(rs.getInt("user_id"));
+                    post.setTitle(rs.getString("title"));
+                    post.setContent(rs.getString("content"));
+                    
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    if (createdAt != null) {
+                        post.setCreatedAt(createdAt.toLocalDateTime());
+                    }
+                    
+                    post.setAuthor(rs.getString("username"));
+                    post.setCategoryId(rs.getInt("category_id"));
+                    post.setPinned(rs.getBoolean("is_pinned"));
+                    
+                    posts.add(post);
+                    
+                    // Debug print
+                    System.out.println("Loaded post #" + rowCount + ": ID=" + post.getId() + 
+                                      ", Title=" + post.getTitle() + 
+                                      ", Author=" + post.getAuthor());
+                } catch (SQLException e) {
+                    System.err.println("Error processing row " + rowCount + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            if (rowCount == 0) {
+                System.out.println("WARNING: Query returned 0 rows!");
+            }
+            
+            rs.close();
+        } catch (SQLException e) {
+            System.err.println("Error executing query: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        } finally {
+            closeConnection(conn);
         }
         
         // Debug print
         System.out.println("Total posts loaded: " + posts.size());
         return posts;
+    }
+
+    /**
+     * Checks if the posts table exists and has the expected structure
+     */
+    private void checkPostsTable() {
+        Connection conn = null;
+        try {
+            conn = DataSource.getInstance().getConnection();
+            DatabaseMetaData dbMeta = conn.getMetaData();
+            
+            // Check if posts table exists
+            ResultSet tables = dbMeta.getTables(null, null, "posts", null);
+            if (!tables.next()) {
+                System.err.println("ERROR: 'posts' table does not exist in the database!");
+                tables.close();
+                return;
+            }
+            tables.close();
+            
+            // Check table structure
+            ResultSet columns = dbMeta.getColumns(null, null, "posts", null);
+            System.out.println("Columns in posts table:");
+            while (columns.next()) {
+                String columnName = columns.getString("COLUMN_NAME");
+                String dataType = columns.getString("TYPE_NAME");
+                System.out.println("  - " + columnName + " (" + dataType + ")");
+            }
+            columns.close();
+            
+            // Check if there are any rows in the table
+            Statement stmt = conn.createStatement();
+            ResultSet countRs = stmt.executeQuery("SELECT COUNT(*) FROM posts");
+            if (countRs.next()) {
+                int count = countRs.getInt(1);
+                System.out.println("Total rows in posts table: " + count);
+                if (count == 0) {
+                    System.out.println("WARNING: posts table is empty!");
+                }
+            }
+            countRs.close();
+            stmt.close();
+            
+        } catch (SQLException e) {
+            System.err.println("Error checking posts table: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeConnection(conn);
+        }
     }
 
     public List<Post> getPinnedPosts() throws SQLException {
