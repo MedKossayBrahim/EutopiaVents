@@ -1,39 +1,33 @@
 package com.esprit.controllers;
 
+import com.esprit.models.CategoriesEvent;
 import com.esprit.models.Evenement;
+import com.esprit.models.User;
+import com.esprit.services.CategoriesEventService;
 import com.esprit.services.EvenementService;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Label;
-import javafx.scene.control.Pagination;
-import javafx.scene.Node;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import com.esprit.models.CategoriesEvent;
-import com.esprit.services.CategoriesEventService;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Button;
-import com.esprit.models.User;
-import com.esprit.tests.Eutopia;
-import com.esprit.utils.SceneManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.io.File;
 import java.util.Objects;
 
 public class EventsController {
@@ -348,40 +342,44 @@ public class EventsController {
 
     @FXML
     private void goToAjouterCateg() {
-        SceneManager.switchScene(rootPane.getScene(), "/AjouterCategEvent.fxml");
+        loadPage("/AjouterCategEvent.fxml");
     }
-    
     @FXML
     private void goToAjouterEvenement() {
-        SceneManager.switchScene(rootPane.getScene(), "/AjouterEvenement.fxml");
+        loadPage("/AjouterEvenement.fxml");
     }
+
 
     @FXML
     private void goToModifierEvenement() {
-        SceneManager.switchScene(rootPane.getScene(), "/ModifierEvenement.fxml");
+        loadPage("/ModifierEvenement.fxml");
     }
 
     @FXML
     private void goToEventsView() {
-        SceneManager.switchScene(rootPane.getScene(), "/events-view.fxml");
+        loadPage("/events-view.fxml");
     }
 
     @FXML
     private void goToGererEvenements() {
-        SceneManager.switchScene(rootPane.getScene(), "/GererEvenements.fxml");
+        loadPage("/GererEvenements.fxml");
     }
-    
-    @FXML 
-    private void goToPanier() {
-        SceneManager.switchScene(rootPane.getScene(), "/Panier.fxml");
+    @FXML private void goToPanier() {
+        loadPage("/Panier.fxml");
     }
 
     private void loadPage(String page) {
         try {
-            SceneManager.switchScene(rootPane.getScene(), page);
+            Parent newPage = FXMLLoader.load(getClass().getResource(page));
+            Scene scene = rootPane.getScene();
+            scene.setRoot(newPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
+    public void editProfile(MouseEvent mouseEvent) throws IOException {
+        Eutopia.getSceneManager().switchScene("/editProfile.fxml",null);
+    }
 }

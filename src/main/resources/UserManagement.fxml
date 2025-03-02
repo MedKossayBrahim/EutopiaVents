@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.UserManagementController"
+            stylesheets="@styles/user_management.css">
+            
+
+
+    <center>
+        <VBox spacing="20" styleClass="content-container">
+            <padding>
+                <Insets top="30" right="40" bottom="30" left="40"/>
+            </padding>
+
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Label text="User Management" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField" promptText="Search users..." styleClass="search-field"/>
+            </HBox>
+
+            <TableView fx:id="usersTable" styleClass="users-table">
+                <columns>
+                    <TableColumn text="Full Name" prefWidth="200">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="fullname" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Username" prefWidth="150">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="userName" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Email" prefWidth="200">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="email" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Role" prefWidth="150">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="role" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Status" prefWidth="100">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="active" />
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane> 

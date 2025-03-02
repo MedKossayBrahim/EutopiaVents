@@ -1,0 +1,105 @@
+/* Root Styling */
+.root {
+    -fx-font-family: 'Arial';
+}
+
+/* Field Labels */
+.field-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a403a;
+    -fx-font-weight: bold;
+}
+
+/* Text Fields */
+.text-field {
+    -fx-background-color: #faf6f3;
+    -fx-background-radius: 8;
+    -fx-border-color: #d9d5d2;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c2522;
+    -fx-padding: 10;
+    -fx-pref-height: 40;
+}
+
+.text-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #6b5e56;
+}
+
+/* Action Button (Change Photo) */
+.action-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b5e56;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-text-fill: #4a403a;
+    -fx-background-color: #e8e3e0;
+    -fx-background-radius: 5;
+}
+
+/* Edit Button */
+.edit-button {
+    -fx-background-color: #6b5e56;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.edit-button:hover {
+    -fx-background-color: #4a403a;
+}
+
+/* Save Button */
+.save-button {
+    -fx-background-color: #5cb85c;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.save-button:hover {
+    -fx-background-color: #4cae4c;
+}
+
+/* Become Organisateur Button */
+.become-organisateur-button {
+    -fx-background-color: #f0ad4e;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 12 25;
+    -fx-cursor: hand;
+}
+
+.become-organisateur-button:hover {
+    -fx-background-color: #ec971f;
+}
+
+/* Delete Account Button */
+.delete-account-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d9534f;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.delete-account-button:hover {
+    -fx-background-color: #f2dede;
+    -fx-background-radius: 8;
+}

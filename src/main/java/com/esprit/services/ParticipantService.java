@@ -1,6 +1,5 @@
 package com.esprit.services;
 
-
 import com.esprit.models.Participant;
 import com.esprit.models.Role;
 import com.esprit.tests.Eutopia;
@@ -11,8 +10,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 public class ParticipantService extends UserService implements IService<Participant> {
 
@@ -21,13 +21,64 @@ public class ParticipantService extends UserService implements IService<Particip
     public ParticipantService() throws SQLException {
     }
 
+    public boolean hasExistingRequest(int userId) {
+        String req = "SELECT * FROM request WHERE userID = ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setInt(1, userId);
+            ResultSet rs = st.executeQuery();
+            return rs.next(); // Returns true if a request exists
+        } catch (SQLException e) {
+            System.out.println("Error checking request: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void sendRequest(int id) throws SQLException {
+        // First check if user already has a request
+        if (hasExistingRequest(id)) {
+            throw new SQLException("You have already sent a request to become an organisateur");
+        }
+
+        String req = "INSERT INTO request (userID) VALUES (?)";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setInt(1, id);
+            int rowsAffected = st.executeUpdate();
+
+            if (rowsAffected <= 0) {
+                throw new SQLException("Failed to send request");
+            }
+        }
+    }
+
+    public void updateRoleToOrganisateur(int userID) {
+        String req = "UPDATE users SET role = ? WHERE userID = ?";
+
+        try (
+                PreparedStatement st = connection.prepareStatement(req)) {
+
+            st.setString(1, "organisateur"); // New role
+            st.setInt(2, userID); // userID is used to identify the user to update
+
+            int rowsAffected = st.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Role updated to 'organisateur' for user with ID: " + userID);
+            } else {
+                System.out.println("No user found with ID: " + userID);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating role to 'organisateur': " + e.getMessage());
+        }
+    }
+
     @Override
     public void ajouter(Participant participant) {
 
-        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
+                PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters to prevent SQL injection
             st.setString(1, participant.getFullname());
@@ -56,13 +107,11 @@ public class ParticipantService extends UserService implements IService<Particip
             } else if (e.getMessage().contains("email")) {
                 showAlert("Error", "email already exists");
 
-
             }
             System.out.println("Erreur lors de l'ajout du participant: " + e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
     }
 
@@ -73,7 +122,7 @@ public class ParticipantService extends UserService implements IService<Particip
         String req = "UPDATE users SET fullName = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
+                PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters for the update query
             st.setString(1, participant.getFullname());
@@ -100,7 +149,6 @@ public class ParticipantService extends UserService implements IService<Particip
             System.out.println("Erreur lors de la modification du participant: " + e.getMessage());
         }
 
-
     }
 
     @Override
@@ -109,7 +157,7 @@ public class ParticipantService extends UserService implements IService<Particip
         String req = "DELETE FROM users WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
+                PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set the userID parameter for the delete query
             st.setInt(1, participant.getUserID());
@@ -128,7 +176,6 @@ public class ParticipantService extends UserService implements IService<Particip
         }
     }
 
-
     @Override
     public List<Participant> rechercher() {
         String req = "SELECT * FROM users";
@@ -137,13 +184,16 @@ public class ParticipantService extends UserService implements IService<Particip
         List<Participant> participants = new ArrayList<>();
 
         try (// Ensure you have a method to get a connection
-             Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(req)) {
+                Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(req)) {
 
             // Iterate through the result set and create Participant objects
             while (rs.next()) {
                 // Create a Participant object using the parameterized constructor
-                Participant participantTEMP = new Participant(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
-                        rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")) // Assuming Role is an enum
+                Participant participantTEMP = new Participant(rs.getInt("userID"), rs.getString("fullName"),
+                        rs.getString("email"), rs.getString("password"), // Ensure this is hashed
+                        rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"),
+                        Role.valueOf(rs.getString("role")) // Assuming Role is an enum
                 );
 
                 // Add the participant to the list
@@ -157,11 +207,74 @@ public class ParticipantService extends UserService implements IService<Particip
         return participants;
     }
 
+    public void deleteRequest(int userId) throws SQLException {
+        String req = "DELETE FROM request WHERE userID = ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setInt(1, userId);
+            st.executeUpdate();
+        }
+    }
+
+    public List<Map<String, Object>> getUserRequests() {
+        String query = "SELECT u.userID, u.fullName, u.userName, u.email, r.created_at " +
+                "FROM users u " +
+                "JOIN request r ON u.userID = r.userID";
+
+        List<Map<String, Object>> userRequests = new ArrayList<>();
+
+        try (PreparedStatement st = connection.prepareStatement(query);
+                ResultSet rs = st.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("userID", rs.getInt("userID"));
+                row.put("fullName", rs.getString("fullName"));
+                row.put("userName", rs.getString("userName"));
+                row.put("email", rs.getString("email"));
+                row.put("createdAt", rs.getDate("created_at"));
+                userRequests.add(row);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching user requests: " + e.getMessage());
+        }
+
+        return userRequests;
+    }
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public boolean isUsernameExists(String username) {
+        String req = "SELECT COUNT(*) FROM users WHERE userName = ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setString(1, username);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking username: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isUsernameExistsExcept(String username, int currentUserId) {
+        String req = "SELECT COUNT(*) FROM users WHERE userName = ? AND userID != ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setString(1, username);
+            st.setInt(2, currentUserId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking username: " + e.getMessage());
+        }
+        return false;
     }
 }

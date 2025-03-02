@@ -4,11 +4,13 @@ import com.esprit.models.Participant;
 import com.esprit.models.User;
 import com.esprit.services.ParticipantService;
 import com.esprit.tests.Eutopia;
+import com.esprit.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,7 +36,7 @@ public class editProfile implements Initializable {
     private ImageView photo;
 
     @FXML
-    private Button editbtn, save;
+    private Button editbtn, save, becomeOrganisateur, deleteAccount;
 
     private File selectedImageFile;
     private String imagePath;
@@ -43,7 +45,6 @@ public class editProfile implements Initializable {
 
     public editProfile() throws SQLException {
     }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,11 +67,29 @@ public class editProfile implements Initializable {
         // Disable fields initially and hide save button
         setEditableFields(false);
         save.setVisible(false);
+
+        // Show/hide become organisateur button based on role
+        if (currentUser != null && currentUser.getRole().toString().equalsIgnoreCase("participant")) {
+            becomeOrganisateur.setVisible(true);
+            // Check if user already has a pending request
+            try {
+                if (ps.hasExistingRequest(currentUser.getUserID())) {
+                    becomeOrganisateur.setDisable(true);
+                    becomeOrganisateur.setText("Request Pending ⌛");
+                }
+            } catch (Exception e) {
+                System.err.println("Error checking request status: " + e.getMessage());
+            }
+        } else {
+            becomeOrganisateur.setVisible(false);
+        }
+        becomeOrganisateur.setManaged(becomeOrganisateur.isVisible());
     }
 
     public void chooseImage(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        fileChooser.getExtensionFilters()
+                .add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
@@ -132,6 +151,17 @@ public class editProfile implements Initializable {
         }
 
         try {
+            // First check if the username is already taken by another user
+            if (!username.getText().equals(currentUser.getUserName()) &&
+                    ps.isUsernameExistsExcept(username.getText(), currentUser.getUserID())) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("This username is already taken. Please choose another one.");
+                alert.showAndWait();
+                return;
+            }
+
             currentUser.setFullname(nom.getText());
             currentUser.setUserName(username.getText());
             currentUser.setEmail(email.getText());
@@ -176,5 +206,72 @@ public class editProfile implements Initializable {
         email.setEditable(status);
         password.setEditable(status);
         phone.setEditable(status);
+    }
+
+    public void becomeOrganisateur(ActionEvent actionEvent) {
+        try {
+            // Send request to become organisateur
+            ps.sendRequest(currentUser.getUserID());
+
+            // Show success message
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Request Sent");
+            alert.setHeaderText(null);
+            alert.setContentText(
+                    "Your request to become an organisateur has been sent successfully! Please wait for admin approval.");
+            alert.showAndWait();
+
+            // Update button state
+            becomeOrganisateur.setDisable(true);
+            becomeOrganisateur.setText("Request Pending ⌛");
+
+        } catch (SQLException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("An unexpected error occurred: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void deleteAccount(ActionEvent event) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Account Deactivation");
+        confirmAlert.setHeaderText("Are you sure you want to deactivate your account?");
+        confirmAlert.setContentText(
+                "This action will deactivate your account. You can reactivate it by contacting support.");
+
+        if (confirmAlert.showAndWait().get() == ButtonType.OK) {
+            try {
+                // Update user's active status to false
+                currentUser.setActive(false);
+                Participant user = new Participant(currentUser);
+                ps.modifier(user);
+
+                // Show success message
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Account Deactivated");
+                successAlert.setContentText("Your account has been successfully deactivated.");
+                successAlert.showAndWait();
+
+                // Logout the user
+                Eutopia.setCurrentUser(null);
+                UserSession.saveUser(null);
+                Eutopia.getSceneManager().switchScene("/login-view.fxml", null);
+
+            } catch (Exception e) {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Error");
+                errorAlert.setContentText("Error deactivating account: " + e.getMessage());
+                errorAlert.show();
+            }
+        }
     }
 }

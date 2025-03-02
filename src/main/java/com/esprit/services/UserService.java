@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserService {
     Connection connection = DataSource.getInstance().getConnection();
@@ -19,7 +21,7 @@ public class UserService {
 
     public User signIn(String login, String passwd) {
         User user = null;
-        String req = "SELECT * FROM users WHERE email = ? OR username = ?;"; // Query to find the user
+        String req = "SELECT * FROM users WHERE (email = ? OR username = ?) AND isActive = TRUE;"; // Ensure user is active
 
         try (PreparedStatement st = connection.prepareStatement(req)) {
             // Set parameters to prevent SQL injection
@@ -33,15 +35,23 @@ public class UserService {
                     // Compare the input password with the stored hashed password
                     if (BCrypt.checkpw(passwd, storedHashedPassword)) {
                         // Passwords match, create the User object
-                        user = new User(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), storedHashedPassword, rs.getString("userName"), rs.getString("image"),
-                                // Use the stored hashed password
-                                rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")));
+                        user = new User(
+                                rs.getInt("userID"),
+                                rs.getString("fullName"),
+                                rs.getString("email"),
+                                storedHashedPassword,
+                                rs.getString("userName"),
+                                rs.getString("image"),
+                                rs.getInt("phone"),
+                                rs.getBoolean("isActive"),
+                                Role.valueOf(rs.getString("role"))
+                        );
                         System.out.println("User logged in: " + user);
                     } else {
                         System.out.println("Invalid password.");
                     }
                 } else {
-                    System.out.println("No user found with the provided credentials.");
+                    System.out.println("No active user found with the provided credentials.");
                 }
             }
         } catch (SQLException e) {
@@ -50,6 +60,7 @@ public class UserService {
 
         return user; // Return the user object (or null if login fails)
     }
+
     public boolean userExistsByEmail(String email) {
         String req = "SELECT COUNT(*) FROM users WHERE email = ?;";
         try (PreparedStatement st = connection.prepareStatement(req)) {
@@ -86,6 +97,39 @@ public class UserService {
             }
         } catch (SQLException e) {
             System.out.println("Error updating password: " + e.getMessage());
+        }
+    }
+
+    public List<User> getAllNonAdminUsers() throws SQLException {
+        String query = "SELECT * FROM users WHERE role != 'admin'";
+        List<User> users = new ArrayList<>();
+        
+        try (PreparedStatement st = connection.prepareStatement(query);
+             ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                User user = new User(
+                    rs.getInt("userID"),
+                    rs.getString("fullName"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getString("userName"),
+                    rs.getString("image"),
+                    rs.getInt("phone"),
+                    rs.getBoolean("isActive"),
+                    Role.valueOf(rs.getString("role"))
+                );
+                users.add(user);
+            }
+        }
+        return users;
+    }
+
+    public void updateUserStatus(int userId, boolean isActive) throws SQLException {
+        String query = "UPDATE users SET isActive = ? WHERE userID = ?";
+        try (PreparedStatement st = connection.prepareStatement(query)) {
+            st.setBoolean(1, isActive);
+            st.setInt(2, userId);
+            st.executeUpdate();
         }
     }
 

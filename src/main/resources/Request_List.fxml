@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.MapValueFactory?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.RequestList"
+            stylesheets="@styles/request_list.css">
+            
+
+
+    <center>
+        <VBox spacing="20" styleClass="content-container">
+            <padding>
+                <Insets top="30" right="40" bottom="30" left="40"/>
+            </padding>
+
+            <Label text="Organisateur Requests" styleClass="page-title"/>
+
+            <TableView fx:id="userRequestsTable" styleClass="request-table">
+                <columns>
+                    <TableColumn text="Full Name" prefWidth="200">
+                        <cellValueFactory>
+                            <MapValueFactory key="fullName" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Username" prefWidth="150">
+                        <cellValueFactory>
+                            <MapValueFactory key="userName" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Email" prefWidth="200">
+                        <cellValueFactory>
+                            <MapValueFactory key="email" />
+                        </cellValueFactory>
+                    </TableColumn>
+
+                    <TableColumn text="Created At" prefWidth="150">
+                        <cellValueFactory>
+                            <MapValueFactory key="createdAt" />
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

@@ -52,7 +52,8 @@ public class SignUpView {
     @FXML
     void signUp(ActionEvent event) {
         // Input validation
-        if (nom.getText().isEmpty() || userName.getText().isEmpty() || email.getText().isEmpty() || passwd.getText().isEmpty() || tel.getText().isEmpty()) {
+        if (nom.getText().isEmpty() || userName.getText().isEmpty() || email.getText().isEmpty()
+                || passwd.getText().isEmpty() || tel.getText().isEmpty()) {
             showAlert("Error", "All fields must be filled.");
             return;
         }
@@ -73,6 +74,12 @@ public class SignUpView {
         }
 
         try {
+            // Check if username already exists
+            if (ps.isUsernameExists(userName.getText())) {
+                showAlert("Error", "This username is already taken. Please choose another one.");
+                return;
+            }
+
             if (!validateEmailWithAPI(email.getText())) {
                 showAlert("Error", "Invalid email address.");
                 return;
@@ -83,7 +90,8 @@ public class SignUpView {
                 return;
             }
 
-            ps.ajouter(new Participant(nom.getText(), userName.getText(), email.getText(), passwd.getText(), Integer.parseInt(tel.getText())));
+            ps.ajouter(new Participant(nom.getText(), userName.getText(), email.getText(), passwd.getText(),
+                    Integer.parseInt(tel.getText())));
 
             showAlert("Success", "Account created successfully!");
 
@@ -138,7 +146,8 @@ public class SignUpView {
 
     private boolean validatePhoneWithAPI(String phone) {
         try {
-            String apiUrl = "https://phonevalidation.abstractapi.com/v1/?api_key=" + PHONE_API_KEY + "&phone=+216" + phone;
+            String apiUrl = "https://phonevalidation.abstractapi.com/v1/?api_key=" + PHONE_API_KEY + "&phone=+216"
+                    + phone;
             Content content = Request.get(apiUrl).execute().returnContent();
             return content.asString().contains("\"valid\":true");
         } catch (IOException e) {
@@ -164,10 +173,10 @@ public class SignUpView {
 
         // Ensure tel TextField only allows numbers and a max length of 8
         tel.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {  // Only allows digits
-                tel.setText(oldValue);  // Revert to previous valid input
+            if (!newValue.matches("\\d*")) { // Only allows digits
+                tel.setText(oldValue); // Revert to previous valid input
             }
-            if (newValue.length() > 8) {  // Restrict max length to 8
+            if (newValue.length() > 8) { // Restrict max length to 8
                 tel.setText(oldValue);
             }
         });

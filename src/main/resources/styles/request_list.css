@@ -1,0 +1,54 @@
+.content-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.page-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.request-table {
+    -fx-background-color: transparent;
+}
+
+.request-table .column-header {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 10px;
+}
+
+.request-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #eee transparent;
+    -fx-padding: 5px;
+}
+
+.request-table .table-row-cell:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+.accept-button {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.accept-button:hover {
+    -fx-background-color: #218838;
+}
+
+.deny-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.deny-button:hover {
+    -fx-background-color: #c82333;
+} 
