@@ -26,6 +26,7 @@ import com.esprit.services.FeedbackService;
 
 import java.io.IOException;
 import java.util.List;
+import java.net.URL;
 
 public class MaterielGridController {
 
@@ -242,17 +243,24 @@ public class MaterielGridController {
 
     public void openstats(ActionEvent actionEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/statistiques.fxml"));
+            // Utiliser une méthode plus robuste pour charger le FXML
+            URL fxmlUrl = getClass().getResource("/statistiques.fxml");
+            if (fxmlUrl == null) {
+                throw new IOException("Cannot find statistiques.fxml");
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("stats");
+            stage.setTitle("Statistiques");
             stage.setScene(new Scene(root));
+            
+           
+            
             stage.show();
-
-
         } catch (IOException e) {
-            System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur", e);
         }
     }
 

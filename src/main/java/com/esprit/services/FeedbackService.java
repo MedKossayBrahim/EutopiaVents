@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FeedbackService {
-    private Connection connection = DataSource.getInstance().getConnection();
 
     public void ajouter(Feedback feedback) {
-        try {
+        try (Connection connection = DataSource.getInstance().getConnection()) {
             String req = "INSERT INTO feedback (user, materiel_id, contenu, rating) VALUES (?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, feedback.getUserId());
@@ -27,7 +26,7 @@ public class FeedbackService {
 
     public List<Feedback> getFeedbacksByMateriel(int materielId) {
         List<Feedback> feedbacks = new ArrayList<>();
-        try {
+        try (Connection connection = DataSource.getInstance().getConnection()) {
             String req = "SELECT f.*, u.fullName FROM feedback f " +
                         "JOIN users u ON f.user = u.userID " +
                         "WHERE f.materiel_id = ? " +
@@ -54,7 +53,7 @@ public class FeedbackService {
     }
 
     public void supprimer(int id) {
-        try {
+        try (Connection connection = DataSource.getInstance().getConnection()) {
             String req = "DELETE FROM feedback WHERE id = ?";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, id);
@@ -62,12 +61,11 @@ public class FeedbackService {
             System.out.println("Feedback supprimé avec succès");
         } catch (SQLException e) {
             System.err.println("Erreur lors de la suppression du feedback : " + e.getMessage());
-            throw new RuntimeException(e);
         }
     }
 
     public void modifier(Feedback feedback) {
-        try {
+        try (Connection connection = DataSource.getInstance().getConnection()) {
             String req = "UPDATE feedback SET contenu = ?, rating = ? WHERE id = ?";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setString(1, feedback.getContenu());
@@ -77,23 +75,21 @@ public class FeedbackService {
             System.out.println("Feedback modifié avec succès");
         } catch (SQLException e) {
             System.err.println("Erreur lors de la modification du feedback : " + e.getMessage());
-            throw new RuntimeException(e);
         }
     }
 
     public double getMoyenneRating(int materielId) {
-        try {
+        try (Connection connection = DataSource.getInstance().getConnection()) {
             String req = "SELECT AVG(rating) as moyenne FROM feedback WHERE materiel_id = ?";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, materielId);
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
                 return rs.getDouble("moyenne");
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors du calcul de la moyenne : " + e.getMessage());
+            System.err.println("Erreur lors du calcul de la moyenne des ratings : " + e.getMessage());
         }
-        return 0.0;
+        return 0;
     }
 } 

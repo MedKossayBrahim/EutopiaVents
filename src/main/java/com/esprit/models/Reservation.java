@@ -1,7 +1,7 @@
 package com.esprit.models;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.*;
 
 public class Reservation {
     private int id;
@@ -12,7 +12,16 @@ public class Reservation {
     private double prixTotal; // Prix total = prix du matériel * quantité
     private java.sql.Timestamp dateDebut;
     private java.sql.Timestamp dateFin;
+    private String status;
+    private List<Materiel> materials;
+    private Map<Materiel, Integer> quantities;
     private boolean paye;  // true si payé, false sinon
+
+    public Reservation() {
+        this.materials = new ArrayList<>();
+        this.quantities = new HashMap<>();
+        this.status = "EN_ATTENTE";
+    }
 
     public Reservation(int id, int userId, Integer evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
@@ -41,10 +50,6 @@ public class Reservation {
         this.userId = userId;
     }
 
-
-
-
-
     public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
         this.evenementId = evenementId;
@@ -56,7 +61,6 @@ public class Reservation {
     }
 
     public Reservation( int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin, int userId) {
-
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
@@ -74,7 +78,6 @@ public class Reservation {
         this.dateFin = convertToSqlTimestamp(dateFin);
     }
 
-
     public Reservation(int id, int qte,int materielId,int evenementId) {
         this.id=id;
         this.quantite=qte;
@@ -82,7 +85,6 @@ public class Reservation {
         this.evenementId=evenementId;
     }
     public Reservation( int qte,int materielId,int evenementId) {
-
         this.quantite=qte;
         this.materielId=materielId;
         this.evenementId=evenementId;
@@ -123,16 +125,62 @@ public class Reservation {
         this.dateFin = convertToSqlTimestamp(dateFin);
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+        this.paye = "PAYÉ".equals(status);
+    }
+
+    public boolean isPaye() {
+        return paye;
+    }
+
+    public void setPaye(boolean paye) {
+        this.paye = paye;
+        this.status = paye ? "PAYÉ" : "EN_ATTENTE";
+    }
+
+    public List<Materiel> getMaterials() {
+        return materials;
+    }
+
+    public void setMaterials(List<Materiel> materials) {
+        this.materials = materials;
+        if (materials != null && !materials.isEmpty()) {
+            this.materielId = materials.get(0).getId(); // Pour la compatibilité avec l'ancien code
+        }
+    }
+
+    public Map<Materiel, Integer> getQuantities() {
+        return quantities;
+    }
+
+    public void setQuantities(Map<Materiel, Integer> quantities) {
+        this.quantities = quantities;
+        if (quantities != null && !quantities.isEmpty()) {
+            // Mettre à jour la quantité totale pour la compatibilité
+            this.quantite = quantities.values().stream().mapToInt(Integer::intValue).sum();
+        }
+    }
+
     @Override
     public String toString() {
         return "Reservation{" +
                 "id=" + id +
+                ", userId=" + userId +
                 ", evenementId=" + evenementId +
                 ", materielId=" + materielId +
                 ", quantite=" + quantite +
                 ", prixTotal=" + prixTotal +
                 ", dateDebut=" + dateDebut +
                 ", dateFin=" + dateFin +
+                ", status='" + status + '\'' +
+                ", paye=" + paye +
+                ", materials=" + materials +
+                ", quantities=" + quantities +
                 '}';
     }
 }
