@@ -1,105 +1,173 @@
 /* Root Styling */
 .root {
-    -fx-font-family: 'Arial';
+    -fx-font-family: 'Segoe UI';
+}
+
+.content-container {
+    -fx-background-color: transparent;
 }
 
 /* Field Labels */
 .field-label {
     -fx-font-size: 14px;
-    -fx-text-fill: #4a403a;
+    -fx-text-fill: #2D3250;
     -fx-font-weight: bold;
+    -fx-font-family: 'Segoe UI';
 }
 
 /* Text Fields */
 .text-field {
-    -fx-background-color: #faf6f3;
-    -fx-background-radius: 8;
-    -fx-border-color: #d9d5d2;
-    -fx-border-radius: 8;
+    -fx-background-color: #f0eae4;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(245,148,92,0.2);
+    -fx-border-radius: 10;
     -fx-border-width: 1;
     -fx-font-size: 14px;
-    -fx-text-fill: #2c2522;
-    -fx-padding: 10;
+    -fx-text-fill: #2D3250;
+    -fx-padding: 12;
     -fx-pref-height: 40;
+    -fx-font-family: 'Segoe UI';
 }
 
 .text-field:focused {
     -fx-background-color: #ffffff;
-    -fx-border-color: #6b5e56;
+    -fx-border-color: #f5945c;
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.3), 5, 0, 0, 0);
 }
 
 /* Action Button (Change Photo) */
 .action-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #6b5e56;
+    -fx-background-color: rgba(245,148,92,0.1);
+    -fx-text-fill: #f5945c;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 8 15;
+    -fx-padding: 10 20;
     -fx-cursor: hand;
+    -fx-background-radius: 20;
+    -fx-font-family: 'Segoe UI';
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 3, 0, 0, 1);
 }
 
 .action-button:hover {
-    -fx-text-fill: #4a403a;
-    -fx-background-color: #e8e3e0;
-    -fx-background-radius: 5;
+    -fx-background-color: rgba(245,148,92,0.2);
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.3), 5, 0, 0, 1);
 }
 
 /* Edit Button */
 .edit-button {
-    -fx-background-color: #6b5e56;
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 14px;
+    -fx-background-color: linear-gradient(to right, #f5945c, #f0ad4e);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 10 20;
+    -fx-background-radius: 20;
+    -fx-padding: 12 30;
     -fx-cursor: hand;
+    -fx-font-family: 'Segoe UI';
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.4), 6, 0, 0, 2);
+    -fx-min-width: 120;
 }
 
 .edit-button:hover {
-    -fx-background-color: #4a403a;
+    -fx-background-color: linear-gradient(to right, #e5844c, #e09c3e);
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.6), 10, 0, 0, 3);
+    -fx-translate-y: -1;
+}
+
+.edit-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.4), 3, 0, 0, 1);
+}
+
+.edit-button .text {
+    -fx-fill: white !important;
 }
 
 /* Save Button */
 .save-button {
-    -fx-background-color: #5cb85c;
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 14px;
+    -fx-background-color: linear-gradient(to right, #28a745, #5cb85c);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-radius: 8;
-    -fx-padding: 10 20;
+    -fx-background-radius: 20;
+    -fx-padding: 12 30;
     -fx-cursor: hand;
+    -fx-font-family: 'Segoe UI';
+    -fx-effect: dropshadow(gaussian, rgba(40,167,69,0.4), 6, 0, 0, 2);
+    -fx-min-width: 120;
 }
 
 .save-button:hover {
-    -fx-background-color: #4cae4c;
+    -fx-background-color: linear-gradient(to right, #218838, #4cae4c);
+    -fx-effect: dropshadow(gaussian, rgba(40,167,69,0.6), 10, 0, 0, 3);
+    -fx-translate-y: -1;
+}
+
+.save-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(40,167,69,0.4), 3, 0, 0, 1);
+}
+
+.save-button .text {
+    -fx-fill: white !important;
 }
 
 /* Become Organisateur Button */
 .become-organisateur-button {
-    -fx-background-color: #f0ad4e;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: linear-gradient(to right, #f5945c, #f0ad4e);
+    -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-background-radius: 10;
-    -fx-padding: 12 25;
+    -fx-background-radius: 20;
+    -fx-padding: 12 30;
     -fx-cursor: hand;
+    -fx-font-family: 'Segoe UI';
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.4), 8, 0, 0, 2);
 }
 
 .become-organisateur-button:hover {
-    -fx-background-color: #ec971f;
+    -fx-background-color: linear-gradient(to right, #e5844c, #ec971f);
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.6), 10, 0, 0, 3);
+    -fx-translate-y: -1;
+}
+
+.become-organisateur-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.4), 4, 0, 0, 1);
+}
+
+.become-organisateur-button .text {
+    -fx-fill: white !important;
 }
 
 /* Delete Account Button */
 .delete-account-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #d9534f;
-    -fx-font-size: 14px;
+    -fx-background-color: linear-gradient(to right, rgba(220,53,69,0.1), rgba(220,53,69,0.2));
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-padding: 10 20;
+    -fx-padding: 12 30;
     -fx-cursor: hand;
+    -fx-background-radius: 20;
+    -fx-font-family: 'Segoe UI';
+    -fx-effect: dropshadow(gaussian, rgba(220,53,69,0.2), 4, 0, 0, 1);
+    -fx-border-color: rgba(220,53,69,0.3);
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-min-width: 180;
 }
 
 .delete-account-button:hover {
-    -fx-background-color: #f2dede;
-    -fx-background-radius: 8;
+    -fx-background-color: linear-gradient(to right, rgba(220,53,69,0.2), rgba(220,53,69,0.3));
+    -fx-effect: dropshadow(gaussian, rgba(220,53,69,0.4), 6, 0, 0, 2);
+    -fx-border-color: rgba(220,53,69,0.5);
+    -fx-translate-y: -1;
+}
+
+.delete-account-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(220,53,69,0.2), 2, 0, 0, 0);
+}
+
+.delete-account-button .text {
+    -fx-fill: #dc3545 !important;
 }

@@ -10,20 +10,59 @@
 
 <BorderPane fx:id="rootPane" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.editProfile">
 
-
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
-            <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <VBox spacing="30" styleClass="content-container">
                 <padding>
                     <Insets top="30" right="40" bottom="30" left="40"/>
                 </padding>
 
-                <VBox alignment="CENTER" spacing="20">
-                    <Text text="Edit Profile" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #333333;"/>
+                <HBox spacing="20" alignment="CENTER" 
+                      style="-fx-background-color: linear-gradient(to right, #f0eae4, #f5e6d3); 
+                             -fx-background-radius: 12; 
+                             -fx-padding: 25 30;
+                             -fx-effect: dropshadow(three-pass-box, rgba(245,148,92,0.25), 20, 0.2, 0, 6);
+                             -fx-border-color: rgba(245,148,92,0.1);
+                             -fx-border-radius: 12;
+                             -fx-border-width: 2;">
+                    <Text text="Edit Profile" 
+                          style="-fx-font-family: 'Segoe UI'; 
+                                 -fx-font-size: 32px; 
+                                 -fx-font-weight: bold; 
+                                 -fx-fill: #f5945c;
+                                 -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 2, 0, 0, 1);"/>
+                </HBox>
 
-                    <VBox alignment="CENTER" spacing="10">
-                        <ImageView fx:id="photo" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true"
-                                   style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0);"/>
+                <!-- Deactivate Account Button at top left -->
+                <HBox alignment="CENTER_LEFT">
+                    <Button fx:id="deleteAccount" onAction="#deleteAccount" styleClass="delete-account-button">
+                        <graphic>
+                            <ImageView fitHeight="16" fitWidth="16">
+                                <Image url="@Images/delete.png"/>
+                            </ImageView>
+                        </graphic>
+                        <text>Deactivate Account</text>
+                    </Button>
+                </HBox>
+
+                <VBox style="-fx-background-color: white; 
+                            -fx-padding: 30; 
+                            -fx-background-radius: 15; 
+                            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
+
+                    <VBox alignment="CENTER" spacing="20">
+                        <StackPane>
+                            <Circle fx:id="photoCircle" radius="60" fill="white" 
+                                    style="-fx-effect: dropshadow(gaussian, rgba(245,148,92,0.3), 10, 0, 0, 0);"/>
+                            <StackPane maxWidth="120" maxHeight="120" minWidth="120" minHeight="120">
+                                <clip>
+                                    <Circle radius="60" centerX="60" centerY="60"/>
+                                </clip>
+                                <ImageView fx:id="photo" fitHeight="120.0" fitWidth="120.0" 
+                                           pickOnBounds="true" preserveRatio="true"/>
+                            </StackPane>
+                        </StackPane>
+                        
                         <Button onAction="#chooseImage" styleClass="action-button">
                             <graphic>
                                 <ImageView fitHeight="16" fitWidth="16">
@@ -33,64 +72,75 @@
                             <text>Change Photo</text>
                         </Button>
                     </VBox>
-                </VBox>
 
-                <GridPane vgap="20" hgap="20" alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
-                    </columnConstraints>
+                    <Separator>
+                        <padding>
+                            <Insets top="20" bottom="20"/>
+                        </padding>
+                    </Separator>
 
-                    <VBox spacing="5" GridPane.columnSpan="2">
-                        <Label text="Full Name" styleClass="field-label"/>
-                        <TextField fx:id="nom" styleClass="text-field"/>
-                    </VBox>
+                    <GridPane vgap="20" hgap="20" alignment="CENTER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                        </columnConstraints>
 
-                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                        <Label text="Username" styleClass="field-label"/>
-                        <TextField fx:id="username" styleClass="text-field"/>
-                    </VBox>
+                        <VBox spacing="5" GridPane.columnSpan="2">
+                            <Label text="Full Name" styleClass="field-label"/>
+                            <TextField fx:id="nom" styleClass="text-field"/>
+                        </VBox>
 
-                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="2">
-                        <Label text="Email" styleClass="field-label"/>
-                        <TextField fx:id="email" styleClass="text-field"/>
-                    </VBox>
+                        <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                            <Label text="Username" styleClass="field-label"/>
+                            <TextField fx:id="username" styleClass="text-field"/>
+                        </VBox>
 
-                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="3">
-                        <Label text="Password" styleClass="field-label"/>
-                        <PasswordField fx:id="password" styleClass="text-field"/>
-                    </VBox>
+                        <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                            <Label text="Email" styleClass="field-label"/>
+                            <TextField fx:id="email" styleClass="text-field"/>
+                        </VBox>
 
-                    <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
-                        <Label text="Phone" styleClass="field-label"/>
-                        <TextField fx:id="phone" styleClass="text-field"/>
-                    </VBox>
+                        <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                            <Label text="Password" styleClass="field-label"/>
+                            <PasswordField fx:id="password" styleClass="text-field"/>
+                        </VBox>
 
-                    <VBox spacing="20" alignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="5">
-                        <HBox spacing="10" alignment="CENTER">
-                            <Button fx:id="editbtn" onAction="#editbtn" styleClass="edit-button" text="Edit">
-                                <graphic>
-                                    <ImageView fitHeight="16" fitWidth="16">
-                                        <Image url="@Images/edit.png"/>
-                                    </ImageView>
-                                </graphic>
-                            </Button>
+                        <VBox spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                            <Label text="Phone" styleClass="field-label"/>
+                            <TextField fx:id="phone" styleClass="text-field"/>
+                        </VBox>
 
-                            <Button fx:id="save" onAction="#save" visible="false" styleClass="save-button" text="Save">
-                                <graphic>
-                                    <ImageView fitHeight="16" fitWidth="16">
-                                        <Image url="@Images/save.png"/>
-                                    </ImageView>
-                                </graphic>
-                            </Button>
-                        </HBox>
-
-                        <Separator>
+                        <VBox spacing="20" alignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="5">
                             <padding>
-                                <Insets top="20" bottom="20"/>
+                                <Insets top="15" />
                             </padding>
-                        </Separator>
+                            <HBox spacing="20" alignment="CENTER">
+                                <Button fx:id="editbtn" onAction="#editbtn" styleClass="edit-button" text="Edit Profile">
+                                    <graphic>
+                                        <ImageView fitHeight="16" fitWidth="16">
+                                            <Image url="@Images/edit.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
 
+                                <Button fx:id="save" onAction="#save" visible="false" styleClass="save-button" text="Save Changes">
+                                    <graphic>
+                                        <ImageView fitHeight="16" fitWidth="16">
+                                            <Image url="@Images/save.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </VBox>
+                    </GridPane>
+                    
+                    <Separator>
+                        <padding>
+                            <Insets top="30" bottom="25"/>
+                        </padding>
+                    </Separator>
+                    
+                    <VBox spacing="30" alignment="CENTER">
                         <Button fx:id="becomeOrganisateur" onAction="#becomeOrganisateur" styleClass="become-organisateur-button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20">
@@ -99,23 +149,8 @@
                             </graphic>
                             <text>Become an Organisateur</text>
                         </Button>
-
-                        <Separator>
-                            <padding>
-                                <Insets top="20" bottom="20"/>
-                            </padding>
-                        </Separator>
-
-                        <Button fx:id="deleteAccount" onAction="#deleteAccount" styleClass="delete-account-button">
-                            <graphic>
-                                <ImageView fitHeight="16" fitWidth="16">
-                                    <Image url="@Images/delete.png"/>
-                                </ImageView>
-                            </graphic>
-                            <text>Deactivate Account</text>
-                        </Button>
                     </VBox>
-                </GridPane>
+                </VBox>
             </VBox>
 
             <stylesheets>

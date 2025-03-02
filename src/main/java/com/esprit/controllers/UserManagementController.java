@@ -17,7 +17,7 @@ import java.util.ResourceBundle;
 public class UserManagementController implements Initializable {
     @FXML
     private TableView<User> usersTable;
-    
+
     @FXML
     private TextField searchField;
 
@@ -71,8 +71,8 @@ public class UserManagementController implements Initializable {
                     }
                     String lowerCaseFilter = newValue.toLowerCase();
                     return user.getFullname().toLowerCase().contains(lowerCaseFilter) ||
-                           user.getUserName().toLowerCase().contains(lowerCaseFilter) ||
-                           user.getEmail().toLowerCase().contains(lowerCaseFilter);
+                            user.getUserName().toLowerCase().contains(lowerCaseFilter) ||
+                            user.getEmail().toLowerCase().contains(lowerCaseFilter);
                 });
             }
         });
@@ -95,12 +95,12 @@ public class UserManagementController implements Initializable {
             userService.updateUserStatus(user.getUserID(), newStatus);
             user.setActive(newStatus);
             usersTable.refresh();
-            
-            showAlert(Alert.AlertType.INFORMATION, "Success", 
-                     "User " + (newStatus ? "unblocked" : "blocked") + " successfully!");
+
+            showAlert(Alert.AlertType.INFORMATION, "Success",
+                    "User " + (newStatus ? "unblocked" : "blocked") + " successfully!");
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", 
-                     "Failed to update user status: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Failed to update user status: " + e.getMessage());
         }
     }
 
