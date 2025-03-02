@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            prefWidth="400" prefHeight="500"
+            styleClass="root">
+    <VBox spacing="20" alignment="CENTER" layoutX="20" layoutY="20"
+          AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20"
+          AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="20">
+
+        <Label text="Avis existants" styleClass="title-label"/>
+        <ListView fx:id="feedbackListView" VBox.vgrow="ALWAYS" prefHeight="200"/>
+
+        <Label text="Votre avis" styleClass="title-label"/>
+        <TextArea fx:id="feedbackTextArea" prefHeight="100" wrapText="true"/>
+
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="btnEnvoyer" text="Envoyer" styleClass="success"/>
+            <Button fx:id="btnAnnuler" text="Annuler" styleClass="danger"/>
+        </HBox>
+    </VBox>
+
+    <stylesheets>
+        <URL value="@/styleall.css"/>
+    </stylesheets>
+</AnchorPane>

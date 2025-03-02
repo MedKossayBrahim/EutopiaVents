@@ -307,7 +307,6 @@ public class GererEvenementsController implements Initializable {
                         System.out.println("Creating reservation with confirmed event ID: " + confirmedEventId);
 
                         Reservation reservationMateriel = new Reservation(
-                                confirmedEventId,  // Use confirmed ID
                                 materielId,
                                 quantite,
                                 prix * quantite,

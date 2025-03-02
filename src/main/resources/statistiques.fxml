@@ -3,40 +3,54 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.esprit.controllers.StatistiqueController">
 
-    <VBox spacing="20" alignment="CENTER" prefWidth="800" prefHeight="600" style="-fx-padding: 20;">
-
-        <!-- Graphique et Tableau des Matériels les plus utilisés -->
-        <Label text="Top 10 Matériels les plus utilisés" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-        <HBox spacing="20" alignment="CENTER">
-            <BarChart fx:id="barChartMateriels" title="Matériels les plus utilisés" prefHeight="300" prefWidth="400">
-                <xAxis>
-                    <CategoryAxis fx:id="xAxisMateriels" label="Matériel" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis fx:id="yAxisMateriels" label="Nombre d'utilisations" />
-                </yAxis>
-            </BarChart>
-            <TableView fx:id="tableMateriels" prefWidth="350" prefHeight="300">
-                <columns>
-                    <TableColumn fx:id="colNomMateriel" text="Matériel" prefWidth="175" />
-                    <TableColumn fx:id="colNombreUtilisation" text="Utilisation" prefWidth="175" />
-                </columns>
-            </TableView>
-        </HBox>
+    <VBox spacing="20" alignment="CENTER" prefWidth="1000" prefHeight="800" styleClass="root">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
 
         <!-- Graphique des périodes de pointe des réservations -->
-        <Label text="Périodes de Pointe des Réservations" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-        <LineChart fx:id="lineChartSaisons" title="Périodes de Pointe des Réservations" prefHeight="300" prefWidth="600">
+        <Label text="Périodes de Pointe des Réservations" styleClass="title-label"/>
+        <LineChart fx:id="lineChartSaisons" title="Réservations par Mois"
+                   prefHeight="250" prefWidth="900">
             <xAxis>
-                <CategoryAxis fx:id="xAxisSaisons" label="Mois" />
+                <CategoryAxis label="Mois"/>
             </xAxis>
             <yAxis>
-                <NumberAxis fx:id="yAxisSaisons" label="Nombre de Réservations" />
+                <NumberAxis label="Nombre de Réservations"/>
             </yAxis>
         </LineChart>
+
+        <!-- Graphique des revenus mensuels -->
+        <Label text="Revenus Mensuels" styleClass="title-label"/>
+        <LineChart fx:id="lineChartRevenues" title="Revenus par Mois"
+                   prefHeight="250" prefWidth="900">
+            <xAxis>
+                <CategoryAxis label="Mois"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Revenus (TND)"/>
+            </yAxis>
+        </LineChart>
+
+        <!-- Tableau des revenus mensuels -->
+        <TableView fx:id="tableRevenues" prefHeight="200" prefWidth="900">
+            <columns>
+                <TableColumn fx:id="colMois" text="Mois" prefWidth="450"/>
+                <TableColumn fx:id="colRevenu" text="Revenu (TND)" prefWidth="450"/>
+            </columns>
+        </TableView>
+
+        <!-- Label pour le revenu total -->
+        <Label fx:id="lblTotalRevenue" styleClass="title-label"/>
     </VBox>
+
+    <stylesheets>
+        <URL value="@/styleall.css"/>
+    </stylesheets>
 </AnchorPane>

@@ -10,11 +10,14 @@ com\esprit\models\Materiel.class
 com\esprit\controllers\ModifierCommande.class
 com\esprit\controllers\LieuDetailsController$1.class
 com\esprit\controllers\Listeproduit$1.class
+com\esprit\services\EmailServiceY$1.class
+com\esprit\services\EmailServiceY.class
 com\esprit\controllers\ListeMaterielController.class
 com\esprit\models\User.class
 com\esprit\services\ProduitService.class
 com\esprit\services\ReservationsService.class
 com\esprit\controllers\ModifierCategorieController.class
+com\esprit\controllers\StatistiqueController$MonthlyRevenue.class
 com\esprit\services\AdminService.class
 com\esprit\models\Lieu.class
 com\esprit\models\PhotoLieu.class
@@ -33,6 +36,7 @@ com\esprit\controllers\ModifierEvenementController.class
 com\esprit\controllers\AllPostsController.class
 com\esprit\controllers\paniers$1.class
 com\esprit\models\CategoriesEvent.class
+com\esprit\utils\OpenAIUtil.class
 com\esprit\controllers\ModifierMaterielController.class
 com\esprit\controllers\photo$1.class
 com\esprit\models\Like.class
@@ -41,6 +45,7 @@ com\esprit\controllers\ModifierReservationController.class
 com\esprit\controllers\SignUpView.class
 com\esprit\services\IService.class
 com\esprit\models\Participant.class
+com\esprit\controllers\FeedbackController$1.class
 com\esprit\tests\MainProg.class
 com\esprit\controllers\PostDialogController$1.class
 com\esprit\controllers\Ajoutercategorieevent$2.class
@@ -58,11 +63,13 @@ com\esprit\utils\OTPGenerator.class
 com\esprit\controllers\ListeCategorieController.class
 com\esprit\controllers\GererEvenementsController.class
 com\esprit\models\MaterielStats.class
+com\esprit\controllers\ReservationWindowController$4.class
 com\esprit\controllers\MainMenuController.class
 com\esprit\controllers\AjouterEvenementController$3.class
 com\esprit\models\commande.class
 com\esprit\services\CategoriesEventService.class
 com\esprit\models\Category.class
+com\esprit\controllers\FeedbackController.class
 com\esprit\models\Categorie.class
 com\esprit\utils\TextUtils.class
 com\esprit\controllers\EventsController$1.class
@@ -116,6 +123,7 @@ com\esprit\controllers\ForumMainController$NoSelectionModel.class
 com\esprit\controllers\EnterOPTView.class
 com\esprit\controllers\ListeCategorieController$1.class
 com\esprit\controllers\PanierController.class
+com\esprit\models\Feedback.class
 com\esprit\controllers\AjoutMaterielController$2.class
 com\esprit\controllers\AjouterCategorie$1.class
 com\esprit\utils\UserSession.class
@@ -159,6 +167,7 @@ com\esprit\controllers\Ajoutercateg.class
 com\esprit\controllers\ListeReservationController.class
 com\esprit\controllers\ListeReservationController$2.class
 com\esprit\services\ChatService$UserChatMessage.class
+com\esprit\services\FeedbackService.class
 com\esprit\controllers\ModifierEvenementController$1.class
 com\esprit\controllers\LieuController.class
 com\esprit\controllers\OtpView.class

@@ -21,8 +21,6 @@ import javafx.util.converter.IntegerStringConverter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class ListeReservationController {
     @FXML
@@ -36,9 +34,9 @@ public class ListeReservationController {
     @FXML
     private TableColumn<Reservation, Double> prixTotalColumn;
     @FXML
-    private TableColumn<Reservation, Date> dateDebutColumn;
+    private TableColumn<Reservation, Timestamp> dateDebutColumn;
     @FXML
-    private TableColumn<Reservation, Date> dateFinColumn;
+    private TableColumn<Reservation, Timestamp> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
     @FXML
@@ -46,7 +44,9 @@ public class ListeReservationController {
     @FXML
     private TextField filterMaterialField; // Champ de filtre par matériel
     @FXML
-    private TableColumn<Reservation, String> userIdColumn;
+    private TableColumn<Reservation, String> userColumn;
+    @FXML
+    private TextField filterUserField;
 
     private final ReservationService reservationService;
     private ObservableList<Reservation> reservationsList; // Liste observable des réservations
@@ -61,19 +61,33 @@ public class ListeReservationController {
         setupColumns();
         loadReservations();
 
+
         // Configurer les filtres
         setupFilters();
+
+        userColumn.setCellValueFactory(cellData -> {
+            int userId = cellData.getValue().getUserId();
+            String userName = reservationService.getUserName(userId);
+            return new SimpleStringProperty(userName);
+        });
+
+        // Ajouter le filtre pour les utilisateurs
+        filterUserField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredReservations.setPredicate(reservation -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String userName = reservationService.getUserName(reservation.getUserId()).toLowerCase();
+                return userName.contains(newValue.toLowerCase());
+            });
+        });
     }
 
     private void setupColumns() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
         evenementIdColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
-        );
-
-        userIdColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(reservationService.getUserName(cellData.getValue().getUserId()))
         );
 
         materielIdColumn.setCellValueFactory(cellData ->
@@ -100,26 +114,26 @@ public class ListeReservationController {
             reservationService.modifier(reservation);
         });
 
-        dateDebutColumn.setCellFactory(column -> new TableCell<Reservation, Date>() {
+        dateDebutColumn.setCellFactory(column -> new TableCell<>() {
             @Override
-            public void updateItem(Date item, boolean empty) {
+            protected void updateItem(Timestamp item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(dateFormat.format(item));
+                    setText(item.toLocalDateTime().format(formatter));
                 }
             }
         });
 
-        dateFinColumn.setCellFactory(column -> new TableCell<Reservation, Date>() {
+        dateFinColumn.setCellFactory(column -> new TableCell<>() {
             @Override
-            public void updateItem(Date item, boolean empty) {
+            protected void updateItem(Timestamp item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(dateFormat.format(item));
+                    setText(item.toLocalDateTime().format(formatter));
                 }
             }
         });
@@ -202,5 +216,4 @@ public class ListeReservationController {
             });
         });
     }
-
 }

@@ -206,9 +206,9 @@ public class ListeMaterielController {
     }
 
     private String getCategorieName(int categorieId) throws SQLException {
-        Connection connection = DataSource.getInstance().getConnection();
 
         String req = "SELECT nom FROM categorie WHERE id = ?";
+        Connection connection = DataSource.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(req)) {
             ps.setInt(1, categorieId);
             ResultSet rs = ps.executeQuery();
