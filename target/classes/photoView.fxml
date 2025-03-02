@@ -4,70 +4,128 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.SVGPath?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.photo"
-            prefHeight="600" prefWidth="800"
+            prefHeight="700" prefWidth="1000"
+            styleClass="pattern-background"
             stylesheets="@styles/photo.css">
 
-    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+    <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
 
-        <!-- Header Section -->
-        <Label text="Gestion des Photos des Lieux" styleClass="header-label"/>
+        <!-- Header Section - Enhanced with better styling -->
+        <Label text="Galerie Photos des Lieux" styleClass="header-label"/>
 
-        <!-- Form Section -->
-        <GridPane hgap="15" vgap="15">
-            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-
-            <Label text="Lieu associé:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <ComboBox fx:id="comboBoxLieux" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#afficherPhotosPourLieu"/>
-
-            <Label text="Chemin de l'image:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <HBox spacing="10" GridPane.rowIndex="1" GridPane.columnIndex="1">
-                <TextField fx:id="txtUrlImage" prefWidth="300" editable="false"/>
-                <Button text="Parcourir" onAction="#choisirImage" styleClass="browse-button"/>
-            </HBox>
-        </GridPane>
-
-        <!-- Preview Section -->
-        <VBox spacing="10" styleClass="preview-box">
-            <Label text="Aperçu de l'image"/>
-            <ImageView fx:id="imagePreview" fitHeight="180" fitWidth="280" preserveRatio="true"/>
-        </VBox>
-
-        <!-- Action Buttons -->
-        <HBox spacing="15" alignment="CENTER">
-            <Button text="Ajouter" onAction="#ajouterPhoto" styleClass="action-button"/>
-            <Button text="Modifier" onAction="#modifierPhoto" styleClass="action-button"/>
-            <Button text="Supprimer" onAction="#supprimerPhoto" styleClass="delete-button"/>
-            <Button text="Réinitialiser" onAction="#clearFields" styleClass="reset-button"/>
+        <!-- Navigation Buttons - Positioned at the top for better visibility -->
+        <HBox spacing="20" alignment="CENTER">
+            <Button fx:id="btnGoToReservation" 
+                    text="Aller à la réservation" 
+                    onAction="#goToReservation"
+                    prefHeight="45.0"
+                    prefWidth="300.0"
+                    styleClass="button-bottom"/>
+            <Button fx:id="btnGoToLieu" 
+                    text="Retour aux Lieux" 
+                    onAction="#goBack"
+                    prefHeight="45.0"
+                    prefWidth="300.0"
+                    styleClass="button-bottom"/>
         </HBox>
 
-        <!-- Gallery Section -->
-        <VBox spacing="10" VBox.vgrow="ALWAYS">
-            <Label text="Galerie des Photos"/>
-            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gallery-section">
-                <FlowPane fx:id="flowPanePhotos"
-                          hgap="15"
-                          vgap="15"
-                          prefWrapLength="750"
-                          styleClass="flow-pane"/>
-            </ScrollPane>
-        </VBox>
+        <!-- Main Content Area -->
+        <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <!-- Left Panel: Gallery -->
+            <VBox spacing="15" HBox.hgrow="ALWAYS" styleClass="animated-node">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Galerie des Photos" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                    <ComboBox fx:id="comboBoxLieux" prefWidth="250" promptText="Chosissez un lieu" 
+                            onAction="#afficherPhotosPourLieu"/>
+                </HBox>
+                
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gallery-section">
+                    <FlowPane fx:id="flowPanePhotos"
+                              hgap="25"
+                              vgap="25"
+                              prefWrapLength="750"
+                              styleClass="flow-pane">
+                        <fx:define>
+                            <StackPane fx:id="galleryItemExample" styleClass="gallery-item" visible="false">
+                                <VBox alignment="CENTER" spacing="5">
+                                    <StackPane styleClass="photo-frame">
+                                        <ImageView fitHeight="150" fitWidth="150" preserveRatio="true"/>
+                                        <StackPane styleClass="image-overlay">
+                                            <HBox spacing="15" alignment="CENTER">
+                                                <StackPane styleClass="overlay-icon">
+                                                    <SVGPath content="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" 
+                                                              fill="WHITE" scaleX="1.2" scaleY="1.2"/>
+                                                </StackPane>
+                                                <StackPane styleClass="overlay-icon">
+                                                    <SVGPath content="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" 
+                                                              fill="WHITE" scaleX="1.2" scaleY="1.2"/>
+                                                </StackPane>
+                                                <StackPane styleClass="overlay-icon">
+                                                    <SVGPath content="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" 
+                                                              fill="WHITE" scaleX="1.2" scaleY="1.2"/>
+                                                </StackPane>
+                                            </HBox>
+                                        </StackPane>
+                                    </StackPane>
+                                    <Label text="Nom du lieu" styleClass="image-caption"/>
+                                </VBox>
+                            </StackPane>
+                        </fx:define>
+                    </FlowPane>
+                </ScrollPane>
+            </VBox>
 
+            <!-- Right Panel: Form and Preview -->
+            <VBox spacing="20" prefWidth="350" styleClass="animated-node">
+                <!-- Form Section - Enhanced with better layout -->
+                <VBox styleClass="card" spacing="15">
+                    <Label text="Ajouter une Photo" styleClass="section-title"/>
+                    
+                    <VBox spacing="10">
+                        <Label text="Image:"/>
+                        <HBox spacing="10">
+                            <TextField fx:id="txtUrlImage" prefWidth="220" editable="false" promptText="Aucun fichier sélectionné"/>
+                            <Button text="Parcourir" onAction="#choisirImage" styleClass="browse-button"/>
+                        </HBox>
+                    </VBox>
+                    
+                    <!-- Preview Section - Enhanced with polaroid frame -->
+                    <VBox spacing="10" alignment="CENTER">
+                        <Label text="Aperçu" styleClass="section-title"/>
+                        <StackPane styleClass="polaroid-frame" alignment="CENTER">
+                            <ImageView fx:id="imagePreview" fitHeight="200" fitWidth="280" preserveRatio="true" styleClass="zoom-effect"/>
+                            <Text fx:id="noImageText" text="Aucune image sélectionnée" 
+                                  styleClass="placeholder-text" visible="false"/>
+                        </StackPane>
+                    </VBox>
+                    
+                    <!-- Action Buttons - Made larger and more visible -->
+                    <VBox spacing="10" alignment="CENTER">
+                        <Button text="Ajouter cette photo" onAction="#ajouterPhoto" 
+                                styleClass="action-button" prefWidth="250" prefHeight="45"/>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button text="Modifier" onAction="#modifierPhoto" 
+                                    styleClass="action-button" prefWidth="120" prefHeight="40"/>
+                            <Button text="Supprimer" onAction="#supprimerPhoto" 
+                                    styleClass="delete-button" prefWidth="120" prefHeight="40"/>
+                        </HBox>
+                        <Button text="Réinitialiser" onAction="#clearFields" 
+                                styleClass="reset-button" prefWidth="250" prefHeight="35"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </HBox>
     </VBox>
-
-    <Button fx:id="btnGoToReservation" text="Aller à la réservation" onAction="#goToReservation"
-            AnchorPane.bottomAnchor="10.0"
-            AnchorPane.leftAnchor="10.0"
-            AnchorPane.rightAnchor="10.0"
-            prefHeight="30.0"
-            styleClass="button-bottom"/>
-
-    <Button fx:id="btnGoToLieu" text="← Retour" onAction="#goBack"
-            AnchorPane.topAnchor="10.0"
-            AnchorPane.rightAnchor="10.0"
-            styleClass="button-back"/>
+    
+    <!-- Floating Action Button for quick add -->
+    <StackPane AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0" styleClass="floating-action-button">
+        <SVGPath content="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="WHITE" scaleX="1.5" scaleY="1.5"/>
+    </StackPane>
 
 </AnchorPane>

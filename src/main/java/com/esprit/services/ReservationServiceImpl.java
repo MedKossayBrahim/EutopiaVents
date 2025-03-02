@@ -260,7 +260,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
 
     public List<reservation1> rechercherReservationsUtilisateur(int userID) {
         List<reservation1> reservations = new ArrayList<>();
-        String sql = "SELECT * FROM reservation1 WHERE user_id = ? ORDER BY date_debut";
+        String sql = "SELECT * FROM reservation1 WHERE userID = ? ORDER BY date_debut";
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
             pst.setInt(1, userID);
             try (ResultSet rs = pst.executeQuery()) {
@@ -272,7 +272,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
                             rs.getTimestamp("date_debut").toLocalDateTime(),
                             rs.getTimestamp("date_fin").toLocalDateTime()
                     );
-                    reservation.setUserID(rs.getInt("user_id"));
+                    reservation.setUserID(rs.getInt("userID"));
                     reservation.setTypeReservation(rs.getString("type_reservation"));
                     reservations.add(reservation);
                 }
