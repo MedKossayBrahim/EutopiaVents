@@ -3,16 +3,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
+<?import java.net.URL?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
+<VBox spacing="20" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/20"
-      fx:controller="com.esprit.controllers.AjoutMaterielController">
+      fx:controller="com.esprit.controllers.AjoutMaterielController"
+      styleClass="root">
 
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="30" right="40" bottom="30" left="40"/>
     </padding>
 
-    <Label text="Ajouter un nouveau matériel" style="-fx-font-size: 20px;"/>
+    <Label text="Ajouter un nouveau matériel" styleClass="title-label"/>
 
     <GridPane vgap="10" hgap="10">
         <Label text="Libellé:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -38,7 +40,11 @@
     </GridPane>
 
     <HBox spacing="10" alignment="CENTER">
-        <Button text="Ajouter" onAction="#handleAjouterMateriel"/>
-        <Button text="Annuler" onAction="#clearFields"/>
+        <Button text="Ajouter" onAction="#handleAjouterMateriel" styleClass="success"/>
+        <Button text="Annuler" onAction="#clearFields" styleClass="danger"/>
     </HBox>
+
+    <stylesheets>
+        <URL value="@/styleall.css"/>
+    </stylesheets>
 </VBox>
