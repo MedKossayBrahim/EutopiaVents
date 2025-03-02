@@ -2,44 +2,73 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.2"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.esprit.controllers.MaterielGridController">
+            fx:controller="com.esprit.controllers.MaterielGridController"
+            styleClass="root">
 
-    <VBox spacing="15" alignment="CENTER" VBox.vgrow="ALWAYS" style="-fx-padding: 20;">
+    <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
 
+        <!-- En-tête -->
+        <Label text="Liste des Matériels" styleClass="title-label"/>
 
-        <!-- Titre -->
-        <Label text="Liste des Matériels" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-
-        <!-- Boutons de navigation vers d'autres pages -->
+        <!-- Barre de navigation -->
         <HBox spacing="20" alignment="CENTER">
-            <Button fx:id="btnMaterielList" text="Liste des Matériels" onAction="#navigateToMaterielList" />
-            <Button fx:id="btnCategoriesList" text="Liste des Catégories" onAction="#navigateToCategoriesList" />
+            <Button fx:id="btnMaterielList" 
+                    text="Liste des Matériels" 
+                    onAction="#navigateToMaterielList"
+                    styleClass="button"/>
+            
+            <Button fx:id="btnCategoriesList" 
+                    text="Liste des Catégories" 
+                    onAction="#navigateToCategoriesList"
+                    styleClass="button"/>
+            
             <Button text="Liste des Réservations"
                     onAction="#openListeReservation"
-                    style="-fx-min-width: 150;"/>
-            <Button text="Stats"
+                    styleClass="button"/>
+            
+            <Button text="Statistiques"
                     onAction="#openstats"
-                    style="-fx-min-width: 150;"/>
+                    styleClass="button"/>
+            
             <Button text="Nouvelle Réservation" 
                     onAction="#openReservationWindow"
-                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-min-width: 150;"/>
+                    styleClass="success"/>
         </HBox>
 
-        <!-- Boutons de pagination -->
-        <HBox spacing="10" alignment="CENTER">
-            <Button fx:id="previousButton" text="Précédent" onAction="#handlePreviousButtonAction" />
-            <Button fx:id="nextButton" text="Suivant" onAction="#handleNextButtonAction" />
+        <!-- Pagination -->
+        <HBox spacing="15" alignment="CENTER">
+            <Button fx:id="previousButton" 
+                    text="Précédent" 
+                    onAction="#handlePreviousButtonAction"
+                    styleClass="button"/>
+            
+            <Button fx:id="nextButton" 
+                    text="Suivant" 
+                    onAction="#handleNextButtonAction"
+                    styleClass="button"/>
         </HBox>
-        <!-- ScrollPane pour rendre la grille scrollable -->
-        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-            <GridPane fx:id="gridPaneMateriels" hgap="10" vgap="10" alignment="CENTER" style="-fx-background-color: transparent;">
-            </GridPane>
+
+        <!-- Grille de matériels -->
+        <ScrollPane fitToWidth="true" 
+                   fitToHeight="true" 
+                   VBox.vgrow="ALWAYS" 
+                   styleClass="scroll-pane">
+            <GridPane fx:id="gridPaneMateriels" 
+                     hgap="20" 
+                     vgap="20" 
+                     alignment="CENTER"/>
         </ScrollPane>
-
-
     </VBox>
 
+    <stylesheets>
+        <URL value="@/styleall.css"/>
+    </stylesheets>
 </AnchorPane>
