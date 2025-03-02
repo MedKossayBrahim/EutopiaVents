@@ -71,6 +71,14 @@ public class NavbarController {
         updateButtonStyles(page);
     }
 
+    /**
+     * Sets the forum button as active. This method should be called when the forum page is loaded.
+     */
+    public void setForumButtonActive() {
+        setCurrentPage("forum");
+        System.out.println("Forum button set to active");
+    }
+
     @FXML
     public void initialize() {
         try {
@@ -428,6 +436,10 @@ public class NavbarController {
             settingsButton.setStyle(BUTTON_STYLE);
         if (storeButton != null)
             storeButton.setStyle(BUTTON_STYLE);
+        if (requestsButton != null)
+            requestsButton.setStyle(BUTTON_STYLE);
+        if (userManagementButton != null)
+            userManagementButton.setStyle(BUTTON_STYLE);
 
         // Apply active style to the selected button
         switch (activeButton.toLowerCase()) {
@@ -450,6 +462,18 @@ public class NavbarController {
             case "store":
                 if (storeButton != null)
                     storeButton.setStyle(ACTIVE_STYLE);
+                break;
+            case "requests":
+                if (requestsButton != null)
+                    requestsButton.setStyle(ACTIVE_STYLE);
+                break;
+            case "users":
+                if (userManagementButton != null)
+                    userManagementButton.setStyle(ACTIVE_STYLE);
+                break;
+            case "profile":
+                if (profileButton != null)
+                    profileButton.setStyle(ACTIVE_STYLE);
                 break;
         }
     }

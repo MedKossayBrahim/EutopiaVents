@@ -16,10 +16,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -334,6 +331,27 @@ public class AllPostsController extends ForumMainController {
                             );
                             
                             Scene scene = viewButton.getScene();
+                            
+                            // Find the navbar in the scene hierarchy and set forum button as active
+                            Parent currentRoot = scene.getRoot();
+                            if (currentRoot instanceof BorderPane) {
+                                BorderPane bp = (BorderPane) currentRoot;
+                                if (bp.getLeft() instanceof VBox) {
+                                    VBox navbar = (VBox) bp.getLeft();
+                                    for (javafx.scene.Node child : navbar.getChildren()) {
+                                        if (child instanceof Parent) {
+                                            Parent parent = (Parent) child;
+                                            Object navController = parent.getUserData();
+                                            if (navController instanceof NavbarController) {
+                                                NavbarController navbarController = (NavbarController) navController;
+                                                navbarController.setForumButtonActive();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
                             scene.setRoot(root);
                             
                         } catch (IOException e) {

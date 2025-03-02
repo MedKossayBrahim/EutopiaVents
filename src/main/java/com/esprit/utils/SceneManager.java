@@ -55,6 +55,15 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Gets the current scene from the stage.
+     * 
+     * @return The current scene or null if no scene is set.
+     */
+    public Scene getCurrentScene() {
+        return stage.getScene();
+    }
+
     public static void loadScene(Scene currentScene, String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));

@@ -3,6 +3,7 @@ com\esprit\controllers\Main.class
 com\esprit\utils\SceneManager.class
 com\esprit\services\LieuServiceImpl.class
 com\esprit\controllers\LieuDetailsController.class
+com\esprit\controllers\PostDialogController$2.class
 com\esprit\controllers\PostViewController$1.class
 com\esprit\models\ChatBot.class
 com\esprit\models\Materiel.class
@@ -41,6 +42,7 @@ com\esprit\controllers\SignUpView.class
 com\esprit\services\IService.class
 com\esprit\models\Participant.class
 com\esprit\tests\MainProg.class
+com\esprit\controllers\PostDialogController$1.class
 com\esprit\controllers\Ajoutercategorieevent$2.class
 com\esprit\controllers\ForumMainController$2.class
 com\esprit\controllers\AjouterEvenementController$1.class

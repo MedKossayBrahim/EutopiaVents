@@ -18,6 +18,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JDialog;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.GradientPaint;
+import javax.swing.JLabel;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import javax.swing.BorderFactory;
+import java.awt.BasicStroke;
 
 public class PostDialogController {
     @FXML private TextField titleField;
@@ -232,11 +247,7 @@ public class PostDialogController {
         }
         
         if (!errorMessage.isEmpty() && showAlert) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Invalid Fields");
-            alert.setHeaderText("Please correct invalid fields");
-            alert.setContentText(errorMessage);
-            alert.showAndWait();
+            showStyledErrorDialog("Please correct the following issues:\n" + errorMessage, "Invalid Fields");
             return false;
         }
         
@@ -244,19 +255,177 @@ public class PostDialogController {
     }
 
     private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        showStyledInfoDialog(message, "Success");
     }
     
     private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        showStyledErrorDialog(message, "Error");
+    }
+    
+    private void showStyledInfoDialog(String message, String title) {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Warm beige background - slightly softer
+                g2.setColor(new Color(252, 248, 245));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                
+                // Add subtle gradient - enhanced for smoother appearance
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(245, 240, 235), 
+                    0, getHeight(), new Color(248, 235, 220));
+                g2.setPaint(gp);
+                g2.fillRoundRect(5, 5, getWidth()-10, getHeight()-10, 18, 18);
+                
+                // Add a subtle border - softer color
+                g2.setColor(new Color(245, 148, 92, 20));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, 20, 20);
+                
+                g2.dispose();
+            }
+        };
+
+        panel.setLayout(new BorderLayout(10, 15));
+        panel.setBackground(new Color(252, 248, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+
+        JLabel messageLabel = new JLabel("<html><body style='width: 280px; font-family: Segoe UI; color: #2D3250; line-height: 1.5;'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        panel.add(messageLabel, BorderLayout.CENTER);
+        
+        // Create OK button with warm orange theme - enhanced gradient and smoother appearance
+        JButton okButton = new JButton("OK");
+        String buttonStyle = "background-color: linear-gradient(to bottom, #f7a76c, #f0945c); " +
+                "color: white; " +
+                "border: none; " +
+                "padding: 10px 30px; " +
+                "border-radius: 15px; " +
+                "font-size: 14px; " +
+                "font-family: 'Segoe UI'; " +
+                "font-weight: bold; " +
+                "cursor: pointer; " +
+                "box-shadow: 0 3px 5px rgba(245,148,92,0.25);";
+        okButton.putClientProperty("style", buttonStyle);
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(okButton);
+        
+        // Add some padding above button
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.setOpaque(false);
+        southPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        southPanel.add(buttonPanel, BorderLayout.CENTER);
+        panel.add(southPanel, BorderLayout.SOUTH);
+        
+        // Configure the option pane
+        JOptionPane optionPane = new JOptionPane(
+                panel,
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
+                null,
+                new Object[]{},
+                null
+        );
+        
+        // Create and style the dialog
+        JDialog dialog = optionPane.createDialog(title);
+        dialog.setBackground(new Color(252, 248, 245));
+        
+        // Add button action
+        okButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+        
+        // Show dialog
+        dialog.setVisible(true);
+    }
+    
+    private void showStyledErrorDialog(String message, String title) {
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Warm beige background - slightly softer
+                g2.setColor(new Color(252, 248, 245));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                
+                // Add subtle gradient - enhanced for smoother appearance
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(245, 240, 235), 
+                    0, getHeight(), new Color(248, 235, 220));
+                g2.setPaint(gp);
+                g2.fillRoundRect(5, 5, getWidth()-10, getHeight()-10, 18, 18);
+                
+                // Add a subtle border - softer color
+                g2.setColor(new Color(245, 148, 92, 20));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, 20, 20);
+                
+                g2.dispose();
+            }
+        };
+
+        panel.setLayout(new BorderLayout(10, 15));
+        panel.setBackground(new Color(252, 248, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+
+        JLabel messageLabel = new JLabel("<html><body style='width: 280px; font-family: Segoe UI; color: #2D3250; line-height: 1.5;'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        panel.add(messageLabel, BorderLayout.CENTER);
+        
+        // Create OK button with warm orange theme - enhanced gradient and smoother appearance
+        JButton okButton = new JButton("OK");
+        String buttonStyle = "background-color: linear-gradient(to bottom, #f7a76c, #f0945c); " +
+                "color: white; " +
+                "border: none; " +
+                "padding: 10px 30px; " +
+                "border-radius: 15px; " +
+                "font-size: 14px; " +
+                "font-family: 'Segoe UI'; " +
+                "font-weight: bold; " +
+                "cursor: pointer; " +
+                "box-shadow: 0 3px 5px rgba(245,148,92,0.25);";
+        okButton.putClientProperty("style", buttonStyle);
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(okButton);
+        
+        // Add some padding above button
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.setOpaque(false);
+        southPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        southPanel.add(buttonPanel, BorderLayout.CENTER);
+        panel.add(southPanel, BorderLayout.SOUTH);
+        
+        // Configure the option pane
+        JOptionPane optionPane = new JOptionPane(
+                panel,
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
+                null,
+                new Object[]{},
+                null
+        );
+        
+        // Create and style the dialog
+        JDialog dialog = optionPane.createDialog(title);
+        dialog.setBackground(new Color(252, 248, 245));
+        
+        // Add button action
+        okButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+        
+        // Show dialog
+        dialog.setVisible(true);
     }
     
     public void setupCategoryComboBox() {

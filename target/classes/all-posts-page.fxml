@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import java.lang.String?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml" 
@@ -21,7 +22,7 @@
         </VBox>
     </left>
 
-        <right>
+    <right>
         <ScrollPane fitToWidth="true" 
                    style="-fx-background: transparent; 
                           -fx-background-color: #faf6f3;
@@ -56,44 +57,97 @@
             </style>
         </ScrollPane>
     </right>
+    
     <center>
-        <VBox spacing="10">
+        <VBox spacing="20" style="-fx-background-color: #faf6f3;">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
             
-                           <HBox spacing="15" alignment="CENTER">
-                    <HBox spacing="10" alignment="CENTER" maxWidth="500" HBox.hgrow="ALWAYS"
-                          fx:id="searchContainer"
-                          style="-fx-background-color: white; -fx-background-radius: 25; 
-                                 -fx-padding: 10 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 2);">
-                        <ComboBox fx:id="searchFilterComboBox" 
-                                promptText="Filter by"
-                                style="-fx-background-color: transparent;
-                                       -fx-font-size: 14;
-                                       -fx-border-color: transparent;">
-                        </ComboBox>
-                        <ImageView fitHeight="18" fitWidth="18" onMouseClicked="#activateSearch"
-                                  style="-fx-cursor: hand; -fx-opacity: 0.6;">
-                            <Image url="@Images/search_icon.jpg"/>
-                        </ImageView>
-                        <TextField fx:id="searchField" 
-                                   promptText="Search Posts..." 
-                                   onKeyReleased="#onSearchKeyReleased"
-                                   focusTraversable="false"
-                                   HBox.hgrow="ALWAYS"
-                                   style="-fx-background-color: transparent; 
-                                          -fx-font-size: 14;
-                                          -fx-padding: 0;
-                                          -fx-background-radius: 25;"/>
-                    </HBox>
+            <HBox spacing="15" alignment="CENTER">
+                <HBox spacing="10" alignment="CENTER" maxWidth="500" HBox.hgrow="ALWAYS"
+                      fx:id="searchContainer"
+                      style="-fx-background-color: #f0eae4; -fx-background-radius: 25;
+                             -fx-padding: 12 25; -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 5, 0, 0, 2);
+                             -fx-border-color: rgba(245,148,92,0.1); -fx-border-radius: 25; -fx-border-width: 1;">
+                    <ComboBox fx:id="searchFilterComboBox" 
+                            promptText="Filter by"
+                            style="-fx-background-color: transparent;
+                                   -fx-font-size: 14;
+                                   -fx-border-color: transparent;
+                                   -fx-font-family: 'Segoe UI';">
+                    </ComboBox>
+                    <ImageView fitHeight="18" fitWidth="18" onMouseClicked="#activateSearch"
+                              style="-fx-cursor: hand; -fx-opacity: 0.7;">
+                        <Image url="@Images/search_icon.jpg"/>
+                    </ImageView>
+                    <TextField fx:id="searchField" 
+                               promptText="Search Posts..." 
+                               onKeyReleased="#onSearchKeyReleased"
+                               focusTraversable="false"
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: transparent; 
+                                      -fx-font-size: 14;
+                                      -fx-padding: 0;
+                                      -fx-background-radius: 25;
+                                      -fx-font-family: 'Segoe UI';
+                                      -fx-prompt-text-fill: #888888;"/>
                 </HBox>
+            </HBox>
+            
+            <!-- Title section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="All Posts" 
+                       style="-fx-font-size: 28px; 
+                              -fx-font-weight: bold; 
+                              -fx-text-fill: #f5945c;
+                              -fx-font-family: 'Segoe UI';
+                              -fx-effect: dropshadow(gaussian, rgba(245,148,92,0.2), 2, 0, 0, 1);"/>
+            </HBox>
             
             <!-- Posts list -->
-            <ListView fx:id="postsListView" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="postsListView" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white;
+                             -fx-background-radius: 15;
+                             -fx-border-radius: 15;
+                             -fx-border-color: rgba(245,148,92,0.1);
+                             -fx-padding: 10;
+                             -fx-background-insets: 0;
+                             -fx-selection-bar: rgba(245,148,92,0.1);
+                             -fx-selection-bar-non-focused: rgba(245,148,92,0.05);
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                <VBox.margin>
+                    <Insets top="10" />
+                </VBox.margin>
+            </ListView>
             
             <!-- Pagination -->
-            <Pagination fx:id="pagination"/>
+            <Pagination fx:id="pagination" 
+                        style="-fx-page-information-visible: false;
+                               -fx-arrows-visible: true;">
+                <styleClass>
+                    <String fx:value="pagination-orange" />
+                </styleClass>
+            </Pagination>
+            
+            <style>
+                .pagination-orange .pagination-control .button {
+                    -fx-background-color: rgba(245,148,92,0.1);
+                    -fx-border-color: rgba(245,148,92,0.2);
+                    -fx-text-fill: #f5945c;
+                }
+                .pagination-orange .pagination-control .button:hover {
+                    -fx-background-color: rgba(245,148,92,0.2);
+                }
+                .pagination-orange .pagination-control .page-number {
+                    -fx-background-color: transparent;
+                    -fx-text-fill: #2D3250;
+                }
+                .pagination-orange .pagination-control .page-number:selected {
+                    -fx-background-color: rgba(245,148,92,0.2);
+                    -fx-text-fill: #f5945c;
+                }
+            </style>
         </VBox>
     </center>
 </BorderPane> 

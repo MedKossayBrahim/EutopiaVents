@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -51,6 +52,17 @@ import java.io.FileReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.esprit.components.AutocompleteTextField;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.GradientPaint;
+import java.awt.BasicStroke;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import javafx.stage.Stage;
+import javafx.scene.layout.BorderPane;
 
 public class PostViewController {
     @FXML private Label postTitleLabel;
@@ -75,6 +87,22 @@ public class PostViewController {
         likeButton.setOnAction(event -> handleLikeAction());
         commentField.setOnAction(event -> handleAddComment());
         commentField.initializeSuggestions();
+        
+        // Set up back button action
+        if (backButton != null) {
+            backButton.setOnAction(event -> goBack());
+            
+            // Add hover effect for back button
+            backButton.setOnMouseEntered(e -> 
+                backButton.setStyle(backButton.getStyle() + 
+                    "-fx-background-color: rgba(245,148,92,0.1);")
+            );
+            
+            backButton.setOnMouseExited(e -> 
+                backButton.setStyle(backButton.getStyle() + 
+                    "-fx-background-color: transparent;")
+            );
+        }
 
         // Setup delete post button with image
         try {
@@ -412,6 +440,7 @@ public class PostViewController {
 
     private void goBack() {
         try {
+            // Load the forum main page
             URL url = getClass().getResource("/forum_main_page.fxml");
             if (url == null) {
                 throw new IOException("Cannot find forum_main_page.fxml");
@@ -419,9 +448,69 @@ public class PostViewController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
-            Scene scene = deletePostButton.getScene();
-            scene.setRoot(root);
-        } catch (IOException e) {
+
+            // Get the current scene - using a different approach since backButton might be null
+            Scene scene = null;
+            
+            // Try to get scene from any available component
+            if (postTitleLabel != null && postTitleLabel.getScene() != null) {
+                scene = postTitleLabel.getScene();
+            } else if (contentText != null && contentText.getScene() != null) {
+                scene = contentText.getScene();
+            } else if (likeButton != null && likeButton.getScene() != null) {
+                scene = likeButton.getScene();
+            } else if (commentField != null && commentField.getScene() != null) {
+                scene = commentField.getScene();
+            } else if (deletePostButton != null && deletePostButton.getScene() != null) {
+                scene = deletePostButton.getScene();
+            } else {
+                // If we can't get the scene from any component, use the SceneManager's switchScene method
+                Eutopia.getSceneManager().switchScene("/forum_main_page.fxml", null);
+                return; // Exit early since we've handled the navigation
+            }
+            
+            if (scene == null) {
+                throw new IOException("Cannot access the current scene");
+            }
+            
+            // Get the existing navbar
+            VBox existingNavbar = null;
+            if (scene.getRoot() instanceof BorderPane) {
+                BorderPane borderPane = (BorderPane) scene.getRoot();
+                if (borderPane.getLeft() instanceof VBox) {
+                    existingNavbar = (VBox) borderPane.getLeft();
+                }
+            }
+
+            // If we couldn't find the navbar, use the SceneManager's switchScene method as fallback
+            if (existingNavbar == null) {
+                Eutopia.getSceneManager().switchScene("/forum_main_page.fxml", null);
+                return;
+            }
+
+            // Create a container with navbar and content
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            container.getChildren().addAll(existingNavbar, root);
+
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+
+            // Set the forum button as active in the navbar
+            for (javafx.scene.Node child : existingNavbar.getChildren()) {
+                if (child instanceof Parent) {
+                    Parent parent = (Parent) child;
+                    Object navController = parent.getUserData();
+                    if (navController instanceof NavbarController) {
+                        NavbarController navbarController = (NavbarController) navController;
+                        navbarController.setForumButtonActive();
+                        break;
+                    }
+                }
+            }
+
+            scene.setRoot(container);
+        } catch (Exception e) {
             e.printStackTrace();
             showError("Could not return to main view: " + e.getMessage());
         }
@@ -432,17 +521,33 @@ public class PostViewController {
         JButton yesButton = new JButton("Yes");
         JButton noButton = new JButton("No");
 
-        // Style the buttons
-        String buttonStyle = "background-color: #007bff; " +
+        // Style the buttons with warm orange theme - enhanced gradient and smoother appearance
+        String buttonStyle = "background-color: linear-gradient(to bottom, #f7a76c, #f0945c); " +
                 "color: white; " +
                 "border: none; " +
-                "padding: 8px 20px; " +
-                "border-radius: 5px; " +
+                "padding: 10px 25px; " +
+                "border-radius: 15px; " +
                 "font-size: 14px; " +
-                "cursor: pointer;";
+                "font-family: 'Segoe UI'; " +
+                "font-weight: bold; " +
+                "cursor: pointer; " +
+                "box-shadow: 0 3px 5px rgba(245,148,92,0.25);";
 
+        // Apply styles to buttons
         yesButton.putClientProperty("style", buttonStyle);
-        noButton.putClientProperty("style", buttonStyle.replace("#007bff", "#6c757d"));
+        
+        // Style for No button - more subtle but still matching theme with smoother appearance
+        String noButtonStyle = "background-color: rgba(245,148,92,0.08); " +
+                "color: #f0945c; " +
+                "border: 1px solid rgba(245,148,92,0.15); " +
+                "padding: 10px 25px; " +
+                "border-radius: 15px; " +
+                "font-size: 14px; " +
+                "font-family: 'Segoe UI'; " +
+                "font-weight: bold; " +
+                "cursor: pointer;";
+                
+        noButton.putClientProperty("style", noButtonStyle);
 
         // Create the panel with rounded corners
         JPanel panel = new JPanel() {
@@ -451,28 +556,48 @@ public class PostViewController {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                // Warm beige background - slightly softer
+                g2.setColor(new Color(252, 248, 245));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                
+                // Add subtle gradient - enhanced for smoother appearance
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(245, 240, 235), 
+                    0, getHeight(), new Color(248, 235, 220));
+                g2.setPaint(gp);
+                g2.fillRoundRect(5, 5, getWidth()-10, getHeight()-10, 18, 18);
+                
+                // Add a subtle border - softer color
+                g2.setColor(new Color(245, 148, 92, 20));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, 20, 20);
+                
                 g2.dispose();
             }
         };
 
         // Style the panel
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setLayout(new BorderLayout(10, 15));
+        panel.setBackground(new Color(252, 248, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
         // Create and style the message label
-        JLabel messageLabel = new JLabel("<html><body style='width: 200px'>" + message + "</body></html>");
-        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel messageLabel = new JLabel("<html><body style='width: 280px; font-family: Segoe UI; color: #2D3250; line-height: 1.5;'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         panel.add(messageLabel, BorderLayout.CENTER);
 
         // Create button panel with spacing
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setOpaque(false);
+        buttonPanel.add(noButton);  // Put No first, Yes second (better UX)
         buttonPanel.add(yesButton);
-        buttonPanel.add(noButton);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Add some padding above buttons
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.setOpaque(false);
+        southPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        southPanel.add(buttonPanel, BorderLayout.CENTER);
+        panel.add(southPanel, BorderLayout.SOUTH);
 
         // Configure the option pane
         JOptionPane optionPane = new JOptionPane(
@@ -486,7 +611,7 @@ public class PostViewController {
 
         // Create and style the dialog
         JDialog dialog = optionPane.createDialog(title);
-        dialog.setBackground(Color.WHITE);
+        dialog.setBackground(new Color(252, 248, 245));
 
         // Add button actions
         yesButton.addActionListener(e -> {
@@ -514,26 +639,80 @@ public class PostViewController {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                // Warm beige background - slightly softer
+                g2.setColor(new Color(252, 248, 245));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                
+                // Add subtle gradient - enhanced for smoother appearance
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(245, 240, 235), 
+                    0, getHeight(), new Color(248, 235, 220));
+                g2.setPaint(gp);
+                g2.fillRoundRect(5, 5, getWidth()-10, getHeight()-10, 18, 18);
+                
+                // Add a subtle border - softer color
+                g2.setColor(new Color(245, 148, 92, 20));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, 20, 20);
+                
                 g2.dispose();
             }
         };
 
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setLayout(new BorderLayout(10, 15));
+        panel.setBackground(new Color(252, 248, 245));
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
-        JLabel messageLabel = new JLabel("<html><body style='width: 200px'>" + message + "</body></html>");
-        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel messageLabel = new JLabel("<html><body style='width: 280px; font-family: Segoe UI; color: #2D3250; line-height: 1.5;'>" + message + "</body></html>");
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         panel.add(messageLabel, BorderLayout.CENTER);
-
-        JOptionPane.showMessageDialog(
-                null,
+        
+        // Create OK button with warm orange theme - enhanced gradient and smoother appearance
+        JButton okButton = new JButton("OK");
+        String buttonStyle = "background-color: linear-gradient(to bottom, #f7a76c, #f0945c); " +
+                "color: white; " +
+                "border: none; " +
+                "padding: 10px 30px; " +
+                "border-radius: 15px; " +
+                "font-size: 14px; " +
+                "font-family: 'Segoe UI'; " +
+                "font-weight: bold; " +
+                "cursor: pointer; " +
+                "box-shadow: 0 3px 5px rgba(245,148,92,0.25);";
+        okButton.putClientProperty("style", buttonStyle);
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(okButton);
+        
+        // Add some padding above button
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.setOpaque(false);
+        southPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        southPanel.add(buttonPanel, BorderLayout.CENTER);
+        panel.add(southPanel, BorderLayout.SOUTH);
+        
+        // Configure the option pane
+        JOptionPane optionPane = new JOptionPane(
                 panel,
-                title,
-                JOptionPane.PLAIN_MESSAGE
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
+                null,
+                new Object[]{},
+                null
         );
+        
+        // Create and style the dialog
+        JDialog dialog = optionPane.createDialog(title);
+        dialog.setBackground(new Color(252, 248, 245));
+        
+        // Add button action
+        okButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+        
+        // Show dialog
+        dialog.setVisible(true);
     }
 
     // Add method to check if current user is admin

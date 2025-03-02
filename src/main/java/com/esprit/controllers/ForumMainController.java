@@ -15,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -114,6 +115,23 @@ public class ForumMainController implements SearchableController, Initializable 
     public void initialize(URL location, ResourceBundle resources) {
         try {
             System.out.println("Initializing ForumMainController...");
+            
+            // Find the navbar and set the forum button as active
+            if (rootPane != null && rootPane.getLeft() instanceof VBox) {
+                VBox leftVBox = (VBox) rootPane.getLeft();
+                for (Node child : leftVBox.getChildren()) {
+                    if (child instanceof Parent) {
+                        Parent parent = (Parent) child;
+                        Object controller = parent.getUserData();
+                        if (controller instanceof NavbarController) {
+                            NavbarController navbarController = (NavbarController) controller;
+                            navbarController.setForumButtonActive();
+                            System.out.println("Set forum button active from ForumMainController");
+                            break;
+                        }
+                    }
+                }
+            }
             
             // Initialize your components
             if (searchFilterComboBox != null) {
@@ -311,6 +329,29 @@ public class ForumMainController implements SearchableController, Initializable 
                             );
 
                             Scene scene = viewButton.getScene();
+                            
+                            // Before setting the new root, find the navbar controller and set forum as active
+                            if (scene.getRoot() instanceof HBox) {
+                                HBox container = (HBox) scene.getRoot();
+                                for (javafx.scene.Node node : container.getChildren()) {
+                                    if (node instanceof VBox && node.getId() != null && node.getId().equals("navbar")) {
+                                        VBox navbar = (VBox) node;
+                                        for (javafx.scene.Node child : navbar.getChildren()) {
+                                            if (child instanceof Parent) {
+                                                Parent parent = (Parent) child;
+                                                Object navController = parent.getUserData();
+                                                if (navController instanceof NavbarController) {
+                                                    NavbarController navbarController = (NavbarController) navController;
+                                                    navbarController.setForumButtonActive();
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            
                             scene.setRoot(root);
 
                         } catch (IOException e) {
