@@ -21,7 +21,7 @@
 
         <!-- En-tête -->
         <HBox styleClass="header-container" alignment="CENTER">
-            <Label styleClass="main-title" text="Gestion des Réservations de Lieux"/>
+            <Label styleClass="main-title" text="Réservations des éspaces"/>
         </HBox>
 
         <!-- Contenu principal -->
@@ -32,11 +32,11 @@
 
             <!-- Panneau gauche : Formulaire -->
             <VBox styleClass="form-container" spacing="15">
-                <Label styleClass="section-title" text="Nouvelle Réservation de Lieu"/>
+                <Label styleClass="section-title" text="Nouvelle Réservation"/>
 
                 <!-- Sélection du lieu -->
                 <VBox spacing="5">
-                    <Label text="Lieu *"/>
+                    <Label text="Espace *"/>
                     <ComboBox fx:id="lieuComboBox" prefWidth="300"/>
                     <Label fx:id="lieuCapaciteLabel" styleClass="info-label"/>
                 </VBox>
@@ -60,26 +60,40 @@
 
                 <!-- Boutons d'action -->
                 <HBox styleClass="buttons-container" spacing="10">
+                    <!-- Bouton Réserver pour les utilisateurs non-admin -->
                     <Button 
-                        fx:id="ajouterBtn" 
-                        text="Ajouter" 
+                        fx:id="reserverBtn" 
+                        text="Réserver" 
                         styleClass="button-primary" 
                         onAction="#handleAjouter"/>
-                    <Button 
-                        fx:id="modifierBtn" 
-                        text="Modifier" 
-                        styleClass="button-secondary" 
-                        onAction="#handleModifier"/>
-                    <Button 
-                        fx:id="supprimerBtn" 
-                        text="Supprimer" 
-                        styleClass="button-danger" 
-                        onAction="#handleSupprimer"/>
-                    <Button 
-                        fx:id="annulerBtn" 
-                        text="Annuler" 
-                        styleClass="button-secondary" 
-                        onAction="#handleAnnuler"/>
+                        
+                    <!-- Boutons admin -->
+                    <VBox fx:id="adminButtonsContainer" spacing="10">
+                        <HBox spacing="10">
+                            <Button 
+                                fx:id="ajouterBtn" 
+                                text="Ajouter" 
+                                styleClass="button-primary" 
+                                onAction="#handleAjouter"/>
+                            <Button 
+                                fx:id="modifierBtn" 
+                                text="Modifier" 
+                                styleClass="button-secondary" 
+                                onAction="#handleModifier"/>
+                        </HBox>
+                        <HBox spacing="10">
+                            <Button 
+                                fx:id="supprimerBtn" 
+                                text="Supprimer" 
+                                styleClass="button-danger" 
+                                onAction="#handleSupprimer"/>
+                            <Button 
+                                fx:id="annulerBtn" 
+                                text="Annuler" 
+                                styleClass="button-secondary" 
+                                onAction="#handleAnnuler"/>
+                        </HBox>
+                    </VBox>
                 </HBox>
 
                 <Label styleClass="info-label" text="* Champs obligatoires"/>

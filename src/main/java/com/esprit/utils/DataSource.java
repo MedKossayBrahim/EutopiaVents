@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DataSource {
 
     private static DataSource instance;
-    private static final String URL = "jdbc:mysql://localhost:3306/eutoo";
+    private static final String URL = "jdbc:mysql://localhost:3306/eutopia1";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 

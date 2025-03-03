@@ -1,9 +1,11 @@
 package com.esprit.controllers;
 
 import com.esprit.models.User;
+import com.esprit.models.Role;
 import com.esprit.models.reservation1;
 import com.esprit.services.ReservationServiceImpl;
 import com.esprit.utils.UserSession;
+import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -13,6 +15,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.layout.VBox;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -41,6 +45,14 @@ public class Reservation1 implements Initializable {
     @FXML private TableColumn<reservation1, String> typeReservationColumn;
     @FXML private Label userInfoLabel;
 
+    // New button references
+    @FXML private Button reserverBtn;
+    @FXML private Button ajouterBtn;
+    @FXML private Button modifierBtn;
+    @FXML private Button supprimerBtn;
+    @FXML private Button annulerBtn;
+    @FXML private VBox adminButtonsContainer;
+
     private ReservationServiceImpl reservationService;
     private Map<String, Integer> lieuxMap = new HashMap<>();
     private User currentUser;
@@ -50,13 +62,22 @@ public class Reservation1 implements Initializable {
         try {
             currentUser = UserSession.loadUser();
             if (currentUser == null) {
-                showAlert("Erreur", "Vous devez être connecté pour accéder à cette fonctionnalité.");
-                return;
+                // Instead of showing an error and returning, try to get the current user from Eutopia
+                currentUser = Eutopia.getCurrentUser();
+                
+                // If still null, then show the error
+                if (currentUser == null) {
+                    showAlert("Erreur", "Vous devez être connecté pour accéder à cette fonctionnalité.");
+                    return;
+                }
             }
 
             if (userInfoLabel != null) {
                 userInfoLabel.setText("Connecté en tant que: " + currentUser.getUserName());
             }
+            
+            // Configure button visibility based on user role
+            configureButtonsByRole();
 
             reservationService = new ReservationServiceImpl();
             initializeTimeComboBoxes();
@@ -68,6 +89,34 @@ public class Reservation1 implements Initializable {
             System.err.println("Erreur d'initialisation : " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Erreur d'initialisation : " + e.getMessage());
+        }
+    }
+
+    // Method to configure button visibility based on user role
+    public void configureButtonsByRole() {
+        boolean isAdmin = currentUser != null && Role.Admin.equals(currentUser.getRole());
+        
+        // Configure visibility of admin buttons container
+        if (adminButtonsContainer != null) {
+            adminButtonsContainer.setVisible(isAdmin);
+            adminButtonsContainer.setManaged(isAdmin);
+        }
+        
+        // Configure visibility of individual buttons (as fallback if container approach doesn't work)
+        if (ajouterBtn != null) ajouterBtn.setVisible(isAdmin);
+        if (modifierBtn != null) modifierBtn.setVisible(isAdmin);
+        if (supprimerBtn != null) supprimerBtn.setVisible(isAdmin);
+        if (annulerBtn != null) annulerBtn.setVisible(isAdmin);
+        
+        if (ajouterBtn != null) ajouterBtn.setManaged(isAdmin);
+        if (modifierBtn != null) modifierBtn.setManaged(isAdmin);
+        if (supprimerBtn != null) supprimerBtn.setManaged(isAdmin);
+        if (annulerBtn != null) annulerBtn.setManaged(isAdmin);
+        
+        // Regular users only see the "Réserver" button
+        if (reserverBtn != null) {
+            reserverBtn.setVisible(!isAdmin);
+            reserverBtn.setManaged(!isAdmin);
         }
     }
 

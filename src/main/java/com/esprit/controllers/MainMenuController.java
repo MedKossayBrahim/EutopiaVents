@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import com.esprit.tests.Eutopia;
 import javafx.application.Platform;
@@ -59,28 +60,29 @@ public class MainMenuController {
         boolean isAdmin = "Admin".equals(userRole);
 
         // Configure "Ajouter Lieu" button
-        Button ajouterButton = (Button) searchField.getParent().lookup("Button");
-        if (ajouterButton != null) {
-            ajouterButton.setVisible(isAdmin);
-            ajouterButton.setManaged(isAdmin);
+        if (searchField != null && searchField.getScene() != null) {
+            Button ajouterButton = (Button) searchField.getScene().lookup("#ajouterLieuBtn");
+            if (ajouterButton != null) {
+                ajouterButton.setVisible(isAdmin);
+                ajouterButton.setManaged(isAdmin);
+            }
         }
 
-        // Configure all management buttons
-        if (lieuxGrid.getScene() != null) {
-            HBox navButtonsContainer = (HBox) lieuxGrid.getScene().lookup(".nav-buttons");
+        // Configure user reservation button - only visible for non-admin users
+        if (lieuxGrid != null && lieuxGrid.getScene() != null) {
+            HBox userNavButtons = (HBox) lieuxGrid.getScene().lookup(".user-nav-buttons");
+            if (userNavButtons != null) {
+                userNavButtons.setVisible(!isAdmin);
+                userNavButtons.setManaged(!isAdmin);
+            }
+        }
 
-            if (navButtonsContainer != null) {
-                System.out.println("Found nav buttons container, setting visibility: " + isAdmin); // Debug line
-                navButtonsContainer.setVisible(isAdmin);
-                navButtonsContainer.setManaged(isAdmin);
-
-                // Also hide all children buttons individually
-                navButtonsContainer.getChildren().forEach(node -> {
-                    node.setVisible(isAdmin);
-                    node.setManaged(isAdmin);
-                });
-            } else {
-                System.out.println("Nav buttons container not found!"); // Debug line
+        // Configure admin buttons container - only visible for admin users
+        if (lieuxGrid != null && lieuxGrid.getScene() != null) {
+            HBox adminButtonsContainer = (HBox) lieuxGrid.getScene().lookup("#adminButtonsContainer");
+            if (adminButtonsContainer != null) {
+                adminButtonsContainer.setVisible(isAdmin);
+                adminButtonsContainer.setManaged(isAdmin);
             }
         }
     }
@@ -338,7 +340,63 @@ public class MainMenuController {
 
     @FXML
     private void goToGestionReservations() {
-        navigateWithNavbar("/Reservation1View.fxml", "settings");
+        try {
+            // Get the current scene
+            Scene scene = lieuxGrid.getScene();
+            
+            // Get the current scene's root
+            Parent currentRoot = scene.getRoot();
+            
+            // Find the navbar in the current scene
+            VBox navbar = null;
+            if (currentRoot instanceof HBox) {
+                HBox container = (HBox) currentRoot;
+                for (Node node : container.getChildren()) {
+                    if (node instanceof VBox && node.getId() != null && node.getId().equals("navbar")) {
+                        navbar = (VBox) node;
+                        break;
+                    }
+                }
+            }
+            
+            // Load the view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Reservation1View.fxml"));
+            Parent content = loader.load();
+            
+            // Get the controller to ensure buttons are configured correctly
+            Reservation1 controller = loader.getController();
+            if (controller != null) {
+                // Make sure the controller configures buttons based on role
+                controller.configureButtonsByRole();
+            }
+            
+            // Create a container with navbar and content
+            HBox container = new HBox();
+            container.setSpacing(0);
+            container.setStyle("-fx-background-color: white;");
+            
+            if (navbar != null) {
+                // If navbar was found, reuse it
+                container.getChildren().addAll(navbar, content);
+                
+                // Update the navbar to show the active button
+                NavbarController navController = (NavbarController) navbar.getProperties().get("controller");
+                if (navController != null) {
+                    navController.updateButtonStyles("settings");
+                }
+            } else {
+                // If navbar wasn't found, load view directly
+                container.getChildren().add(content);
+            }
+            
+            HBox.setHgrow(content, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Set the new scene
+            scene.setRoot(container);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir la page de gestion des réservations.");
+        }
     }
 
     @FXML

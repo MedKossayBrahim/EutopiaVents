@@ -59,8 +59,10 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Catego
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\ReservationServiceImpl.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\SearchableController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\AdminService.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\EventReviewsController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AjouterCategorie.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ModifierCategorie.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\EventReview.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\CommandeService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\PostViewController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ModifierCommande.java
@@ -81,6 +83,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\A
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\AutocompleteService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\MainController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\NewPassView.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\EventReviewService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercateg.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\EventsController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ListeMaterielController.java
