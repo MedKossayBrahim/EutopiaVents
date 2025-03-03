@@ -569,7 +569,6 @@ public class ReservationWindowController {
                                         this.cancel();
                                     }
                                 } catch (Exception e) {
-                                    // Ignorer les erreurs de polling
                                 }
                             });
                         }

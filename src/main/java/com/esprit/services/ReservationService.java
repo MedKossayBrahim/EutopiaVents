@@ -231,7 +231,7 @@ public class ReservationService implements IService<Reservation> {
     }
 
     public String getUserName(int userId) {
-        String userName = "Inconnu";
+        String userName = "RESW/EV";
         try {
             Statement st = connection.createStatement();
             String query = "SELECT fullName FROM users WHERE userID = " + userId;

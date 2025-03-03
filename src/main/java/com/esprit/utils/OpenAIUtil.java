@@ -22,7 +22,7 @@ public class OpenAIUtil {
 
         // Combiner les deux scores avec une pondération
         // 60% pour l'API, 40% pour l'analyse des mots-clés
-        double finalScore = (apiScore * 0.6) + (keywordScore * 0.4);
+        double finalScore = (apiScore * 0.5) + (keywordScore * 0.5);
 
         // Arrondir au nombre entier le plus proche
         return Math.min(5, Math.max(1, (int) Math.round(finalScore)));
@@ -79,6 +79,12 @@ public class OpenAIUtil {
 
         // Mots positifs (poids 1.0)
         String[] positive = {
+                "excellent", "parfait", "super", "génial", "très bien", "satisfait",
+                "recommande", "qualité", "efficace", "pratique", "facile", "agréable",
+                "fiable", "formidable", "merveilleux", "rapide", "top", "convivial",
+                "fonctionnel", "utile", "fluide", "intuitif", "performant", "incroyable",
+                "exceptionnel", "remarquable", "brillant", "impressionnant", "nickel",
+                "content", "satisfaisant", "pratique", "bien", "bon", "super",
                 "bien", "bon", "satisfait", "content", "pratique", "efficace",
                 "utile", "agréable", "recommande", "qualité"
         };
@@ -108,9 +114,13 @@ public class OpenAIUtil {
 
         // Mots très négatifs (poids 3.0) - augmenté de 2.0 à 3.0
         String[] veryNegative = {
-                "horrible", "catastrophique", "inadmissible", "désastreux",
-                "inutilisable", "nul", "pire", "terrible", "faible", "mal",
-                "mauvais", "défectueux", "dangereux"
+                "mauvais", "décevant", "problème", "défaut", "panne", "difficile",
+                "compliqué", "cassé", "inutile", "cher", "déçu", "insatisfait",
+                "horrible", "médiocre", "inadmissible", "lamentable", "catastrophique",
+                "nul", "impossible", "inefficace", "lent", "inacceptable", "bof",
+                "bug", "planté", "dysfonctionnement", "peu fiable", "instable",
+                "défectueux", "trop cher", "frustrant", "dommage", "problématique",
+                "pas bon", "mauvaise", "pas bien", "pas terrible"
         };
 
         // Mots négatifs (poids 2.0) - augmenté de 1.0 à 2.0
@@ -149,9 +159,13 @@ public class OpenAIUtil {
 
     private static boolean containsCriticalNegative(String text) {
         String[] criticalWords = {
-                "faible", "mal", "mauvais", "inutilisable", "dangereux", "défectueux",
-                "cassé", "ne fonctionne pas", "ne marche pas", "problème grave",
-                "très mauvais", "à éviter", "nul", "horrible"
+                "mauvais", "décevant", "problème", "défaut", "panne", "difficile",
+                "compliqué", "cassé", "inutile", "cher", "déçu", "insatisfait",
+                "horrible", "médiocre", "inadmissible", "lamentable", "catastrophique",
+                "nul", "impossible", "inefficace", "lent", "inacceptable", "bof",
+                "bug", "planté", "dysfonctionnement", "peu fiable", "instable",
+                "défectueux", "trop cher", "frustrant", "dommage", "problématique",
+                "pas bon", "mauvaise", "pas bien", "pas terrible"
         };
 
         for (String word : criticalWords) {
@@ -206,23 +220,4 @@ public class OpenAIUtil {
         return 3;
     }
 
-    // Définir les listes de mots-clés comme constantes de classe
-    private static final String[] POSITIVE_WORDS = {
-            "excellent", "parfait", "super", "génial", "très bien", "satisfait",
-            "recommande", "qualité", "efficace", "pratique", "facile", "agréable",
-            "fiable", "formidable", "merveilleux", "rapide", "top", "convivial",
-            "fonctionnel", "utile", "fluide", "intuitif", "performant", "incroyable",
-            "exceptionnel", "remarquable", "brillant", "impressionnant", "nickel",
-            "content", "satisfaisant", "pratique", "bien", "bon", "super"
-    };
-
-    private static final String[] NEGATIVE_WORDS = {
-            "mauvais", "décevant", "problème", "défaut", "panne", "difficile",
-            "compliqué", "cassé", "inutile", "cher", "déçu", "insatisfait",
-            "horrible", "médiocre", "inadmissible", "lamentable", "catastrophique",
-            "nul", "impossible", "inefficace", "lent", "inacceptable", "bof",
-            "bug", "planté", "dysfonctionnement", "peu fiable", "instable",
-            "défectueux", "trop cher", "frustrant", "dommage", "problématique",
-            "pas bon", "mauvaise", "pas bien", "pas terrible"
-    };
 }
