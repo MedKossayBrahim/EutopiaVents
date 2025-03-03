@@ -46,6 +46,7 @@ com\esprit\controllers\SignUpView.class
 com\esprit\services\IService.class
 com\esprit\models\Participant.class
 com\esprit\controllers\FeedbackController$1.class
+com\esprit\utils\ImageDbUtil.class
 com\esprit\tests\MainProg.class
 com\esprit\controllers\PostDialogController$1.class
 com\esprit\controllers\Ajoutercategorieevent$2.class
