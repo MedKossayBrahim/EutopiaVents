@@ -24,7 +24,7 @@ public class Ajoutercateg {
         cs.ajouter(new Categorie(categorieText));
 
         showAlert(Alert.AlertType.INFORMATION, "Confirmation", "Catégorie ajoutée avec succès !");
-        tfcategorie.clear(); // Nettoyer le champ après ajout
+        tfcategorie.clear();
     }
 
     private boolean validateCategorie(String text) {

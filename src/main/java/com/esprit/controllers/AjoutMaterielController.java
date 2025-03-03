@@ -47,7 +47,7 @@ public class AjoutMaterielController {
     public void initialize() {
         loadCategories();
 
-        // Configurer l'affichage de la ComboBox pour montrer uniquement le nom de la catégorie
+        // Configurer l'affichage de la ComboBox  le nom de la catégorie
         categorieComboBox.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(Categorie item, boolean empty) {

@@ -6,6 +6,7 @@ com\esprit\controllers\SignUpView.class
 com\esprit\models\Role.class
 com\esprit\models\Participant.class
 com\esprit\controllers\FeedbackController$1.class
+com\esprit\utils\ImageDbUtil.class
 com\esprit\services\EmailService.class
 com\esprit\services\OrganisateurService.class
 com\esprit\controllers\ReservationWindowController$3.class
