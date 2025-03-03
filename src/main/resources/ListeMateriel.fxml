@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
@@ -29,6 +28,16 @@
                          -fx-prompt-text-fill: #95a5a6;
                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
                    prefWidth="300"/>
+
+        <ComboBox fx:id="categorieComboBox" promptText="Sélectionner une catégorie"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 20;
+                         -fx-border-radius: 20;
+                         -fx-font-size: 14px;
+                         -fx-padding: 10 20;
+                         -fx-prompt-text-fill: #95a5a6;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                  prefWidth="200"/>
 
         <Region HBox.hgrow="ALWAYS"/>
 

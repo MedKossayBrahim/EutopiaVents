@@ -1,12 +1,16 @@
 package com.esprit.controllers;
 
+import com.esprit.models.Categorie;
 import com.esprit.models.Materiel;
+import com.esprit.services.AdminService;
+import com.esprit.services.CategorieService;
 import com.esprit.services.MaterielService;
 import com.esprit.utils.DataSource;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -24,6 +28,8 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.Comparator;
+import java.util.List;
 
 public class ListeMaterielController {
     @FXML
@@ -44,22 +50,24 @@ public class ListeMaterielController {
     private TableColumn<Materiel, Void> actionsColumn;
     @FXML
     private TextField searchField; // Zone de recherche
+    @FXML
+    private ComboBox<String> categorieComboBox; // ComboBox pour sélectionner la catégorie
 
     private final MaterielService materielService;
     private ObservableList<Materiel> materielsList; // Liste observable des matériels
     private FilteredList<Materiel> filteredMateriels; // Liste filtrée
+    private SortedList<Materiel> sortedMateriels; // Liste triée
 
     public ListeMaterielController() throws SQLException {
         materielService = new MaterielService();
     }
 
     @FXML
-    public void initialize() {
+    public void initialize() throws SQLException {
         setupColumns();
         loadMateriels();
-
-        // Configurer la zone de recherche
         setupSearch();
+        setupCategorieComboBox(); // Appel à la méthode pour configurer le ComboBox
     }
 
     private void setupColumns() {
@@ -69,6 +77,15 @@ public class ListeMaterielController {
         quantiteColumn.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
         imageUrlColumn.setCellValueFactory(new PropertyValueFactory<>("Image_url"));
+
+        // Activer le tri uniquement sur les colonnes "categorie", "prix" et "quantite"
+        quantiteColumn.setSortable(true);
+        prixColumn.setSortable(true);
+        categorieColumn.setSortable(true); // Assurez-vous que la colonne categorie est définie
+
+        // Désactiver le tri pour les autres colonnes
+        libelleColumn.setSortable(false);
+        descriptionColumn.setSortable(false);
 
         // Rendre les colonnes éditables
         libelleColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -82,7 +99,7 @@ public class ListeMaterielController {
             private final HBox hbox = new HBox(imageView);
 
             {
-                imageView.setFitHeight(50); // Ajustez la hauteur de l'image
+                imageView.setFitHeight(50);
                 imageView.setPreserveRatio(true);
                 hbox.setAlignment(Pos.CENTER);
             }
@@ -94,11 +111,11 @@ public class ListeMaterielController {
                     setGraphic(null);
                 } else {
                     try {
-                        Image image = new Image(imageUrl, true); // Utiliser le chargement en arrière-plan
+                        Image image = new Image(imageUrl, true);
                         imageView.setImage(image);
                         setGraphic(hbox);
                     } catch (Exception e) {
-                        setGraphic(null); // En cas d'erreur de chargement de l'image
+                        setGraphic(null);
                     }
                 }
             }
@@ -181,26 +198,30 @@ public class ListeMaterielController {
     }
 
     private void loadMateriels() {
+        // Charger les données
         materielsList = FXCollections.observableArrayList(materielService.rechercher());
-        filteredMateriels = new FilteredList<>(materielsList, p -> true); // Initialiser la liste filtrée
-        materielTable.setItems(filteredMateriels); // Lier la liste filtrée à la TableView
+
+        // Créer la FilteredList
+        filteredMateriels = new FilteredList<>(materielsList, p -> true);
+
+        // Créer la SortedList
+        sortedMateriels = new SortedList<>(filteredMateriels);
+
+        // Lier le comparateur de la SortedList à celui de la TableView
+        sortedMateriels.comparatorProperty().bind(materielTable.comparatorProperty());
+
+        // Définir la SortedList comme items de la TableView
+        materielTable.setItems(sortedMateriels);
     }
 
     private void setupSearch() {
-        // Ajouter un écouteur sur le champ de recherche
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredMateriels.setPredicate(materiel -> {
-                // Si le champ de recherche est vide, afficher tous les matériels
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
                 }
-
-                // Convertir le texte saisi et le libellé du matériel en minuscules pour une recherche insensible à la casse
                 String lowerCaseFilter = newValue.toLowerCase();
-                String libelleMateriel = materiel.getLibelle().toLowerCase();
-
-                // Vérifier si le libellé du matériel contient le texte saisi
-                return libelleMateriel.contains(lowerCaseFilter);
+                return materiel.getLibelle().toLowerCase().contains(lowerCaseFilter);
             });
         });
     }
@@ -234,6 +255,34 @@ public class ListeMaterielController {
         } catch (IOException e) {
             System.err.println("Erreur lors de l'ouverture de la fenêtre d'ajout : " + e.getMessage());
         }
+    }
+
+    private void setupCategorieComboBox() throws SQLException {
+        // Remplir le ComboBox avec les catégories
+        CategorieService categorieService = new CategorieService();
+        List<Categorie> categories = categorieService.rechercher(); // Récupérer les catégories
+        categorieComboBox.getItems().clear(); // Vider le ComboBox avant d'ajouter de nouvelles catégories
+        for (Categorie categorie : categories) {
+            categorieComboBox.getItems().add(categorie.getNom()); // Ajouter le nom de la catégorie
+        }
+
+        // Écouteur pour filtrer les matériels par catégorie
+        categorieComboBox.setOnAction(event -> {
+            String selectedCategory = categorieComboBox.getValue();
+            filteredMateriels.setPredicate(materiel -> {
+                if (selectedCategory == null || selectedCategory.isEmpty()) {
+                    return true; // Afficher tous les matériels si aucune catégorie n'est sélectionnée
+                }
+                // Vérifier si le nom de la catégorie correspond à la catégorie sélectionnée
+                try {
+                    String categorieName = getCategorieName(materiel.getCategorieId());
+                    return categorieName != null && categorieName.equals(selectedCategory);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            });
+        });
     }
 
 }
