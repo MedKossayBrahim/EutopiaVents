@@ -74,7 +74,7 @@ public class PostService implements IServiceF<Post> {
     @Override
     public void modifier(Post post) throws SQLException {
         Connection conn = DataSource.getInstance().getConnection();
-        String sql = "UPDATE posts SET title=?, content=?, category_id=?, updated_at=NOW() WHERE post_id=?";
+        String sql = "UPDATE posts SET title=?, content=?, category_id=?, updated_at=NOW() WHERE id=?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, post.getTitle());
             pstmt.setString(2, post.getContent());

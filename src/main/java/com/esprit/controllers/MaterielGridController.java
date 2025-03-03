@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Feedback;
 import com.esprit.models.Materiel;
+import com.esprit.models.Role;
 import com.esprit.services.MaterielService;
 import com.esprit.tests.Eutopia;
 import javafx.event.ActionEvent;
@@ -20,11 +21,14 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.Node;
 
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 import com.esprit.utils.OpenAIUtil;
 import com.esprit.services.FeedbackService;
+import com.esprit.services.UserService;
+import com.esprit.models.User;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,9 +56,40 @@ public class MaterielGridController {
     @FXML
     public void initialize() {
         allMateriels = materielService.rechercher();
-        setupNavigationButtons();
         updateGrid();
         updateButtons();
+
+        // Check user role and hide admin-only buttons for non-admin users
+        if (!isUserAdmin()) {
+            btnMaterielList.setVisible(false);
+            btnCategoriesList.setVisible(false);
+            // Hide other admin-only buttons by getting them from the parent container
+            Button statsButton = null;
+            Button reservationsListButton = null;
+
+            // Find the buttons in the same HBox as the visible buttons
+            if (btnMaterielList.getParent() instanceof HBox) {
+                HBox buttonContainer = (HBox) btnMaterielList.getParent();
+                for (Node node : buttonContainer.getChildren()) {
+                    if (node instanceof Button) {
+                        Button button = (Button) node;
+                        if (button.getText().equals("Statistiques")) {
+                            statsButton = button;
+                        } else if (button.getText().equals("Liste des Réservations")) {
+                            reservationsListButton = button;
+                        }
+                    }
+                }
+
+                // Hide the admin-only buttons
+                if (statsButton != null) {
+                    statsButton.setVisible(false);
+                }
+                if (reservationsListButton != null) {
+                    reservationsListButton.setVisible(false);
+                }
+            }
+        }
     }
 
     private void updateGrid() {
@@ -190,26 +225,6 @@ public class MaterielGridController {
         nextButton.setDisable((currentPage + 1) * itemsPerPage >= allMateriels.size());
     }
 
-    private void setupNavigationButtons() {
-        btnMaterielList = new Button("Liste des Matériels");
-        btnCategoriesList = new Button("Liste des Catégories");
-        Button btnNouvelleReservation = new Button("Nouvelle Réservation");
-
-        // Style des boutons
-        btnMaterielList.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 10 20;");
-        btnCategoriesList.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 10 20;");
-        btnNouvelleReservation.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10 20;");
-
-        // Actions des boutons
-        btnMaterielList.setOnAction(event -> navigateToMaterielList());
-        btnCategoriesList.setOnAction(event -> navigateToCategoriesList());
-        btnNouvelleReservation.setOnAction(event -> openReservationWindow());
-
-        // Ajout dans un HBox pour bien organiser l'affichage
-        HBox buttonContainer = new HBox(20, btnMaterielList, btnCategoriesList, btnNouvelleReservation);
-        buttonContainer.setAlignment(javafx.geometry.Pos.CENTER);
-        gridPaneMateriels.add(buttonContainer, 0, 5, 3, 1); // Centrer sur 3 colonnes
-    }
 
     @FXML
     private void navigateToMaterielList() {
@@ -342,5 +357,19 @@ public class MaterielGridController {
         alert.setContentText("Détails : " + e.getMessage());
         alert.showAndWait();
         e.printStackTrace();
+    }
+
+    // Update the isUserAdmin method to correctly check for the Admin role using the Role enum
+    private boolean isUserAdmin() {
+        try {
+            // Get the current user from Eutopia class
+            User currentUser = Eutopia.getCurrentUser();
+            
+            // Check if user is admin using the Role enum
+            return currentUser != null && Role.Admin.equals(currentUser.getRole());
+        } catch (Exception e) {
+            System.err.println("Error checking user role: " + e.getMessage());
+            return false;
+        }
     }
 }

@@ -8,7 +8,8 @@
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.esprit.controllers.MaterielGridController"
-            styleClass="root">
+            styleClass="root"
+            style="-fx-background-color: #faf6f3;">
 
     <center>
         <VBox spacing="20" alignment="CENTER">
@@ -30,7 +31,11 @@
                         text="Liste des Catégories" 
                         onAction="#navigateToCategoriesList"
                         styleClass="button"/>
-                
+
+                <Button text="Nouvelle Réservation" 
+                        onAction="#openReservationWindow"
+                        styleClass="success"/>
+                        
                 <Button text="Liste des Réservations"
                         onAction="#openListeReservation"
                         styleClass="button"/>
@@ -38,10 +43,6 @@
                 <Button text="Statistiques"
                         onAction="#openstats"
                         styleClass="button"/>
-                
-                <Button text="Nouvelle Réservation" 
-                        onAction="#openReservationWindow"
-                        styleClass="success"/>
             </HBox>
 
             <!-- Pagination -->

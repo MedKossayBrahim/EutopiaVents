@@ -1,11 +1,1 @@
-{
-  "userID": 31,
-  "fullname": "Youssef Harrane",
-  "email": "youssefharrane7@gmail.com",
-  "passwd": "$2a$10$drVjQI4oZdrHSIZVQiiLaulBViSX4Y7VxBiItIH55.BKDm5OALBYC",
-  "userName": "youssefharrane301",
-  "image": "http://localhost/img/default.png",
-  "phone": 51707908,
-  "isActive": true,
-  "role": "Participant"
-}
+null

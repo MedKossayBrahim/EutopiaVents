@@ -594,38 +594,45 @@ public class ReservationWindowController {
     private void finalizePayment(Reservation reservation, User currentUser) {
         try {
             ReservationService reservationService = new ReservationService();
-            reservation.setUserId(currentUser.getUserID());
-            reservation.setStatus("PAYÉ");
 
             // Convertir LocalDate en java.util.Date
             java.util.Date dateDebut = java.sql.Date.valueOf(dateDebutPicker.getValue());
             java.util.Date dateFin = java.sql.Date.valueOf(dateFinPicker.getValue());
-            reservation.setDateDebut(dateDebut);
-            reservation.setDateFin(dateFin);
 
-            // Ajouter les matériels sélectionnés à la réservation
-            List<Materiel> selectedMaterials = new ArrayList<>();
-            Map<Materiel, Integer> quantities = new HashMap<>();
-
+            // Pour chaque matériel sélectionné, créer une réservation distincte
             selectionProperties.forEach((materiel, selected) -> {
                 if (selected.get()) {
                     Spinner<Integer> spinner = quantitySpinners.get(materiel);
                     if (spinner != null && spinner.getValue() > 0) {
-                        selectedMaterials.add(materiel);
-                        quantities.put(materiel, spinner.getValue());
+                        // Créer une nouvelle réservation pour ce matériel
+                        Reservation materielReservation = new Reservation();
+                        materielReservation.setUserId(currentUser.getUserID());
+                        materielReservation.setStatus("PAYÉ");
+                        materielReservation.setDateDebut(dateDebut);
+                        materielReservation.setDateFin(dateFin);
+
+                        // Calculer le prix total pour ce matériel
+                        long nombreJours = java.time.temporal.ChronoUnit.DAYS.between(
+                                dateDebutPicker.getValue(),
+                                dateFinPicker.getValue()
+                        ) + 1;
+                        double prixMateriel = materiel.getPrix() * spinner.getValue() * nombreJours;
+                        materielReservation.setPrixTotal(prixMateriel);
+
+                        // Ajouter le matériel et sa quantité
+                        materielReservation.setMaterielId(materiel.getId());
+                        materielReservation.setQuantite(spinner.getValue());
+
+                        try {
+                            // Sauvegarder la réservation
+                            reservationService.ajouter(materielReservation);
+                        } catch (Exception e) {
+                            System.err.println("Erreur lors de l'ajout de la réservation pour le matériel " + materiel.getLibelle() + ": " + e.getMessage());
+                            e.printStackTrace();
+                        }
                     }
                 }
             });
-
-            if (selectedMaterials.isEmpty()) {
-                throw new RuntimeException("Aucun matériel sélectionné");
-            }
-
-            System.out.println("DEBUG: Saving successful payment reservation...");
-            // Sauvegarder la réservation avec les matériels
-            reservation.setMaterials(selectedMaterials);
-            reservation.setQuantities(quantities);
-            reservationService.ajouter(reservation);
 
             javafx.application.Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);

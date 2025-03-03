@@ -307,12 +307,12 @@ public class GererEvenementsController implements Initializable {
                         System.out.println("Creating reservation with confirmed event ID: " + confirmedEventId);
 
                         Reservation reservationMateriel = new Reservation(
+                                evenement.getId(),
                                 materielId,
                                 quantite,
                                 prix * quantite,
                                 Timestamp.valueOf(evenement.getDateDebut()),
-                                Timestamp.valueOf(evenement.getDateFin()),
-                                Eutopia.getCurrentUser().getUserID()
+                                Timestamp.valueOf(evenement.getDateFin())
                         );
 
                         reservationMaterielService.ajouter(reservationMateriel);
