@@ -4,8 +4,10 @@ import com.esprit.models.Role;
 import com.esprit.models.commande;
 import com.esprit.models.produit;
 import com.esprit.models.User;
+import com.esprit.models.FeedbackProduit;
 import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
+import com.esprit.services.FeedbackProduitService;
 import com.esprit.tests.Eutopia;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -56,8 +58,6 @@ public class Listeproduit {
     @FXML
     private Button btnListeCategorie;
     @FXML
-    private Button btnAjoutProduit;
-    @FXML
     private Button btnListeCommande;
 
     @FXML
@@ -69,6 +69,7 @@ public class Listeproduit {
     @FXML private Pagination pagination;
 
     private final ProduitService produitService;
+    private final FeedbackProduitService feedbackService;
 
     private static int clientConnecteId;
 
@@ -80,6 +81,7 @@ public class Listeproduit {
 
     public Listeproduit() throws SQLException {
         produitService = new ProduitService();
+        feedbackService = new FeedbackProduitService();
     }
 
     @FXML
@@ -97,8 +99,6 @@ public class Listeproduit {
             boolean isAdmin = Role.Admin.equals(currentUser.getRole());
             btnAjoutCategorie.setVisible(isAdmin);
             btnAjoutCategorie.setManaged(isAdmin);
-            btnAjoutProduit.setVisible(isAdmin);
-            btnAjoutProduit.setManaged(isAdmin);
         } else {
             System.out.println("No user logged in");
             clientConnecteId = -1; // No user logged in
@@ -106,8 +106,6 @@ public class Listeproduit {
             // Disable admin buttons if no user is logged in
             btnAjoutCategorie.setVisible(false);
             btnAjoutCategorie.setManaged(false);
-            btnAjoutProduit.setVisible(false);
-            btnAjoutProduit.setManaged(false);
         }
         
         setupFilters();
@@ -312,7 +310,7 @@ public class Listeproduit {
                 VBox productCard = createProductCard(produit);
                 produitsGrid.add(productCard, col, row);
                 col++;
-                if (col == 4) {
+                if (col == 3) {  // Changed from 4 to 3 columns to accommodate wider cards
                     col = 0;
                     row++;
                 }
@@ -331,7 +329,10 @@ public class Listeproduit {
         VBox card = new VBox(0);
         card.getStyleClass().add("product-card");
         card.setAlignment(Pos.TOP_CENTER);
-        card.setPrefWidth(250);
+        card.setPrefWidth(300);
+        
+        // Add transition effect for smooth hover
+        card.setStyle("-fx-transition: all 0.2s ease;");
         
         // Image container with hover effect
         StackPane imageContainer = new StackPane();
@@ -340,7 +341,7 @@ public class Listeproduit {
         
         // Product image
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(250);
+        imageView.setFitWidth(300);
         imageView.setFitHeight(200);
         imageView.getStyleClass().add("product-image");
         imageView.setPreserveRatio(true);
@@ -351,7 +352,7 @@ public class Listeproduit {
 
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 Image image = new Image(imageUrl,
-                        250, 200,
+                        300, 200,
                         true,
                         true,
                         true);
@@ -374,13 +375,15 @@ public class Listeproduit {
         }
         
         // Quick action buttons that appear on hover
-        HBox quickActions = new HBox(10);
+        HBox quickActions = new HBox(15);
         quickActions.getStyleClass().add("quick-actions");
         quickActions.setAlignment(Pos.CENTER);
         
+        // Cart button
         Button quickAddBtn = new Button();
         quickAddBtn.getStyleClass().add("quick-action-button");
         quickAddBtn.setGraphic(createIcon("cart-plus", 16));
+        quickAddBtn.setTooltip(new Tooltip("Ajouter au panier"));
         quickAddBtn.setOnAction(e -> {
             if (clientConnecteId <= 0) {
                 showLoginRequiredDialog();
@@ -389,7 +392,31 @@ public class Listeproduit {
             }
         });
         
-        quickActions.getChildren().add(quickAddBtn);
+        // Feedback button
+        Button quickFeedbackBtn = new Button();
+        quickFeedbackBtn.getStyleClass().add("quick-action-button");
+        quickFeedbackBtn.setGraphic(createIcon("star", 16));
+        quickFeedbackBtn.setTooltip(new Tooltip("Donner votre avis"));
+        quickFeedbackBtn.setOnAction(e -> openFeedbackWindow(produit));
+        
+        // Admin-only delete button
+        Button quickDeleteBtn = new Button();
+        quickDeleteBtn.getStyleClass().add("quick-action-button");
+        quickDeleteBtn.setGraphic(createIcon("trash", 16));
+        quickDeleteBtn.setTooltip(new Tooltip("Supprimer le produit"));
+        quickDeleteBtn.setOnAction(e -> supprimerProduit(produit));
+        
+        // Only show delete button for admin users
+        User currentUser = Eutopia.getCurrentUser();
+        boolean isAdmin = currentUser != null && Role.Admin.equals(currentUser.getRole());
+        quickDeleteBtn.setVisible(isAdmin);
+        quickDeleteBtn.setManaged(isAdmin);
+        
+        if (isAdmin) {
+            quickActions.getChildren().addAll(quickAddBtn, quickFeedbackBtn, quickDeleteBtn);
+        } else {
+            quickActions.getChildren().addAll(quickAddBtn, quickFeedbackBtn);
+        }
         
         // Add image and quick actions to the image container
         imageContainer.getChildren().addAll(imageView, quickActions);
@@ -417,6 +444,29 @@ public class Listeproduit {
         
         priceStockContainer.getChildren().addAll(priceLabel, stockLabel);
         
+        // Rating display
+        HBox ratingBox = new HBox(2);
+        ratingBox.setAlignment(Pos.CENTER_LEFT);
+        ratingBox.setPadding(new Insets(5, 0, 5, 0));
+        
+        // Get average rating
+        double avgRating = feedbackService.getMoyenneRating(produit.getId());
+        int roundedRating = (int) Math.round(avgRating);
+        
+        // Create star rating display
+        for (int i = 1; i <= 5; i++) {
+            Label star = new Label(i <= roundedRating ? "★" : "☆");
+            star.setStyle("-fx-text-fill: gold; -fx-font-size: 14px;");
+            ratingBox.getChildren().add(star);
+        }
+        
+        // Add rating value if there are ratings
+        if (avgRating > 0) {
+            Label ratingValue = new Label(String.format(" (%.1f)", avgRating));
+            ratingValue.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
+            ratingBox.getChildren().add(ratingValue);
+        }
+        
         // Product description (truncated)
         String description = produit.getDescription();
         if (description != null && description.length() > 80) {
@@ -425,7 +475,7 @@ public class Listeproduit {
         
         Text descriptionText = new Text(description);
         descriptionText.getStyleClass().add("product-description");
-        descriptionText.setWrappingWidth(220);
+        descriptionText.setWrappingWidth(270);
         
         // Action buttons
         HBox buttonBox = new HBox(10);
@@ -434,7 +484,7 @@ public class Listeproduit {
         
         Button addToCartBtn = new Button("Ajouter au panier");
         addToCartBtn.getStyleClass().add("button-primary");
-        addToCartBtn.setPrefWidth(150);
+        addToCartBtn.setPrefWidth(180);
         addToCartBtn.setOnAction(e -> {
             if (clientConnecteId <= 0) {
                 showLoginRequiredDialog();
@@ -445,19 +495,14 @@ public class Listeproduit {
         
         Button deleteBtn = new Button("Supprimer");
         deleteBtn.getStyleClass().add("button-danger");
-        deleteBtn.setPrefWidth(80);
+        deleteBtn.setPrefWidth(100);
         deleteBtn.setOnAction(e -> supprimerProduit(produit));
-        
-        // Only show delete button for admin users
-        User currentUser = Eutopia.getCurrentUser();
-        boolean isAdmin = currentUser != null && Role.Admin.equals(currentUser.getRole());
-        deleteBtn.setVisible(isAdmin);
-        deleteBtn.setManaged(isAdmin);
+
         
         buttonBox.getChildren().addAll(addToCartBtn, deleteBtn);
         
         // Add all elements to the info container
-        infoContainer.getChildren().addAll(nameLabel, priceStockContainer, descriptionText, buttonBox);
+        infoContainer.getChildren().addAll(nameLabel, priceStockContainer, ratingBox, descriptionText, buttonBox);
         
         // Add all components to the main card
         card.getChildren().addAll(imageContainer, infoContainer);
@@ -466,11 +511,21 @@ public class Listeproduit {
         card.setOnMouseEntered(e -> {
             quickActions.setVisible(true);
             quickActions.setOpacity(1);
+            
+            // Add a subtle scale effect to the card
+            card.setScaleX(1.02);
+            card.setScaleY(1.02);
+            card.setEffect(new javafx.scene.effect.DropShadow(10, javafx.scene.paint.Color.rgb(0, 0, 0, 0.2)));
         });
         
         card.setOnMouseExited(e -> {
             quickActions.setVisible(false);
             quickActions.setOpacity(0);
+            
+            // Reset the card to normal
+            card.setScaleX(1);
+            card.setScaleY(1);
+            card.setEffect(null);
         });
         
         // Initially hide quick actions
@@ -690,5 +745,32 @@ public class Listeproduit {
         alert.setTitle(title);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void openFeedbackWindow(produit produit) {
+        try {
+            // Check if user is logged in
+            if (clientConnecteId <= 0) {
+                showLoginRequiredDialog();
+                return;
+            }
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FeedbackProduitWindow.fxml"));
+            FeedbackProduitController controller = new FeedbackProduitController();
+            controller.setProduit(produit);
+            controller.setUserId(clientConnecteId);
+            loader.setController(controller);
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Avis - " + produit.getNom());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", 
+                    "Erreur lors de l'ouverture de la fenêtre des avis: " + e.getMessage());
+        }
     }
 }

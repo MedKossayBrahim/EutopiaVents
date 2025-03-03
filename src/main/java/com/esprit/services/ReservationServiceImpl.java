@@ -15,11 +15,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
 
     public ReservationServiceImpl() throws SQLException {
         connection = DataSource.getInstance().getConnection();
-        try {
-            evenementService = new EvenementService();
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de l'initialisation du service d'événements: " + e.getMessage());
-        }
+        evenementService = new EvenementService();
     }
 
     @Override
@@ -143,38 +139,37 @@ public class ReservationServiceImpl implements IService<reservation1> {
      */
     public boolean checkEventAvailability(int lieuId, LocalDateTime dateDebut, LocalDateTime dateFin) {
         try {
-            // Requête pour vérifier s'il existe un événement pour ce lieu pendant la période spécifiée
             String sql = "SELECT COUNT(*) AS count FROM events " +
-                    "WHERE lieu_id = ? AND " +
-                    "((STR_TO_DATE(date_debut, '%Y-%m-%d %H:%i:%s') <= ? AND " +
-                    "STR_TO_DATE(date_fin, '%Y-%m-%d %H:%i:%s') >= ?) OR " +
-                    "(STR_TO_DATE(date_debut, '%Y-%m-%d %H:%i:%s') <= ? AND " +
-                    "STR_TO_DATE(date_fin, '%Y-%m-%d %H:%i:%s') >= ?) OR " +
-                    "(STR_TO_DATE(date_debut, '%Y-%m-%d %H:%i:%s') >= ? AND " +
-                    "STR_TO_DATE(date_fin, '%Y-%m-%d %H:%i:%s') <= ?))";
+                    "WHERE lieu_id = ? AND statut = 'acceptée' AND " +
+                    "((date_debut <= ? AND date_fin >= ?) OR " +
+                    "(date_debut <= ? AND date_fin >= ?) OR " +
+                    "(date_debut >= ? AND date_fin <= ?))";
 
             try (PreparedStatement pst = connection.prepareStatement(sql)) {
                 pst.setInt(1, lieuId);
-                // Premier cas: l'événement commence avant et finit pendant la réservation
-                pst.setTimestamp(2, Timestamp.valueOf(dateFin));
-                pst.setTimestamp(3, Timestamp.valueOf(dateDebut));
-                // Deuxième cas: l'événement commence pendant et finit après la réservation
-                pst.setTimestamp(4, Timestamp.valueOf(dateDebut));
-                pst.setTimestamp(5, Timestamp.valueOf(dateFin));
-                // Troisième cas: l'événement est entièrement inclus dans la réservation
-                pst.setTimestamp(6, Timestamp.valueOf(dateDebut));
-                pst.setTimestamp(7, Timestamp.valueOf(dateFin));
+                // Premier cas: l'événement commence avant et finit pendant
+                pst.setString(2, dateFin.toString());
+                pst.setString(3, dateDebut.toString());
+                // Deuxième cas: l'événement commence pendant et finit après
+                pst.setString(4, dateDebut.toString());
+                pst.setString(5, dateFin.toString());
+                // Troisième cas: l'événement est entièrement inclus
+                pst.setString(6, dateDebut.toString());
+                pst.setString(7, dateFin.toString());
 
                 try (ResultSet rs = pst.executeQuery()) {
-                    if (rs.next() && rs.getInt("count") > 0) {
-                        return false; // Il y a un conflit avec un événement
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        System.out.println("Nombre d'événements en conflit: " + count);
+                        return count == 0;
                     }
                 }
             }
-            return true; // Pas de conflit
+            return true;
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la vérification de disponibilité pour les événements: " + e.getMessage());
-            throw new RuntimeException("Erreur lors de la vérification de disponibilité: " + e.getMessage(), e);
+            System.err.println("Erreur SQL lors de la vérification de disponibilité: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 

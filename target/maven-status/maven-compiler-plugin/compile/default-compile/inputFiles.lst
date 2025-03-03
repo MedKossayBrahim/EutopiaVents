@@ -26,6 +26,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\p
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\MaterielGridController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\DataSource.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Ajoutercategorieevent.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\FeedbackProduitController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Like.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\PanierController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\utils\UserSession.java
@@ -71,6 +72,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\Orga
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\GererEvenementsController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\StatistiqueController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\CategoriesEvent.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\FeedbackProduit.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ListeCategorieController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\LieuServiceImpl.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\Listecategorie.java
@@ -116,6 +118,7 @@ C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\produi
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ModifierReservationController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\models\Role.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\ParticipantService.java
+C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\services\FeedbackProduitService.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\tests\MainProg.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\AllPostsController.java
 C:\Users\21651\Desktop\PIGit\EutopiaVents\src\main\java\com\esprit\controllers\ReservationWindowController.java
