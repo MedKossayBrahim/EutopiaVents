@@ -122,10 +122,5 @@
             </VBox>
         </HBox>
     </VBox>
-    
-    <!-- Floating Action Button for quick add -->
-    <StackPane AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0" styleClass="floating-action-button">
-        <SVGPath content="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="WHITE" scaleX="1.5" scaleY="1.5"/>
-    </StackPane>
 
 </AnchorPane>
