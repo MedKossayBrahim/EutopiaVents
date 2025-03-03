@@ -568,7 +568,6 @@ public class ReservationWindowController {
                                         this.cancel();
                                     }
                                 } catch (Exception e) {
-                                    // Ignorer les erreurs de polling
                                 }
                             });
                         }
@@ -606,7 +605,7 @@ public class ReservationWindowController {
                         // Créer une nouvelle réservation pour ce matériel
                         Reservation materielReservation = new Reservation();
                         materielReservation.setUserId(currentUser.getUserID());
-                        materielReservation.setStatus("PAYÉ");
+
                         materielReservation.setDateDebut(dateDebut);
                         materielReservation.setDateFin(dateFin);
                         

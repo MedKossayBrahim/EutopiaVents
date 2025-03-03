@@ -79,23 +79,5 @@ public class EmailService {
      * @param estPaye Indique si la réservation a été payée
      * @return true si l'email a été envoyé avec succès, false sinon
      */
-    public boolean sendReservationConfirmation(String to, String userName, String materielNom, 
-                                              int quantite, String dateDebut, String dateFin, 
-                                              double prixTotal, boolean estPaye) {
-        String statusText = estPaye ? "Payée" : "En attente de paiement";
-        
-        String message = "Bonjour " + userName + ",\n\n" +
-                "Nous vous confirmons votre réservation de matériel chez Eutopia Events.\n\n" +
-                "Détails de la réservation :\n" +
-                "- Matériel : " + materielNom + "\n" +
-                "- Quantité : " + quantite + "\n" +
-                "- Date de début : " + dateDebut + "\n" +
-                "- Date de fin : " + dateFin + "\n" +
-                "- Prix total : " + prixTotal + " TND\n" +
-                "- Statut : " + statusText + "\n\n" +
-                "Merci de votre confiance,\n" +
-                "L'équipe Eutopia Events";
-        
-        return sendEmail(to, "Confirmation de votre réservation - Eutopia Events", message);
-    }
+
 } 
