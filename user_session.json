@@ -1,1 +1,11 @@
-null
+{
+  "userID": 11,
+  "fullname": "Doeççç",
+  "email": "john.doe@example.com",
+  "passwd": "$2a$10$7G0lmbkm3TbO3.WDwpQfX.tKHGEDAZ7ssNAmsJjZnmKTrhI54bRmG",
+  "userName": "raeff",
+  "image": "http://localhost/img/2d148d3f-2c33-4880-b318-9169e90008c1.jpg",
+  "phone": 123456789,
+  "isActive": true,
+  "role": "Admin"
+}

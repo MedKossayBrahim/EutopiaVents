@@ -179,6 +179,7 @@ public class editProfile implements Initializable {
             Participant user = new Participant(currentUser);
             user.setRole(currentUser.getRole());
             ps.modifier(user);
+            UserSession.saveUser(user);
 
             // Show success message
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -257,6 +258,7 @@ public class editProfile implements Initializable {
                 currentUser.setActive(false);
                 Participant user = new Participant(currentUser);
                 ps.modifier(user);
+
 
                 // Show success message
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
