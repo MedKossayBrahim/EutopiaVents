@@ -4,6 +4,7 @@ import com.esprit.models.Categorie;
 import com.esprit.models.Materiel;
 import com.esprit.services.CategorieService;
 import com.esprit.services.MaterielService;
+import com.esprit.utils.ImageDbUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -84,14 +85,15 @@ public class AjoutMaterielController {
                     return;
                 }
 
-                // Copier l'image dans le dossier C:\xampp\htdocs\img
-                String imageUrl = copyImageToServer();
+                // Utiliser ImageDbUtil pour uploader l'image
+                String[] uploadResult = ImageDbUtil.uploadFile(selectedImageFile.getAbsolutePath());
+                String imageUrl = uploadResult[1]; // L'URL de l'image uploadée
 
                 Materiel materiel = new Materiel(
                         libelleField.getText(),
                         descriptionArea.getText(),
                         Integer.parseInt(quantiteField.getText()),
-                        selectedCategorie.getId(), // Utiliser l'ID de la catégorie sélectionnée
+                        selectedCategorie.getId(),
                         Double.parseDouble(prixField.getText()),
                         imageUrl
                 );
@@ -118,21 +120,6 @@ public class AjoutMaterielController {
             Image image = new Image(selectedImageFile.toURI().toString());
             imagePreview.setImage(image);
         }
-    }
-    private String copyImageToServer() throws IOException {
-        if (selectedImageFile == null) {
-            throw new IllegalArgumentException("Aucune image sélectionnée.");
-        }
-
-        // Chemin du dossier de destination
-        String destinationDir = "C:/xampp/htdocs/img/";
-        Path destinationPath = Paths.get(destinationDir + selectedImageFile.getName());
-
-        // Copier le fichier
-        Files.copy(selectedImageFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
-
-        // Retourner l'URL de l'image
-        return "http://localhost/img/" + selectedImageFile.getName();
     }
 
     private boolean validateFields() {
