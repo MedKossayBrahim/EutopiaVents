@@ -2,7 +2,6 @@ package com.esprit.controllers;
 
 import com.esprit.models.categorieproduit;
 import com.esprit.services.CategorieProduitService;
-import com.esprit.services.CategorieService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

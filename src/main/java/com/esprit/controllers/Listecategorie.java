@@ -3,124 +3,102 @@ package com.esprit.controllers;
 import com.esprit.models.categorieproduit;
 import com.esprit.services.CategorieProduitService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.sql.SQLException;
-import java.util.Optional;
 
 public class Listecategorie {
 
     @FXML
     private TableView<categorieproduit> categorieTable;
     @FXML
-    private TableColumn<categorieproduit, Integer> idColumn;
-    @FXML
     private TableColumn<categorieproduit, String> nomColumn;
     @FXML
-    private TableColumn<categorieproduit, String> descriptionColumn; // Nouvelle colonne pour la description
-    @FXML
     private TableColumn<categorieproduit, Void> actionsColumn;
+    @FXML
+    private TextField searchField;
 
-    private final CategorieProduitService CategorieProduitService;
+    private final CategorieProduitService categorieProduitService;
 
     public Listecategorie() throws SQLException {
-        CategorieProduitService = new CategorieProduitService();
+        categorieProduitService = new CategorieProduitService();
     }
 
     @FXML
     public void initialize() {
         setupColumns();
         loadCategories();
+        setupSearch();
     }
 
     private void setupColumns() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        categorieTable.setEditable(true);
+
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description")); // Configuration de la colonne description
+        nomColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nomColumn.setOnEditCommit(event -> {
+            categorieproduit categorie = event.getRowValue();
+            categorie.setNom(event.getNewValue());
+        });
 
-        actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button modifyBtn = new Button("Modifier");
-            private final Button deleteBtn = new Button("Supprimer");
-            private final HBox buttonsBox = new HBox(5, modifyBtn, deleteBtn);
-
-            {
-                modifyBtn.setOnAction(event -> {
-                    categorieproduit categorie = getTableView().getItems().get(getIndex());
-                    ouvrirModification(categorie);
-                });
-
-                deleteBtn.setOnAction(event -> {
-                    categorieproduit categorie = getTableView().getItems().get(getIndex());
-                    supprimercategorie(categorie);
-                });
-
-                deleteBtn.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
-            }
-
+        actionsColumn.setCellFactory(new Callback<>() {
             @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(buttonsBox);
-                }
+            public TableCell<categorieproduit, Void> call(final TableColumn<categorieproduit, Void> param) {
+                return new TableCell<>() {
+                    private final Button saveBtn = new Button("Sauvegarder");
+                    private final Button deleteBtn = new Button("Supprimer");
+                    private final HBox buttonsBox = new HBox(5, saveBtn, deleteBtn);
+
+                    {
+                        saveBtn.setOnAction(event -> {
+                            categorieproduit categorie = getTableView().getItems().get(getIndex());
+                            sauvegarderCategorie(categorie);
+                        });
+
+                        deleteBtn.setOnAction(event -> {
+                            categorieproduit categorie = getTableView().getItems().get(getIndex());
+                            supprimercategorie(categorie);
+                        });
+
+                        deleteBtn.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
+                    }
+
+                    @Override
+                    protected void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(buttonsBox);
+                        }
+                    }
+                };
             }
         });
     }
 
     private void loadCategories() {
         categorieTable.getItems().clear();
-        categorieTable.getItems().addAll(CategorieProduitService.rechercher());
+        categorieTable.getItems().addAll(categorieProduitService.rechercher());
     }
 
-    private void ouvrirModification(categorieproduit categorie) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierCategorieProduit.fxml"));
-            Parent root = loader.load();
-
-            ModifierCategorie controller = loader.getController();
-            controller.setCategorie(categorie);
-
-            Stage stage = new Stage();
-            stage.setTitle("Modifier Catégorie");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ouverture de la modification: " + e.getMessage());
-        }
+    private void sauvegarderCategorie(categorieproduit categorie) {
+        categorieProduitService.modifier(categorie);
+        loadCategories();
     }
 
     private void supprimercategorie(categorieproduit categorie) {
-        CategorieProduitService.supprimer(categorie); // Assurez-vous d'avoir une méthode supprimer dans votre service
-        loadCategories(); // Rechargez la liste après la suppression
+        categorieProduitService.supprimer(categorie);
+        loadCategories();
     }
 
-    @FXML
-    private void handleDelete() {
-        categorieproduit selectedCategorie = categorieTable.getSelectionModel().getSelectedItem();
-        if (selectedCategorie != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation de suppression");
-            alert.setHeaderText("Supprimer la catégorie");
-            alert.setContentText("Êtes-vous sûr de vouloir supprimer cette catégorie ?");
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                supprimercategorie(selectedCategorie);
-            }
-        } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Aucune sélection");
-            alert.setHeaderText(null);
-            alert.setContentText("Veuillez sélectionner une catégorie à supprimer.");
-            alert.showAndWait();
-        }
+    private void setupSearch() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            categorieTable.getItems().setAll(categorieProduitService.rechercher());
+        });
     }
 }

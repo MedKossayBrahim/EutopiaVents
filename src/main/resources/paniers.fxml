@@ -23,12 +23,13 @@
                 <TableColumn fx:id="panierActionsColumn" text="Actions" prefWidth="100"/>
             </columns>
         </TableView>
-        
+
         <!-- Total et bouton de validation -->
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <Label text="Total: "/>
             <Label fx:id="totalLabel" style="-fx-font-weight: bold;"/>
             <Button fx:id="validerPanierButton" text="Valider le panier"/>
+            <Button fx:id="confirmerSmsButton" text="Confirmer par SMS" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
         </HBox>
     </VBox>
 </VBox>

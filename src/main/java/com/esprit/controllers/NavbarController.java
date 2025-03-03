@@ -374,9 +374,9 @@ public class NavbarController {
 
     private void navigateToStore(ActionEvent event) {
         try {
-            URL url = getClass().getResource("/MainProduit.fxml");
+            URL url = getClass().getResource("/listeproduit.fxml");
             if (url == null) {
-                throw new IOException("Cannot find MainProduit.fxml");
+                throw new IOException("Cannot find listeproduit.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(url);
