@@ -147,7 +147,7 @@
                                     <Image url="@Images/upgrade.png"/>
                                 </ImageView>
                             </graphic>
-                            <text>Become an Organisateur</text>
+                            <text>Become an Organiser</text>
                         </Button>
                     </VBox>
                 </VBox>

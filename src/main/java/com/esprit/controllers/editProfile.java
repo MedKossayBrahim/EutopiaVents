@@ -36,11 +36,14 @@ public class editProfile implements Initializable {
     private ImageView photo;
 
     @FXML
-    private Button editbtn, save, becomeOrganisateur, deleteAccount;
+    private Button save;
+    @FXML
+    private Button becomeOrganisateur;
+
 
     private File selectedImageFile;
     private String imagePath;
-    private ParticipantService ps = new ParticipantService();
+    private final ParticipantService ps = new ParticipantService();
     private User currentUser;
 
     public editProfile() throws SQLException {
@@ -218,7 +221,7 @@ public class editProfile implements Initializable {
             alert.setTitle("Request Sent");
             alert.setHeaderText(null);
             alert.setContentText(
-                    "Your request to become an organisateur has been sent successfully! Please wait for admin approval.");
+                    "Your request to become an organiser has been sent successfully! Please wait for admin approval.");
             alert.showAndWait();
 
             // Update button state

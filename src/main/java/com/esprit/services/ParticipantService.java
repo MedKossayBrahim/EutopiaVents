@@ -141,12 +141,14 @@ public class ParticipantService extends UserService implements IService<Particip
             // Check if the update was successful
             if (rowsAffected > 0) {
                 System.out.println("Participant modifié avec succès.");
-                Eutopia.getSceneManager().goBack();
+                Eutopia.getSceneManager().switchScene("/events-view.fxml", null);
             } else {
                 System.out.println("Aucun participant trouvé avec l'ID: " + participant.getUserID());
             }
         } catch (SQLException e) {
             System.out.println("Erreur lors de la modification du participant: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }

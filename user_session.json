@@ -1,11 +1,1 @@
-{
-  "userID": 11,
-  "fullname": "Doeççç",
-  "email": "youssef.harrane@esprit.tn",
-  "passwd": "$2a$10$7G0lmbkm3TbO3.WDwpQfX.tKHGEDAZ7ssNAmsJjZnmKTrhI54bRmG",
-  "userName": "raeff",
-  "image": "http://localhost/img/68e09e7a-3466-4942-8aa6-dcb2c4785658.jpg",
-  "phone": 123456789,
-  "isActive": true,
-  "role": "Admin"
-}
+null
