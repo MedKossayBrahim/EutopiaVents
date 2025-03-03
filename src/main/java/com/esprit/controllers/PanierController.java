@@ -18,30 +18,22 @@ import javafx.geometry.Pos;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-import javafx.scene.control.TextInputDialog;
 import com.esprit.services.EmailService;
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import javafx.scene.web.WebView;
-import java.util.Optional;
 import javafx.scene.web.WebEngine;
 import javafx.concurrent.Worker;
-import javafx.scene.layout.Region;
-import netscape.javascript.JSObject;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.stage.Stage;
 
 public class PanierController implements Initializable {
 
-    @FXML
-    private VBox reservationsContainer;
-    @FXML
-    private Label totalLabel;
-    @FXML
-    private Button retourButton;
+    @FXML private VBox reservationsContainer;
+    @FXML private Label totalLabel;
+    @FXML private Button retourButton;
 
     private ReservationsService reservationsService = new ReservationsService();
     private EvenementService evenementService = new EvenementService();
@@ -53,17 +45,12 @@ public class PanierController implements Initializable {
     public PanierController() throws SQLException {
     }
 
-    // Interface pour le callback de paiement
-    public interface PaymentCallback {
-        void paymentSucceeded();
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        reservationsContainer.getStylesheets().add(getClass().getResource("/eventsstyle.css").toExternalForm());
         Stripe.apiKey = STRIPE_SECRET_KEY;
         User currentUser = Eutopia.getCurrentUser();
         if (currentUser == null) {
-            // Si aucun utilisateur n'est connecté, afficher un message et retourner
             showNoUserMessage();
             return;
         }
@@ -73,7 +60,7 @@ public class PanierController implements Initializable {
     private void showNoUserMessage() {
         reservationsContainer.getChildren().clear();
         Label messageLabel = new Label("Veuillez vous connecter pour voir votre panier");
-        messageLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+        messageLabel.getStyleClass().add("panier-message");
         reservationsContainer.getChildren().add(messageLabel);
         totalLabel.setText("0.00 TND");
     }
@@ -88,7 +75,7 @@ public class PanierController implements Initializable {
 
         if (reservations.isEmpty()) {
             Label emptyLabel = new Label("Votre panier est vide");
-            emptyLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+            emptyLabel.getStyleClass().add("panier-message");
             reservationsContainer.getChildren().add(emptyLabel);
         } else {
             for (Reservations reservation : reservations) {
@@ -104,25 +91,26 @@ public class PanierController implements Initializable {
 
     private VBox createReservationCard(Reservations reservation, Evenement event) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-radius: 5;");
+        card.getStyleClass().add("panier-card");
         card.setPadding(new Insets(10));
 
-        // Titre de l'événement
+        // Title and information
         Label titreLabel = new Label(event.getTitre());
-        titreLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+        titreLabel.getStyleClass().add("panier-title");
 
-        // Informations de l'événement
-        String lieu = event.getLieuId() != 0 ? event.getLieuNom() : event.getLieu_proprietaire(); // Utiliser le nom du lieu
+        String lieu = event.getLieuId() != 0 ? event.getLieuNom() : event.getLieu_proprietaire();
         Label infoLabel = new Label(String.format("Date: %s\nLieu: %s", event.getDateDebut(), lieu));
+        infoLabel.getStyleClass().add("panier-info");
 
-        // Prix et quantité
+        // Price and quantity
         HBox prixQuantiteBox = new HBox(20);
-        prixQuantiteBox.setAlignment(Pos.CENTER_LEFT);
+        prixQuantiteBox.getStyleClass().add("panier-price-box");
 
         Label prixLabel = new Label(String.format("Prix unitaire: %.2f TND", event.getPrix()));
+        prixLabel.getStyleClass().add("panier-price-label");
 
         Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, reservation.getQuantite());
-        quantiteSpinner.setMaxWidth(100);
+        quantiteSpinner.getStyleClass().add("panier-quantity-spinner");
         quantiteSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             reservation.setQuantite(newValue);
             reservation.setPrixTotal(event.getPrix() * newValue);
@@ -131,55 +119,39 @@ public class PanierController implements Initializable {
         });
 
         Label totalLabel = new Label(String.format("Total: %.2f TND", reservation.getPrixTotal()));
-
+        totalLabel.getStyleClass().add("panier-price-label");
         prixQuantiteBox.getChildren().addAll(prixLabel, new Label("Quantité:"), quantiteSpinner, totalLabel);
 
-        // Boutons
+        // Buttons
         HBox buttonsBox = new HBox(10);
-        buttonsBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonsBox.getStyleClass().add("panier-button-box");
 
         Button confirmerBtn = new Button("Payer");
-        confirmerBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-
-        Button annulerBtn = new Button("Annuler");
-        annulerBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-
+        confirmerBtn.getStyleClass().add("panier-pay-button");
         confirmerBtn.setOnAction(e -> handlePaiement(reservation, event));
 
+        Button annulerBtn = new Button("Annuler");
+        annulerBtn.getStyleClass().add("panier-cancel-button");
         annulerBtn.setOnAction(e -> {
             reservation.setStatut("annulé");
             reservationsService.modifier(reservation);
             loadReservations(reservation.getUtilisateurId());
         });
 
-        // Statut
         Label statutLabel = new Label("Statut: " + reservation.getStatut());
-        statutLabel.setStyle("-fx-font-style: italic;");
+        statutLabel.getStyleClass().add("panier-status");
 
         buttonsBox.getChildren().addAll(confirmerBtn, annulerBtn);
-
-        card.getChildren().addAll(
-                titreLabel,
-                infoLabel,
-                prixQuantiteBox,
-                statutLabel,
-                buttonsBox
-        );
+        card.getChildren().addAll(titreLabel, infoLabel, prixQuantiteBox, statutLabel, buttonsBox);
 
         return card;
     }
 
     @FXML
     private void handleRetour() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/events-view.fxml"));
-            Parent newPage = loader.load();
-            Scene scene = retourButton.getScene();
-            scene.setRoot(newPage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erreur : Impossible de charger la page /events-view.fxml");
-        }
+        // Obtenir la fenêtre actuelle et la fermer
+        Stage stage = (Stage) retourButton.getScene().getWindow();
+        stage.close();
     }
 
     private void handlePaiement(Reservations reservation, Evenement event) {
@@ -187,6 +159,7 @@ public class PanierController implements Initializable {
             User currentUser = Eutopia.getCurrentUser();
             long amount = Math.max(50L, (long) (reservation.getPrixTotal() * 100));
 
+            // Créer l'intention de paiement
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amount)
                     .setCurrency("eur")
@@ -196,14 +169,13 @@ public class PanierController implements Initializable {
                                     .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
                                     .build()
                     )
-                    .setDescription(String.format("Billet pour %s - Client: %s",
-                            event.getTitre(),
-                            currentUser.getEmail()))
+                    .setDescription("Billet pour " + event.getTitre() + " - Client: " + currentUser.getEmail())
                     .setReceiptEmail(currentUser.getEmail())
                     .build();
 
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
+            // Créer la boîte de dialogue de paiement
             Dialog<String> dialog = new Dialog<>();
             dialog.setTitle("Paiement Sécurisé");
             dialog.setHeaderText("Paiement pour " + event.getTitre());
@@ -212,153 +184,18 @@ public class PanierController implements Initializable {
             webView.setPrefSize(500, 400);
             WebEngine engine = webView.getEngine();
 
-            String htmlContent = String.format("""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>Paiement</title>
-                    <script src="https://js.stripe.com/v3/"></script>
-                    <style>
-                        body { 
-                            font-family: -apple-system, sans-serif; 
-                            padding: 20px; 
-                            background: #f8f9fa; 
-                            color: #333;
-                        }
-                        .container { 
-                            max-width: 450px; 
-                            margin: 0 auto; 
-                            background: white; 
-                            padding: 30px; 
-                            border-radius: 12px;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                        }
-                        .form-row {
-                            margin-bottom: 25px;
-                        }
-                        .form-row label {
-                            display: block;
-                            margin-bottom: 8px;
-                            font-weight: 500;
-                            color: #2d3748;
-                        }
-                        #card-element {
-                            padding: 15px;
-                            border: 2px solid #e2e8f0;
-                            border-radius: 8px;
-                            background: white;
-                            transition: border-color 0.2s ease;
-                        }
-                        #card-element:hover {
-                            border-color: #cbd5e0;
-                        }
-                        #card-element.StripeElement--focus {
-                            border-color: #4299e1;
-                            box-shadow: 0 0 0 1px #4299e1;
-                        }
-                        button { 
-                            background: #4CAF50; 
-                            color: white; 
-                            padding: 16px;
-                            border: none; 
-                            border-radius: 8px; 
-                            width: 100%%; 
-                            margin: 25px 0 15px; 
-                            font-size: 16px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: background-color 0.2s ease;
-                        }
-                        button:hover {
-                            background: #43a047;
-                        }
-                        button:disabled {
-                            background: #9e9e9e;
-                            cursor: not-allowed;
-                        }
-                        .success { 
-                            color: #2f855a; 
-                            margin-top: 15px; 
-                            text-align: center;
-                            font-weight: 500;
-                        }
-                        
-                        .amount {
-                            font-size: 24px;
-                            font-weight: 600;
-                            text-align: center;
-                            margin-bottom: 30px;
-                            color: #2d3748;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="amount">%.2f TND</div>
-                        <form id="payment-form">
-                            <div class="form-row">
-                                <label for="card-element">Informations de carte</label>
-                                <div id="card-element"></div>
-                            </div>
-                            <button type="submit" id="submit-button">Payer maintenant</button>
-                            <div id="success-message" class="success"></div>
-                        </form>
-                        
-                    </div>
-
-                    <script>
-                        const stripe = Stripe('%s');
-                        const elements = stripe.elements();
-                        const card = elements.create('card', {
-                            style: {
-                                base: {
-                                    fontSize: '16px',
-                                    fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
-                                    color: '#2d3748',
-                                    '::placeholder': {
-                                        color: '#a0aec0'
-                                    },
-                                    padding: '12px'
-                                }
-                            }
-                        });
-                        card.mount('#card-element');
-
-                        const form = document.getElementById('payment-form');
-                        const submitButton = document.getElementById('submit-button');
-                        const successDiv = document.getElementById('success-message');
-
-                        form.addEventListener('submit', async (e) => {
-                            e.preventDefault();
-                            submitButton.disabled = true;
-                            submitButton.textContent = 'Traitement en cours...';
-
-                            const result = await stripe.confirmCardPayment('%s', {
-                                payment_method: {
-                                    card: card,
-                                    billing_details: {
-                                        email: '%s',
-                                        name: '%s'
-                                    }
-                                }
-                            });
-
-                            if (result.paymentIntent.status === 'succeeded') {
-                                successDiv.textContent = 'Paiement réussi!';
-                                window.paymentSuccessful = true;
-                            }
-                        });
-                    </script>
-                </body>
-                </html>
-            """, reservation.getPrixTotal(), STRIPE_PUBLIC_KEY, paymentIntent.getClientSecret(),
+            // Contenu HTML pour le formulaire de paiement
+            String htmlContent = createPaymentFormHtml(
+                    reservation.getPrixTotal(),
+                    STRIPE_PUBLIC_KEY,
+                    paymentIntent.getClientSecret(),
                     currentUser.getEmail(),
-                    currentUser.getFullname());
+                    currentUser.getFullname()
+            );
 
             engine.loadContent(htmlContent);
 
-            final boolean[] paymentSuccessful = {false};
+            // Surveiller le succès du paiement
             engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
                 if (newState == Worker.State.SUCCEEDED) {
                     Timer timer = new Timer(true);
@@ -369,7 +206,6 @@ public class PanierController implements Initializable {
                                 try {
                                     Boolean success = (Boolean) engine.executeScript("window.paymentSuccessful === true");
                                     if (Boolean.TRUE.equals(success)) {
-                                        paymentSuccessful[0] = true;
                                         dialog.close();
                                         finalizePayment(reservation, event, currentUser);
                                         this.cancel();
@@ -395,6 +231,148 @@ public class PanierController implements Initializable {
         }
     }
 
+    private String createPaymentFormHtml(double amount, String publicKey, String clientSecret, String email, String name) {
+        return String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Paiement</title>
+                <script src="https://js.stripe.com/v3/"></script>
+                <style>
+                    body { 
+                        font-family: -apple-system, sans-serif; 
+                        padding: 20px; 
+                        background: #f8f9fa; 
+                        color: #333;
+                    }
+                    .container { 
+                        max-width: 450px; 
+                        margin: 0 auto; 
+                        background: white; 
+                        padding: 30px; 
+                        border-radius: 12px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    }
+                    .form-row {
+                        margin-bottom: 25px;
+                    }
+                    .form-row label {
+                        display: block;
+                        margin-bottom: 8px;
+                        font-weight: 500;
+                        color: #2d3748;
+                    }
+                    #card-element {
+                        padding: 15px;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 8px;
+                        background: white;
+                        transition: border-color 0.2s ease;
+                    }
+                    #card-element:hover {
+                        border-color: #cbd5e0;
+                    }
+                    #card-element.StripeElement--focus {
+                        border-color: #4299e1;
+                        box-shadow: 0 0 0 1px #4299e1;
+                    }
+                    button { 
+                        background: #4CAF50; 
+                        color: white; 
+                        padding: 16px;
+                        border: none; 
+                        border-radius: 8px; 
+                        width: 100%%; 
+                        margin: 25px 0 15px; 
+                        font-size: 16px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: background-color 0.2s ease;
+                    }
+                    button:hover {
+                        background: #43a047;
+                    }
+                    button:disabled {
+                        background: #9e9e9e;
+                        cursor: not-allowed;
+                    }
+                    .success { 
+                        color: #2f855a; 
+                        margin-top: 15px; 
+                        text-align: center;
+                        font-weight: 500;
+                    }
+                    .amount {
+                        font-size: 24px;
+                        font-weight: 600;
+                        text-align: center;
+                        margin-bottom: 30px;
+                        color: #2d3748;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="amount">%.2f TND</div>
+                    <form id="payment-form">
+                        <div class="form-row">
+                            <label for="card-element">Informations de carte</label>
+                            <div id="card-element"></div>
+                        </div>
+                        <button type="submit" id="submit-button">Payer maintenant</button>
+                        <div id="success-message" class="success"></div>
+                    </form>
+                </div>
+
+                <script>
+                    const stripe = Stripe('%s');
+                    const elements = stripe.elements();
+                    const card = elements.create('card', {
+                        style: {
+                            base: {
+                                fontSize: '16px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+                                color: '#2d3748',
+                                '::placeholder': {
+                                    color: '#a0aec0'
+                                },
+                                padding: '12px'
+                            }
+                        }
+                    });
+                    card.mount('#card-element');
+
+                    const form = document.getElementById('payment-form');
+                    const submitButton = document.getElementById('submit-button');
+                    const successDiv = document.getElementById('success-message');
+
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Traitement en cours...';
+
+                        const result = await stripe.confirmCardPayment('%s', {
+                            payment_method: {
+                                card: card,
+                                billing_details: {
+                                    email: '%s',
+                                    name: '%s'
+                                }
+                            }
+                        });
+
+                        if (result.paymentIntent.status === 'succeeded') {
+                            successDiv.textContent = 'Paiement réussi!';
+                            window.paymentSuccessful = true;
+                        }
+                    });
+                </script>
+            </body>
+            </html>
+        """, amount, publicKey, clientSecret, email, name);
+    }
+
     private void finalizePayment(Reservations reservation, Evenement event, User currentUser) {
         try {
             reservationsService.confirmerAchat(reservation.getId(), reservation.getQuantite());
@@ -413,10 +391,7 @@ public class PanierController implements Initializable {
                         emailService.envoyerBillet(currentUser.getEmail(), reservation, event);
                         javafx.application.Platform.runLater(() -> {
                             alert.close();
-                            Alert emailSentAlert = new Alert(Alert.AlertType.INFORMATION);
-                            emailSentAlert.setTitle("Email Envoyé");
-                            emailSentAlert.setContentText("Votre billet a été envoyé à " + currentUser.getEmail());
-                            emailSentAlert.showAndWait();
+                            showInfoDialog("Email Envoyé", "Votre billet a été envoyé à " + currentUser.getEmail());
                         });
                     } catch (Exception e) {
                         javafx.application.Platform.runLater(() -> {
@@ -429,6 +404,13 @@ public class PanierController implements Initializable {
         } catch (Exception e) {
             showError("Erreur", "Impossible de finaliser le paiement.");
         }
+    }
+
+    private void showInfoDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void showError(String title, String message) {

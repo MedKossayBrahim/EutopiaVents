@@ -3,27 +3,62 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
-<?import java.lang.String?>
-<AnchorPane prefHeight="600.0" prefWidth="800.0"
-            stylesheets="@styles.css"
+<BorderPane prefHeight="800.0" prefWidth="1200.0"
+            stylesheets="@eventsstyle.css"
             xmlns="http://javafx.com/javafx/11"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.esprit.controllers.PanierController">
-    <ScrollPane fitToWidth="true" styleClass="scroll-pane"
-                AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-        <VBox styleClass="cart-container">
-            <Label text="Mon Panier" styleClass="title-label"/>
-            <VBox fx:id="reservationsContainer" spacing="15"/>
-            <HBox styleClass="total-section" alignment="CENTER_RIGHT" spacing="20">
-                <Label text="Total:" styleClass="subtitle-label"/>
-                <Label fx:id="totalLabel" styleClass="subtitle-label"/>
+            fx:controller="com.esprit.controllers.PanierController"
+            styleClass="panier-root">
+
+    <!-- Top Header -->
+    <top>
+        <VBox styleClass="panier-header">
+            <HBox alignment="CENTER" styleClass="panier-title-container">
+                <Label text="Mon Panier" styleClass="panier-main-title"/>
             </HBox>
-
+            <Separator styleClass="header-separator"/>
         </VBox>
-    </ScrollPane>
-    <Button fx:id="retourButton" text="Retour" onAction="#handleRetour"/>
+    </top>
 
-</AnchorPane>
+    <!-- Main Content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="panier-scroll-pane">
+            <VBox styleClass="panier-content">
+                <!-- Cart Items Container -->
+                <HBox styleClass="panier-layout">
+                    <!-- Left Side: Items -->
+                    <VBox styleClass="panier-items-container" HBox.hgrow="ALWAYS">
+                        <Label text="Articles Réservés" styleClass="panier-section-title"/>
+                        <VBox fx:id="reservationsContainer" styleClass="reservations-list"/>
+                    </VBox>
+
+                    <!-- Right Side: Summary -->
+                    <VBox styleClass="panier-summary-container">
+                        <Label text="Résumé de la commande" styleClass="panier-section-title"/>
+                        <VBox styleClass="summary-content">
+                            <HBox styleClass="summary-row">
+                                <Label text="Total" styleClass="summary-label"/>
+                                <Label fx:id="totalLabel" styleClass="summary-value"/>
+                            </HBox>
+                            <Separator/>
+                            <Text text="Les billets seront envoyés à votre adresse email après le paiement."
+                                  styleClass="summary-info"/>
+                        </VBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Bottom Navigation -->
+    <bottom>
+        <HBox styleClass="panier-footer">
+            <Button fx:id="retourButton" text="← Continuer les achats"
+                    onAction="#handleRetour" styleClass="return-button"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
 

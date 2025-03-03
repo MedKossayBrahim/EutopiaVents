@@ -1,34 +1,36 @@
 package com.esprit.controllers;
 
-import com.esprit.models.CategoriesEvent;
 import com.esprit.models.Evenement;
-import com.esprit.models.User;
-import com.esprit.services.CategoriesEventService;
 import com.esprit.services.EvenementService;
-import com.esprit.tests.Eutopia;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
+import javafx.scene.Node;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import com.esprit.models.CategoriesEvent;
+import com.esprit.services.CategoriesEventService;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Button;
+import com.esprit.models.User;
+import com.esprit.tests.Eutopia;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 public class EventsController {
 
@@ -55,6 +57,9 @@ public class EventsController {
     @FXML
     private Button btnGererEvenements;
 
+    @FXML
+    private Button btnReviews;
+
     private EvenementService evenementService = new EvenementService();
     private CategoriesEventService categoriesEventService = new CategoriesEventService();
     private static final int ITEMS_PER_PAGE = 8; // Changed to 8 events per page
@@ -69,6 +74,7 @@ public class EventsController {
     @FXML
 
     public void initialize() {
+        rootPane.getStylesheets().add(getClass().getResource("/eventsstyle.css").toExternalForm());
         setupSearchField();
         setupCategoryFilter();
         setupPagination();
@@ -113,6 +119,12 @@ public class EventsController {
                     btnGererEvenements.setManaged(false);
                     break;
             }
+        } else {
+            // Si aucun utilisateur n'est connecté, cacher le bouton des reviews
+            if (btnReviews != null) {
+                btnReviews.setVisible(false);
+                btnReviews.setManaged(false);
+            }
         }
     }
 
@@ -126,9 +138,9 @@ public class EventsController {
     private void setupCartIcon() {
         ImageView cartIcon = (ImageView) rootPane.lookup("#cartIcon");
         if (cartIcon != null) {
-            // Add hover effect
             cartIcon.setOnMouseEntered(e -> cartIcon.setOpacity(0.8));
             cartIcon.setOnMouseExited(e -> cartIcon.setOpacity(1.0));
+            cartIcon.setOnMouseClicked(e -> goToPanier());
         }
     }
 
@@ -154,19 +166,42 @@ public class EventsController {
     private void updatePaginationWithSearch(String searchText) {
         CategoriesEvent selectedCategory = categoryFilter.getValue();
 
+        // Get current date
+        java.time.LocalDate currentDate = java.time.LocalDate.now();
+
         List<Evenement> filteredEvents = evenementService.rechercher()
                 .stream()
                 .filter(evenement -> {
+                    // Check if search text matches
                     boolean matchesSearch = searchText.isEmpty() ||
                             evenement.getTitre().toLowerCase().contains(searchText.toLowerCase()) ||
                             evenement.getDescription().toLowerCase().contains(searchText.toLowerCase());
 
+                    // Check if category matches
                     boolean matchesCategory = selectedCategory == null ||
                             selectedCategory.getNom().equals("Toutes les catégories") ||
                             evenement.getCategorieId() == selectedCategory.getId();
 
+                    // Parse end date - handle datetime format
+                    java.time.LocalDate eventEndDate;
+                    try {
+                        String dateFin = evenement.getDateFin();
+                        // Check if date contains time part
+                        if (dateFin.contains(" ")) {
+                            // Extract only the date part (before the space)
+                            dateFin = dateFin.split(" ")[0];
+                        }
+                        eventEndDate = java.time.LocalDate.parse(dateFin);
+                    } catch (Exception e) {
+                        System.err.println("Erreur de parsing de date pour l'événement " + evenement.getId() + ": " + e.getMessage());
+                        // If date parsing fails, consider the event as expired
+                        return false;
+                    }
+
+                    // Check if event is accepted, has capacity, and end date is not passed
                     return (evenement.getCapacite() > 0 &&
                             "acceptée".equals(evenement.getStatut()) &&
+                            !eventEndDate.isBefore(currentDate) &&
                             matchesSearch &&
                             matchesCategory);
                 })
@@ -184,9 +219,10 @@ public class EventsController {
         List<Evenement> pageEvents = filteredEvents.subList(fromIndex, toIndex);
 
         eventsGrid.getChildren().clear();
+        eventsGrid.getStyleClass().add("events-grid");
 
-        // Calculate number of columns based on grid width
-        int numColumns = 2; // Fixed to 2 columns for consistency
+        // Fixed to 2 columns
+        int numColumns = 2;
 
         for (int i = 0; i < pageEvents.size(); i++) {
             VBox eventBox = createEventBox(pageEvents.get(i));
@@ -200,107 +236,66 @@ public class EventsController {
 
     private VBox createEventBox(Evenement evenement) {
         VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(15));
-        eventBox.setSpacing(10);
-        eventBox.setMaxWidth(500); // Set maximum width for the card
-        eventBox.setMinWidth(400); // Set minimum width for consistency
-        eventBox.setStyle("-fx-background-color: white; " +
-                "-fx-border-radius: 8; " +
-                "-fx-background-radius: 8; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+        eventBox.setPadding(new Insets(0));
+        eventBox.setSpacing(0);
+        eventBox.setMinWidth(450);
+        eventBox.setMaxWidth(450);
+        eventBox.getStyleClass().add("event-box");
 
-        // Image handling
+        // Image container
+        StackPane imageContainer = new StackPane();
+        imageContainer.setMinHeight(250);
+        imageContainer.setMaxHeight(250);
+        imageContainer.getStyleClass().add("image-container");
+
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(eventBox.getMinWidth() - 30); // Full width minus padding
-        imageView.setFitHeight(200); // Fixed height for consistency
+        imageView.setFitWidth(450);
+        imageView.setFitHeight(250);
         imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-background-radius: 4 4 0 0;"); // Rounded corners on top
 
-        // Center the image
-        StackPane imageContainer = new StackPane(imageView);
-        imageContainer.setAlignment(Pos.CENTER);
-
-        // Try to load image from database
+        // Load image
         String imagePath = evenement.getImage();
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
                 Image image = new Image(imagePath);
-                if (!image.isError()) {
-                    imageView.setImage(image);
-                } else {
-                    loadDefaultImage(imageView);
-                }
+                imageView.setImage(image);
             } catch (Exception e) {
                 System.err.println("Error loading image for event: " + evenement.getTitre());
-                loadDefaultImage(imageView);
             }
-        } else {
-            loadDefaultImage(imageView);
         }
 
-        // Event information container
-        VBox infoContainer = new VBox(8); // 8px spacing between elements
-        infoContainer.setPadding(new Insets(10, 5, 5, 5));
+        imageContainer.getChildren().add(imageView);
 
-        // Event information with black text
+        // Information container
+        VBox infoContainer = new VBox(12);
+        infoContainer.getStyleClass().add("info-container");
+
+        // Title
         Label titreLabel = new Label(evenement.getTitre());
-        titreLabel.setStyle("-fx-font-weight: bold; " +
-                "-fx-font-size: 16px; " +
-                "-fx-text-fill: #000000;");
-        titreLabel.setWrapText(true);
+        titreLabel.getStyleClass().add("title-label");
 
-        Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
-        dateLabel.setStyle("-fx-font-size: 14px; " +
-                "-fx-text-fill: #000000;");
+        // Date avec label
+        String dateDebut = evenement.getDateDebut().split(" ")[0];
+        String dateFin = evenement.getDateFin().split(" ")[0];
+        Label dateLabel = new Label("Date: Du " + dateDebut + " au " + dateFin);
+        dateLabel.getStyleClass().add("date-label");
 
-        Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
-        prixLabel.setStyle("-fx-font-size: 14px; " +
-                "-fx-font-weight: bold; " +
-                "-fx-text-fill: #000000;");
+        // Prix avec label
+        HBox prixBox = new HBox(10);
+        prixBox.setAlignment(Pos.CENTER_LEFT);
+        Label prixLabel = new Label("Prix: " + String.format("%.2f TND", evenement.getPrix()));
+        prixLabel.getStyleClass().add("price-label");
 
-        // Add all components to the info container
-        infoContainer.getChildren().addAll(titreLabel, dateLabel, prixLabel);
+        prixBox.getChildren().add(prixLabel);
 
-        // Add all components to the main box
+        // Add all elements
+        infoContainer.getChildren().addAll(titreLabel, dateLabel, prixBox);
         eventBox.getChildren().addAll(imageContainer, infoContainer);
-
-        // Hover effect
-        eventBox.setOnMouseEntered(e ->
-                eventBox.setStyle("-fx-background-color: white; " +
-                        "-fx-border-radius: 8; " +
-                        "-fx-background-radius: 8; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 0);")
-        );
-        eventBox.setOnMouseExited(e ->
-                eventBox.setStyle("-fx-background-color: white; " +
-                        "-fx-border-radius: 8; " +
-                        "-fx-background-radius: 8; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);")
-        );
 
         // Click handler
         eventBox.setOnMouseClicked(event -> ouvrirDetailsEvenement(evenement));
 
         return eventBox;
-    }
-
-    private void loadDefaultImage(ImageView imageView) {
-        try {
-            String defaultImagePath = "/Images/default-event.png";
-            Image defaultImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(defaultImagePath)));
-            imageView.setImage(defaultImage);
-        } catch (Exception e) {
-            System.err.println("Error loading default image: " + e.getMessage());
-            // Create a placeholder rectangle if even default image fails
-            Rectangle placeholder = new Rectangle(imageView.getFitWidth(), imageView.getFitHeight());
-            placeholder.setFill(Color.LIGHTGRAY);
-            placeholder.setArcWidth(8);
-            placeholder.setArcHeight(8);
-            StackPane parent = (StackPane) imageView.getParent();
-            if (parent != null) {
-                parent.getChildren().set(parent.getChildren().indexOf(imageView), placeholder);
-            }
-        }
     }
 
     private void ouvrirDetailsEvenement(Evenement evenement) {
@@ -364,8 +359,29 @@ public class EventsController {
     private void goToGererEvenements() {
         loadPage("/GererEvenements.fxml");
     }
-    @FXML private void goToPanier() {
-        loadPage("/Panier.fxml");
+    @FXML
+    private void goToPanier() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Mon Panier");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Afficher une alerte en cas d'erreur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText(null);
+            alert.setContentText("Une erreur est survenue lors de l'ouverture du panier.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void goToReviews() {
+        loadPage("/EventReviews.fxml");
     }
 
     private void loadPage(String page) {
@@ -379,7 +395,4 @@ public class EventsController {
     }
 
 
-    public void editProfile(MouseEvent mouseEvent) throws IOException {
-        Eutopia.getSceneManager().switchScene("/editProfile.fxml",null);
-    }
 }
