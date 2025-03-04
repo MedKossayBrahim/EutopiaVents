@@ -20,11 +20,6 @@
         <padding>
             <Insets top="15" right="20" bottom="15" left="20"/>
         </padding>
-        <Button fx:id="backButton" text="←" styleClass="back-button" onAction="#goBack">
-            <tooltip>
-                <Tooltip text="Retour à la page précédente"/>
-            </tooltip>
-        </Button>
         <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label text="Tableau de Bord" styleClass="title"/>
             <Label text="Analyse et visualisation des données" styleClass="subtitle"/>
@@ -86,12 +81,7 @@
                 <WebView fx:id="distributionWebView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
             </VBox>
         </Tab>
-        <Tab text="Évolution" closable="false">
-            <VBox styleClass="chart-area" spacing="10">
-                <Label text="Tendances et évolution temporelle" styleClass="chart-title"/>
-                <WebView fx:id="evolutionWebView" VBox.vgrow="ALWAYS" styleClass="web-view-loading"/>
-            </VBox>
-        </Tab>
+
     </TabPane>
 
     <!-- Pied de page amélioré -->

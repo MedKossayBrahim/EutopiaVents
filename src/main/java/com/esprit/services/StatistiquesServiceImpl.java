@@ -20,7 +20,7 @@ public class StatistiquesServiceImpl {
             statistiques.put("general", new JSONObject(getStatistiquesGenerales()));
             statistiques.put("categories", new JSONArray(getStatistiquesParCategorie()));
             statistiques.put("distribution", new JSONArray(getDistributionCapacite()));
-            statistiques.put("evolution", new JSONArray(getEvolutionCapacite()));
+
             statistiques.put("topLieux", new JSONArray(getTopLieux(5)));
 
             return statistiques.toString();
@@ -100,21 +100,7 @@ public class StatistiquesServiceImpl {
         return "500+";
     }
 
-    private List<Map<String, Object>> getEvolutionCapacite() {
-        List<Lieu> lieux = lieuService.rechercher();
-        lieux.sort(Comparator.comparingInt(Lieu::getCapacite));
 
-        List<Map<String, Object>> evolution = new ArrayList<>();
-        for (int i = 0; i < lieux.size(); i++) {
-            Map<String, Object> point = new HashMap<>();
-            point.put("index", i + 1);
-            point.put("capacite", lieux.get(i).getCapacite());
-            point.put("nom", lieux.get(i).getNom());
-            evolution.add(point);
-        }
-
-        return evolution;
-    }
 
     private List<Map<String, Object>> getTopLieux(int limit) {
         return lieuService.rechercher().stream()

@@ -38,6 +38,11 @@ public class StatistiquesController implements Initializable {
     @FXML
     private WebView webView;
     @FXML
+    private WebView categoryWebView;
+    @FXML
+    private WebView distributionWebView;
+
+    @FXML
     private Button exportButton;
     @FXML
     private Button refreshButton;
@@ -62,43 +67,13 @@ public class StatistiquesController implements Initializable {
             // Get the current stage
             javafx.scene.Node source = backButton;
             javafx.stage.Stage stage = (javafx.stage.Stage) source.getScene().getWindow();
-            
-            // Get the current scene's root
-            javafx.scene.Parent currentRoot = source.getScene().getRoot();
-            
-            // Find the navbar in the current scene
-            javafx.scene.layout.VBox navbar = null;
-            if (currentRoot instanceof javafx.scene.layout.HBox) {
-                javafx.scene.layout.HBox container = (javafx.scene.layout.HBox) currentRoot;
-                for (javafx.scene.Node node : container.getChildren()) {
-                    if (node instanceof javafx.scene.layout.VBox && node.getId() != null && node.getId().equals("navbar")) {
-                        navbar = (javafx.scene.layout.VBox) node;
-                        break;
-                    }
-                }
-            }
-            
+
             // Load the main menu view
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/MainMenu.fxml"));
             javafx.scene.Parent mainMenuContent = loader.load();
-            
-            // Create a container with navbar and main menu content
-            javafx.scene.layout.HBox container = new javafx.scene.layout.HBox();
-            container.setSpacing(0);
-            container.setStyle("-fx-background-color: white;");
-            
-            if (navbar != null) {
-                // If navbar was found, reuse it
-                container.getChildren().addAll(navbar, mainMenuContent);
-            } else {
-                // If navbar wasn't found, load MainMenu.fxml directly
-                container.getChildren().add(mainMenuContent);
-            }
-            
-            javafx.scene.layout.HBox.setHgrow(mainMenuContent, javafx.scene.layout.Priority.ALWAYS);
-            
+
             // Set the new scene
-            javafx.scene.Scene scene = new javafx.scene.Scene(container);
+            javafx.scene.Scene scene = new javafx.scene.Scene(mainMenuContent);
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
@@ -117,6 +92,9 @@ public class StatistiquesController implements Initializable {
             loadStatistiques();
             updateLastUpdateLabel();
             updateStatCards();
+            loadCategoryStatistics();
+            loadDistributionStatistics();
+
         } catch (Exception e) {
             e.printStackTrace();
             showErrorAlert("Erreur d'initialisation", e.getMessage());
@@ -128,6 +106,9 @@ public class StatistiquesController implements Initializable {
             loadStatistiques();
             updateLastUpdateLabel();
             updateStatCards();
+            loadCategoryStatistics();
+            loadDistributionStatistics();
+
         });
 
         exportButton.setOnAction(e -> exportStatistiques());
@@ -327,6 +308,207 @@ public class StatistiquesController implements Initializable {
         table.addCell(createCell(value, false));
     }
 
+
+    private void loadCategoryStatistics() {
+        try {
+            String statistiquesJson = statistiquesService.getStatistiquesJson();
+            JSONArray categories = new JSONObject(statistiquesJson).getJSONArray("categories");
+            String html = generateCategoryHtml(categories);
+            categoryWebView.getEngine().loadContent(html);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Erreur de chargement des statistiques par catégorie", e.getMessage());
+        }
+    }
+    private void loadDistributionStatistics() {
+        try {
+            String statistiquesJson = statistiquesService.getStatistiquesJson();
+            JSONArray distribution = new JSONObject(statistiquesJson).getJSONArray("distribution");
+            String html = generateDistributionHtml(distribution);
+            distributionWebView.getEngine().loadContent(html);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Erreur de chargement des statistiques de distribution", e.getMessage());
+        }
+    }
+
+    private String generateCategoryHtml(JSONArray categories) {
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>");
+        html.append("<html><head>");
+        html.append("<title>Statistiques par Catégorie</title>");
+        html.append("<meta charset='UTF-8'>");
+        html.append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+
+        // CSS Styling
+        html.append("<style>");
+        html.append("* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }");
+        html.append("body { background-color: #f5f7fa; color: #333; padding: 2rem; }");
+
+        // Container styling - removed margin: 0 auto; to align left
+        html.append(".container { max-width: 900px; background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; }");
+
+        // Header styling
+        html.append(".header { background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; padding: 2rem; }");
+        html.append(".header h2 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }");
+        html.append(".header p { font-size: 1rem; opacity: 0.9; }");
+
+        // Table styling
+        html.append(".table-container { padding: 2rem; overflow-x: auto; }");
+        html.append("table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }");
+        html.append("th { background-color: #f2f4f8; color: #555; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; padding: 1.2rem 1.5rem; text-align: left; border-bottom: 2px solid #e0e4ec; }");
+        html.append("td { padding: 1.2rem 1.5rem; border-bottom: 1px solid #eaedf3; }");
+        html.append("tr:last-child td { border-bottom: none; }");
+        html.append("tr:hover { background-color: #f9fafc; }");
+
+        // Data styling
+        html.append(".category { font-weight: 500; color: #333; }");
+        html.append(".count { font-weight: 600; color: #4a6cf7; }");
+        html.append(".average { font-weight: 500; color: #666; }");
+
+        // Responsive design
+        html.append("@media (max-width: 768px) {");
+        html.append("  body { padding: 1rem; }");
+        html.append("  .header { padding: 1.5rem; }");
+        html.append("  .header h2 { font-size: 1.5rem; }");
+        html.append("  .table-container { padding: 1rem; }");
+        html.append("  th, td { padding: 0.8rem 1rem; font-size: 0.9rem; }");
+        html.append("}");
+
+        // Footer styling
+        html.append(".footer { padding: 1.5rem; background-color: #f8f9fb; color: #888; font-size: 0.85rem; border-top: 1px solid #eaedf3; }");
+
+        html.append("</style>");
+        html.append("</head><body>");
+
+        // Container start
+        html.append("<div class='container'>");
+
+        // Header
+        html.append("<div class='header'>");
+        html.append("<h2>Statistiques par Catégorie</h2>");
+        html.append("<p>Analyse des lieux par catégorie et capacité</p>");
+        html.append("</div>");
+
+        // Table
+        html.append("<div class='table-container'>");
+        html.append("<table>");
+        html.append("<thead><tr>");
+        html.append("<th>Catégorie</th>");
+        html.append("<th>Nombre de Lieux</th>");
+        html.append("<th>Capacité Moyenne</th>");
+        html.append("</tr></thead>");
+        html.append("<tbody>");
+
+        // Table rows
+        for (int i = 0; i < categories.length(); i++) {
+            JSONObject category = categories.getJSONObject(i);
+            html.append("<tr>");
+            html.append("<td class='category'>").append(category.getString("categorie")).append("</td>");
+            html.append("<td class='count'>").append(category.getInt("nombre")).append("</td>");
+
+            // Format the average capacity to 2 decimal places
+            double avgCapacity = category.getDouble("capaciteMoyenne");
+            String formattedAvg = String.format("%.2f", avgCapacity);
+
+            html.append("<td class='average'>").append(formattedAvg).append("</td>");
+            html.append("</tr>");
+        }
+
+        html.append("</tbody></table>");
+        html.append("</div>"); // End table-container
+
+        // Footer
+        html.append("<div class='footer'>");
+        html.append("Rapport généré le " + new java.text.SimpleDateFormat("dd/MM/yyyy à HH:mm").format(new java.util.Date()));
+        html.append("</div>");
+
+        html.append("</div>"); // End container
+        html.append("</body></html>");
+
+        return html.toString();
+    }
+
+
+
+
+    private String generateDistributionHtml(JSONArray distribution) {
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>");
+        html.append("<html><head>");
+        html.append("<title>Distribution des Capacités</title>");
+        html.append("<meta charset='UTF-8'>");
+        html.append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
+
+        // CSS Styling
+        html.append("<style>");
+        html.append("* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }");
+        html.append("body { background-color: #f5f7fa; color: #333; padding: 2rem; }");
+        html.append(".container { max-width: 900px; background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; }");
+        html.append(".header { background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; padding: 2rem; }");
+        html.append(".header h2 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }");
+        html.append(".header p { font-size: 1rem; opacity: 0.9; }");
+        html.append(".table-container { padding: 2rem; overflow-x: auto; }");
+        html.append("table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }");
+        html.append("th { background-color: #f2f4f8; color: #555; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; padding: 1.2rem 1.5rem; text-align: left; border-bottom: 2px solid #e0e4ec; }");
+        html.append("td { padding: 1.2rem 1.5rem; border-bottom: 1px solid #eaedf3; }");
+        html.append("tr:last-child td { border-bottom: none; }");
+        html.append("tr:hover { background-color: #f9fafc; }");
+        html.append(".tranche { font-weight: 500; color: #333; }");
+        html.append(".nombre { font-weight: 600; color: #4a6cf7; }");
+        html.append("@media (max-width: 768px) {");
+        html.append("  body { padding: 1rem; }");
+        html.append("  .header { padding: 1.5rem; }");
+        html.append("  .header h2 { font-size: 1.5rem; }");
+        html.append("  .table-container { padding: 1rem; }");
+        html.append("  th, td { padding: 0.8rem 1rem; font-size: 0.9rem; }");
+        html.append("}");
+        html.append(".footer { padding: 1.5rem; background-color: #f8f9fb; color: #888; font-size: 0.85rem; border-top: 1px solid #eaedf3; }");
+        html.append("</style>");
+        html.append("</head><body>");
+
+        // Container start
+        html.append("<div class='container'>");
+
+        // Header
+        html.append("<div class='header'>");
+        html.append("<h2>Distribution des Capacités</h2>");
+        html.append("<p>Analyse de la répartition des lieux par capacité</p>");
+        html.append("</div>");
+
+        // Table
+        html.append("<div class='table-container'>");
+        html.append("<table>");
+        html.append("<thead><tr>");
+        html.append("<th>Tranche de Capacité</th>");
+        html.append("<th>Nombre de Lieux</th>");
+        html.append("</tr></thead>");
+        html.append("<tbody>");
+
+        // Table rows
+        for (int i = 0; i < distribution.length(); i++) {
+            JSONObject dist = distribution.getJSONObject(i);
+            html.append("<tr>");
+            html.append("<td class='tranche'>").append(dist.getString("tranche")).append("</td>");
+            html.append("<td class='nombre'>").append(dist.getInt("nombre")).append("</td>");
+            html.append("</tr>");
+        }
+
+        html.append("</tbody></table>");
+        html.append("</div>"); // End table-container
+
+        // Footer
+        html.append("<div class='footer'>");
+        html.append("Rapport généré le " + new java.text.SimpleDateFormat("dd/MM/yyyy à HH:mm").format(new java.util.Date()));
+        html.append("</div>");
+
+        html.append("</div>"); // End container
+        html.append("</body></html>");
+
+        return html.toString();
+    }
+
+
     private void showErrorAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -342,183 +524,35 @@ public class StatistiquesController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
-    private String generateHtml(String statistiquesJson) {
-        return """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-                <script type="text/javascript">
-                    google.charts.load('current', {'packages':['corechart']});
-                    google.charts.setOnLoadCallback(drawCharts);
-                    
-                    const statistiques = """ + statistiquesJson + """
-                    ;
-                    
-                    function drawCharts() {
-                        drawGeneralStats();
-                        drawCategoriesChart();
-                        drawDistributionChart();
-                        drawEvolutionChart();
-                    }
-                    
-                    function drawGeneralStats() {
-                        const stats = statistiques.general;
-                        document.getElementById('generalStats').innerHTML = `
-                            <div class="stats-card">
-                                <h3>Statistiques Générales</h3>
-                                <table class="stats-table">
-                                    <tr><td>Nombre total de lieux</td><td>${stats.nombreTotal}</td></tr>
-                                    <tr><td>Capacité minimale</td><td>${stats.capaciteMin}</td></tr>
-                                    <tr><td>Capacité maximale</td><td>${stats.capaciteMax}</td></tr>
-                                    <tr><td>Capacité moyenne</td><td>${stats.capaciteMoyenne}</td></tr>
-                                    <tr><td>Capacité médiane</td><td>${stats.capaciteMediane}</td></tr>
-                                    <tr><td>Capacité totale</td><td>${stats.capaciteTotale}</td></tr>
-                                </table>
-                            </div>`;
-                    }
-                    
-                    function drawCategoriesChart() {
-                        const data = new google.visualization.DataTable();
-                        data.addColumn('string', 'Catégorie');
-                        data.addColumn('number', 'Nombre de lieux');
-                        data.addRows(statistiques.categories.map(cat => [cat.categorie, cat.nombre]));
-                        
-                        const options = {
-                            title: 'Répartition par catégorie',
-                            pieHole: 0.4,
-                            backgroundColor: 'transparent',
-                            chartArea: {width: '80%', height: '80%'}
-                        };
-                        
-                        const chart = new google.visualization.PieChart(document.getElementById('categoriesChart'));
-                        chart.draw(data, options);
-                    }
-                    
-                    function drawDistributionChart() {
-                        const data = new google.visualization.DataTable();
-                        data.addColumn('string', 'Tranche de capacité');
-                        data.addColumn('number', 'Nombre de lieux');
-                        data.addRows(statistiques.distribution.map(d => [d.tranche, d.nombre]));
-                        
-                        const options = {
-                            title: 'Distribution des capacités',
-                            legend: { position: 'none' },
-                            backgroundColor: 'transparent',
-                            bars: 'vertical'
-                        };
-                        
-                        const chart = new google.visualization.ColumnChart(document.getElementById('distributionChart'));
-                        chart.draw(data, options);
-                    }
-                    
-                    function drawEvolutionChart() {
-                        const data = new google.visualization.DataTable();
-                        data.addColumn('string', 'Mois');
-                        data.addColumn('number', 'Réservations');
-                        data.addColumn('number', 'Revenu');
-                        
-                        data.addRows([
-                            ['Jan', 10, 1000],
-                            ['Fév', 15, 1500],
-                            ['Mar', 20, 2000]
-                        ]);
-                        
-                        const options = {
-                            title: 'Évolution des réservations et revenus',
-                            curveType: 'function',
-                            backgroundColor: 'transparent',
-                            series: {
-                                0: {targetAxisIndex: 0},
-                                1: {targetAxisIndex: 1}
-                            },
-                            vAxes: {
-                                0: {title: 'Nombre de réservations'},
-                                1: {title: 'Revenu (DT)'}
-                            }
-                        };
-                        
-                        const chart = new google.visualization.LineChart(document.getElementById('evolutionChart'));
-                        chart.draw(data, options);
-                    }
-                </script>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        background-color: transparent;
-                    }
-                    .stats-card {
-                        background: white;
-                        border-radius: 8px;
-                        padding: 20px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    }
-                    .stats-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-                    .stats-table td {
-                        padding: 8px;
-                        border-bottom: 1px solid #eee;
-                    }
-                    .stats-table tr:last-child td {
-                        border-bottom: none;
-                    }
-                    .chart-container {
-                        background: white;
-                        border-radius: 8px;
-                        padding: 20px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        height: 300px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="generalStats"></div>
-                <div id="categoriesChart" class="chart-container"></div>
-                <div id="distributionChart" class="chart-container"></div>
-                <div id="evolutionChart" class="chart-container"></div>
-            </body>
-            </html>
-        """;
-    }
-
     @FXML
     public void refreshData() {
         try {
             // Show loading indicator
             showInfoAlert("Rafraîchissement", "Mise à jour des données en cours...");
-            
+
             // Reload all data
             loadStatistiques();
-            
+
             // Update last update time
             updateLastUpdateLabel();
-            
+
             showInfoAlert("Succès", "Les données ont été rafraîchies avec succès!");
         } catch (Exception e) {
             e.printStackTrace();
             showErrorAlert("Erreur", "Impossible de rafraîchir les données: " + e.getMessage());
         }
     }
-    
     @FXML
     public void exportData() {
         try {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Exporter les statistiques");
             fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
             );
-            fileChooser.setInitialFileName("EutopiaVents_Statistiques_" + 
-                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf");
-            
+            fileChooser.setInitialFileName("EutopiaVents_Statistiques_" +
+                    new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".pdf");
+
             File file = fileChooser.showSaveDialog(exportButton.getScene().getWindow());
             if (file != null) {
                 exportStatisticsToPdf(file);
@@ -529,7 +563,89 @@ public class StatistiquesController implements Initializable {
             showErrorAlert("Erreur", "Impossible d'exporter les données: " + e.getMessage());
         }
     }
-    
+    private void exportStatisticsToPdf(File file) {
+        try {
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, new FileOutputStream(file));
+            document.open();
+
+            // Add title
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.DARK_GRAY);
+            Paragraph title = new Paragraph("Rapport de Statistiques EutopiaVents", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+            // Add date
+            Font dateFont = new Font(Font.FontFamily.HELVETICA, 12, Font.ITALIC, BaseColor.GRAY);
+            Paragraph date = new Paragraph("Généré le: " + lastUpdateLabel.getText(), dateFont);
+            date.setAlignment(Element.ALIGN_RIGHT);
+            date.setSpacingAfter(20);
+            document.add(date);
+
+            // Add summary statistics
+            Font sectionFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.DARK_GRAY);
+            Paragraph summaryTitle = new Paragraph("Résumé des Statistiques", sectionFont);
+            summaryTitle.setSpacingAfter(10);
+            document.add(summaryTitle);
+
+            PdfPTable summaryTable = new PdfPTable(2);
+            summaryTable.setWidthPercentage(100);
+            summaryTable.setSpacingAfter(20);
+
+            // Add header row
+            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+            PdfPCell headerCell = new PdfPCell(new Phrase("Métrique", headerFont));
+            headerCell.setBackgroundColor(new BaseColor(80, 50, 80)); // #503250
+            headerCell.setPadding(8);
+            summaryTable.addCell(headerCell);
+
+            headerCell = new PdfPCell(new Phrase("Valeur", headerFont));
+            headerCell.setBackgroundColor(new BaseColor(80, 50, 80)); // #503250
+            headerCell.setPadding(8);
+            summaryTable.addCell(headerCell);
+
+            // Add data rows
+            Font cellFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
+
+            PdfPCell cell = new PdfPCell(new Phrase("Total des Salles", cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            cell = new PdfPCell(new Phrase(totalSallesLabel.getText(), cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("Total des Réservations", cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            cell = new PdfPCell(new Phrase(totalReservationsLabel.getText(), cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("Revenu Total", cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            cell = new PdfPCell(new Phrase(revenuTotalLabel.getText(), cellFont));
+            cell.setPadding(8);
+            summaryTable.addCell(cell);
+
+            document.add(summaryTable);
+
+            // Add footer
+            Font footerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY);
+            Paragraph footer = new Paragraph("Ce rapport a été généré automatiquement par l'application EutopiaVents.", footerFont);
+            footer.setAlignment(Element.ALIGN_CENTER);
+            document.add(footer);
+
+            document.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de générer le PDF: " + e.getMessage());
+        }
+    }
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
@@ -537,88 +653,154 @@ public class StatistiquesController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
-    private void exportStatisticsToPdf(File file) {
-        try {
-            Document document = new Document(PageSize.A4);
-            PdfWriter.getInstance(document, new FileOutputStream(file));
-            document.open();
-            
-            // Add title
-            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.DARK_GRAY);
-            Paragraph title = new Paragraph("Rapport de Statistiques EutopiaVents", titleFont);
-            title.setAlignment(Element.ALIGN_CENTER);
-            title.setSpacingAfter(20);
-            document.add(title);
-            
-            // Add date
-            Font dateFont = new Font(Font.FontFamily.HELVETICA, 12, Font.ITALIC, BaseColor.GRAY);
-            Paragraph date = new Paragraph("Généré le: " + lastUpdateLabel.getText(), dateFont);
-            date.setAlignment(Element.ALIGN_RIGHT);
-            date.setSpacingAfter(20);
-            document.add(date);
-            
-            // Add summary statistics
-            Font sectionFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.DARK_GRAY);
-            Paragraph summaryTitle = new Paragraph("Résumé des Statistiques", sectionFont);
-            summaryTitle.setSpacingAfter(10);
-            document.add(summaryTitle);
-            
-            PdfPTable summaryTable = new PdfPTable(2);
-            summaryTable.setWidthPercentage(100);
-            summaryTable.setSpacingAfter(20);
-            
-            // Add header row
-            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
-            PdfPCell headerCell = new PdfPCell(new Phrase("Métrique", headerFont));
-            headerCell.setBackgroundColor(new BaseColor(80, 50, 80)); // #503250
-            headerCell.setPadding(8);
-            summaryTable.addCell(headerCell);
-            
-            headerCell = new PdfPCell(new Phrase("Valeur", headerFont));
-            headerCell.setBackgroundColor(new BaseColor(80, 50, 80)); // #503250
-            headerCell.setPadding(8);
-            summaryTable.addCell(headerCell);
-            
-            // Add data rows
-            Font cellFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
-            
-            PdfPCell cell = new PdfPCell(new Phrase("Total des Salles", cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            cell = new PdfPCell(new Phrase(totalSallesLabel.getText(), cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            cell = new PdfPCell(new Phrase("Total des Réservations", cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            cell = new PdfPCell(new Phrase(totalReservationsLabel.getText(), cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            cell = new PdfPCell(new Phrase("Revenu Total", cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            cell = new PdfPCell(new Phrase(revenuTotalLabel.getText(), cellFont));
-            cell.setPadding(8);
-            summaryTable.addCell(cell);
-            
-            document.add(summaryTable);
-            
-            // Add footer
-            Font footerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY);
-            Paragraph footer = new Paragraph("Ce rapport a été généré automatiquement par l'application EutopiaVents.", footerFont);
-            footer.setAlignment(Element.ALIGN_CENTER);
-            document.add(footer);
-            
-            document.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de générer le PDF: " + e.getMessage());
-        }
+    private String generateHtml(String statistiquesJson) {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+                google.charts.load('current', {'packages':['corechart']});
+                google.charts.setOnLoadCallback(drawCharts);
+                
+                const statistiques = """ + statistiquesJson + """
+                ;
+                
+                function drawCharts() {
+                    drawGeneralStats();
+                    drawCategoriesChart();
+                    drawDistributionChart();
+                    drawEvolutionChart();
+                }
+                
+                function drawGeneralStats() {
+                    const stats = statistiques.general;
+                    document.getElementById('generalStats').innerHTML = `
+                        <div class="table-container">
+                            <table>
+                                <thead><tr><th colspan="2">Statistiques Générales</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Nombre total de lieux</td><td class="nombre">${stats.nombreTotal}</td></tr>
+                                    <tr><td>Capacité minimale</td><td class="nombre">${stats.capaciteMin}</td></tr>
+                                    <tr><td>Capacité maximale</td><td class="nombre">${stats.capaciteMax}</td></tr>
+                                    <tr><td>Capacité moyenne</td><td class="nombre">${stats.capaciteMoyenne}</td></tr>
+                                    <tr><td>Capacité médiane</td><td class="nombre">${stats.capaciteMediane}</td></tr>
+                                    <tr><td>Capacité totale</td><td class="nombre">${stats.capaciteTotale}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>`;
+                }
+                
+                function drawCategoriesChart() {
+                    const data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Catégorie');
+                    data.addColumn('number', 'Nombre de lieux');
+                    data.addRows(statistiques.categories.map(cat => [cat.categorie, cat.nombre]));
+                    
+                    const options = {
+                        title: 'Répartition par catégorie',
+                        pieHole: 0.4,
+                        backgroundColor: 'transparent',
+                        chartArea: {width: '80%', height: '80%'},
+                        colors: ['#6e8efb', '#a777e3', '#4a6cf7', '#f7931e', '#1eaedb']
+                    };
+                    
+                    const chart = new google.visualization.PieChart(document.getElementById('categoriesChart'));
+                    chart.draw(data, options);
+                }
+                
+                function drawDistributionChart() {
+                    const data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Tranche de capacité');
+                    data.addColumn('number', 'Nombre de lieux');
+                    data.addRows(statistiques.distribution.map(d => [d.tranche, d.nombre]));
+                    
+                    const options = {
+                        title: 'Distribution des capacités',
+                        legend: { position: 'none' },
+                        backgroundColor: 'transparent',
+                        bars: 'vertical',
+                        colors: ['#4a6cf7']
+                    };
+                    
+                    const chart = new google.visualization.ColumnChart(document.getElementById('distributionChart'));
+                    chart.draw(data, options);
+                }
+                
+                function drawEvolutionChart() {
+                    const data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Mois');
+                    data.addColumn('number', 'Réservations');
+                    data.addColumn('number', 'Revenu');
+                    
+                    data.addRows([
+                        ['Jan', 10, 1000],
+                        ['Fév', 15, 1500],
+                        ['Mar', 20, 2000]
+                    ]);
+                    
+                    const options = {
+                        title: 'Évolution des réservations et revenus',
+                        curveType: 'function',
+                        backgroundColor: 'transparent',
+                        series: {
+                            0: {targetAxisIndex: 0, color: '#6e8efb'},
+                            1: {targetAxisIndex: 1, color: '#a777e3'}
+                        },
+                        vAxes: {
+                            0: {title: 'Nombre de réservations'},
+                            1: {title: 'Revenu (DT)'}
+                        }
+                    };
+                    
+                    const chart = new google.visualization.LineChart(document.getElementById('evolutionChart'));
+                    chart.draw(data, options);
+                }
+            </script>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                body { background-color: #f5f7fa; color: #333; padding: 2rem; }
+                .container { max-width: 900px; background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; margin: 0 auto; }
+                .header { background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; padding: 2rem; }
+                .header h2 { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+                .header p { font-size: 1rem; opacity: 0.9; }
+                .table-container { padding: 2rem; overflow-x: auto; }
+                table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+                th { background-color: #f2f4f8; color: #555; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; padding: 1.2rem 1.5rem; text-align: left; border-bottom: 2px solid #e0e4ec; }
+                td { padding: 1.2rem 1.5rem; border-bottom: 1px solid #eaedf3; }
+                tr:last-child td { border-bottom: none; }
+                tr:hover { background-color: #f9fafc; }
+                .nombre { font-weight: 600; color: #4a6cf7; }
+                .chart-container { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); height: 400px; }
+                @media (max-width: 768px) {
+                    body { padding: 1rem; }
+                    .header { padding: 1.5rem; }
+                    .header h2 { font-size: 1.5rem; }
+                    .table-container { padding: 1rem; }
+                    th, td { padding: 0.8rem 1rem; font-size: 0.9rem; }
+                    .chart-container { height: 300px; }
+                }
+                .footer { padding: 1.5rem; background-color: #f8f9fb; color: #888; font-size: 0.85rem; border-top: 1px solid #eaedf3; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Statistiques des Lieux</h2>
+                    <p>Analyse détaillée des lieux et de leurs caractéristiques</p>
+                </div>
+                <div id="generalStats"></div>
+                <div id="categoriesChart" class="chart-container"></div>
+                <div id="distributionChart" class="chart-container"></div>
+                <div id="evolutionChart" class="chart-container"></div>
+                <div class="footer">
+                    Rapport généré le """ + new java.text.SimpleDateFormat("dd/MM/yyyy à HH:mm").format(new java.util.Date()) + """
+                </div>
+            </div>
+        </body>
+        </html>
+    """;
     }
 }

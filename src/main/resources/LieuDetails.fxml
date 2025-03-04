@@ -59,6 +59,6 @@
 
     <HBox alignment="CENTER" spacing="10">
         <Button text="Fermer" onAction="#handleClose" prefWidth="120"/>
-        <Button text="Gérer ma localisation" onAction="#handleUserLocation" prefWidth="150"/>
+        <Button text="Reserver" onAction="#gotoreservation" prefWidth="120"/>
     </HBox>
 </VBox>

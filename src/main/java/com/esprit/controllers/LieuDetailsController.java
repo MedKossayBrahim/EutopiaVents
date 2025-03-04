@@ -1,7 +1,11 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Lieu;
+import com.querydsl.sql.PrimaryKey;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -9,6 +13,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -893,9 +898,13 @@ public class LieuDetailsController {
     }
 
     @FXML
-    private void handleUserLocation() {
-        // Logique pour gérer l'emplacement de l'utilisateur
-        System.out.println("Gestion de l'emplacement de l'utilisateur...");
-        // Vous pouvez appeler des méthodes pour obtenir la localisation de l'utilisateur ici
+    private void gotoreservation() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Reservation1View.fxml"));
+            nomLabel.getScene().setRoot(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

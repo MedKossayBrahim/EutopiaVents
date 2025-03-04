@@ -1,8 +1,10 @@
 package com.esprit.controllers;
 
-import com.esprit.models.User;
+import com.esprit.models.Lieu;
 import com.esprit.models.Role;
+import com.esprit.models.User;
 import com.esprit.models.reservation1;
+import com.esprit.services.LieuServiceImpl;
 import com.esprit.services.ReservationServiceImpl;
 import com.esprit.utils.UserSession;
 import com.esprit.tests.Eutopia;
@@ -15,8 +17,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.layout.VBox;
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,80 +44,82 @@ public class Reservation1 implements Initializable {
     @FXML private TableColumn<reservation1, LocalDateTime> dateDebutColumn;
     @FXML private TableColumn<reservation1, LocalDateTime> dateFinColumn;
     @FXML private TableColumn<reservation1, String> typeReservationColumn;
+    @FXML private TableColumn<reservation1, String> prixColumn;
     @FXML private Label userInfoLabel;
-
-    // New button references
-    @FXML private Button reserverBtn;
+    
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
     @FXML private Button annulerBtn;
-    @FXML private VBox adminButtonsContainer;
 
     private ReservationServiceImpl reservationService;
+    private LieuServiceImpl lieuService;
     private Map<String, Integer> lieuxMap = new HashMap<>();
     private User currentUser;
+
+    /**
+     * Configures the visibility and state of buttons based on the user's role
+     */
+    public void configureButtonsByRole() {
+        try {
+            // Get the current user using Eutopia.getCurrentUser()
+            User user = Eutopia.getCurrentUser();
+            if (user == null) {
+                return;
+            }
+            
+            // Get the role and configure buttons based on role
+            Role userRole = user.getRole();
+            
+            // Check roles using equals method for proper enum comparison
+            if (Role.Admin.equals(userRole)) {
+                // Admins can do everything
+                ajouterBtn.setDisable(false);
+                modifierBtn.setDisable(false);
+                supprimerBtn.setDisable(false);
+            } else if (Role.Organisateur.equals(userRole)) {
+                // Organisateurs can add and modify but not delete
+                ajouterBtn.setDisable(false);
+                modifierBtn.setDisable(false);
+                supprimerBtn.setDisable(true);
+            } else {
+                // Regular users (Participants) can only add
+                ajouterBtn.setDisable(false);
+                modifierBtn.setDisable(true);
+                supprimerBtn.setDisable(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Error configuring buttons by role: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            currentUser = UserSession.loadUser();
+            // Use Eutopia.getCurrentUser() to get the current user
+            currentUser = Eutopia.getCurrentUser();
             if (currentUser == null) {
-                // Instead of showing an error and returning, try to get the current user from Eutopia
-                currentUser = Eutopia.getCurrentUser();
-                
-                // If still null, then show the error
-                if (currentUser == null) {
-                    showAlert("Erreur", "Vous devez être connecté pour accéder à cette fonctionnalité.");
-                    return;
-                }
+                showAlert("Erreur", "Vous devez être connecté pour accéder à cette fonctionnalité.");
+                return;
             }
 
             if (userInfoLabel != null) {
                 userInfoLabel.setText("Connecté en tant que: " + currentUser.getUserName());
             }
-            
-            // Configure button visibility based on user role
-            configureButtonsByRole();
 
             reservationService = new ReservationServiceImpl();
+            lieuService = new LieuServiceImpl();
             initializeTimeComboBoxes();
             loadLieux();
             setupTableColumns();
             loadUserReservations();
             setupListeners();
+            configureButtonsByRole();
         } catch (RuntimeException | SQLException e) {
             System.err.println("Erreur d'initialisation : " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Erreur d'initialisation : " + e.getMessage());
-        }
-    }
-
-    // Method to configure button visibility based on user role
-    public void configureButtonsByRole() {
-        boolean isAdmin = currentUser != null && Role.Admin.equals(currentUser.getRole());
-        
-        // Configure visibility of admin buttons container
-        if (adminButtonsContainer != null) {
-            adminButtonsContainer.setVisible(isAdmin);
-            adminButtonsContainer.setManaged(isAdmin);
-        }
-        
-        // Configure visibility of individual buttons (as fallback if container approach doesn't work)
-        if (ajouterBtn != null) ajouterBtn.setVisible(isAdmin);
-        if (modifierBtn != null) modifierBtn.setVisible(isAdmin);
-        if (supprimerBtn != null) supprimerBtn.setVisible(isAdmin);
-        if (annulerBtn != null) annulerBtn.setVisible(isAdmin);
-        
-        if (ajouterBtn != null) ajouterBtn.setManaged(isAdmin);
-        if (modifierBtn != null) modifierBtn.setManaged(isAdmin);
-        if (supprimerBtn != null) supprimerBtn.setManaged(isAdmin);
-        if (annulerBtn != null) annulerBtn.setManaged(isAdmin);
-        
-        // Regular users only see the "Réserver" button
-        if (reserverBtn != null) {
-            reserverBtn.setVisible(!isAdmin);
-            reserverBtn.setManaged(!isAdmin);
         }
     }
 
@@ -157,6 +160,10 @@ public class Reservation1 implements Initializable {
             dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
             dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
             typeReservationColumn.setCellValueFactory(new PropertyValueFactory<>("typeReservation"));
+            prixColumn.setCellValueFactory(cellData -> {
+                double prix = calculerPrixReservation(cellData.getValue());
+                return new SimpleStringProperty(String.format("%.2f DT", prix));
+            });
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             dateDebutColumn.setCellFactory(column -> new TableCell<reservation1, LocalDateTime>() {
@@ -439,6 +446,7 @@ public class Reservation1 implements Initializable {
 
         setupDateTimeValidation();
         setupTableSelection();
+        configureButtonsByRole();
     }
 
     private void setupDateTimeValidation() {
@@ -479,16 +487,16 @@ public class Reservation1 implements Initializable {
                                 }
                             }
 
-                            dateDebutPicker.setValue(newSelection.getDateDebut().toLocalDate());
-                            dateFinPicker.setValue(newSelection.getDateFin().toLocalDate());
-                            heureDebutCombo.setValue(String.format("%02d:00", newSelection.getDateDebut().getHour()));
-                            heureFinCombo.setValue(String.format("%02d:00", newSelection.getDateFin().getHour()));
-                        } catch (Exception e) {
-                            System.err.println("Erreur lors de la sélection dans la table : " + e.getMessage());
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                                    dateDebutPicker.setValue(newSelection.getDateDebut().toLocalDate());
+                                    dateFinPicker.setValue(newSelection.getDateFin().toLocalDate());
+                                    heureDebutCombo.setValue(String.format("%02d:00", newSelection.getDateDebut().getHour()));
+                                    heureFinCombo.setValue(String.format("%02d:00", newSelection.getDateFin().getHour()));
+                                } catch (Exception e) {
+                                    System.err.println("Erreur lors de la sélection dans la table : " + e.getMessage());
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
     }
 
     private void validateDates() {
@@ -524,6 +532,36 @@ public class Reservation1 implements Initializable {
             lieuComboBox.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private double calculerPrixReservation(reservation1 reservation) {
+        try {
+            int lieuId = reservation.getIdLieu();
+            Lieu lieu = lieuService.getLieuById(lieuId);
+            if (lieu == null) return 0.0;
+
+            double prixLieu = lieu.getPrix();
+            if (prixLieu <= 0) return 0.0;
+
+            LocalDateTime debut = reservation.getDateDebut();
+            LocalDateTime fin = reservation.getDateFin();
+
+            long jours = Math.max(1, ChronoUnit.DAYS.between(debut, fin));
+
+            if (jours == 1 && debut.toLocalDate().equals(fin.toLocalDate())) {
+                long heures = ChronoUnit.HOURS.between(debut, fin);
+                if (heures < 24) {
+                    return (prixLieu * heures) / 24.0;
+                } else {
+                    return prixLieu;
+                }
+            } else {
+                return prixLieu * jours;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0.0;
         }
     }
 }
