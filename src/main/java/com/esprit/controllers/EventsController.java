@@ -4,7 +4,6 @@ import com.esprit.models.Evenement;
 import com.esprit.services.EvenementService;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -17,8 +16,6 @@ import javafx.scene.control.Pagination;
 import javafx.scene.Node;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -28,12 +25,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Button;
 import com.esprit.models.User;
 import com.esprit.tests.Eutopia;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.io.File;
-import java.util.Objects;
 
 public class EventsController {
 
@@ -77,6 +74,7 @@ public class EventsController {
     @FXML
 
     public void initialize() {
+        rootPane.getStylesheets().add(getClass().getResource("/eventsstyle.css").toExternalForm());
         setupSearchField();
         setupCategoryFilter();
         setupPagination();
@@ -140,9 +138,9 @@ public class EventsController {
     private void setupCartIcon() {
         ImageView cartIcon = (ImageView) rootPane.lookup("#cartIcon");
         if (cartIcon != null) {
-            // Add hover effect
             cartIcon.setOnMouseEntered(e -> cartIcon.setOpacity(0.8));
             cartIcon.setOnMouseExited(e -> cartIcon.setOpacity(1.0));
+            cartIcon.setOnMouseClicked(e -> goToPanier());
         }
     }
 
@@ -221,9 +219,10 @@ public class EventsController {
         List<Evenement> pageEvents = filteredEvents.subList(fromIndex, toIndex);
 
         eventsGrid.getChildren().clear();
+        eventsGrid.getStyleClass().add("events-grid");
 
-        // Calculate number of columns based on grid width
-        int numColumns = 2; // Fixed to 2 columns for consistency
+        // Fixed to 2 columns
+        int numColumns = 2;
 
         for (int i = 0; i < pageEvents.size(); i++) {
             VBox eventBox = createEventBox(pageEvents.get(i));
@@ -237,27 +236,24 @@ public class EventsController {
 
     private VBox createEventBox(Evenement evenement) {
         VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(15));
-        eventBox.setSpacing(10);
-        eventBox.setMaxWidth(500);
-        eventBox.setMinWidth(400);
-        eventBox.setStyle("-fx-background-color: white; " +
-                "-fx-border-radius: 8; " +
-                "-fx-background-radius: 8; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+        eventBox.setPadding(new Insets(0));
+        eventBox.setSpacing(0);
+        eventBox.setMinWidth(450);
+        eventBox.setMaxWidth(450);
+        eventBox.getStyleClass().add("event-box");
 
-        // Image handling
+        // Image container
+        StackPane imageContainer = new StackPane();
+        imageContainer.setMinHeight(250);
+        imageContainer.setMaxHeight(250);
+        imageContainer.getStyleClass().add("image-container");
+
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(eventBox.getMinWidth() - 30);
-        imageView.setFitHeight(200);
+        imageView.setFitWidth(450);
+        imageView.setFitHeight(250);
         imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-background-radius: 4 4 0 0;");
 
-        // Center the image
-        StackPane imageContainer = new StackPane(imageView);
-        imageContainer.setAlignment(Pos.CENTER);
-
-        // Charger l'image de l'événement
+        // Load image
         String imagePath = evenement.getImage();
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
@@ -268,45 +264,31 @@ public class EventsController {
             }
         }
 
-        // Event information container
-        VBox infoContainer = new VBox(8);
-        infoContainer.setPadding(new Insets(10, 5, 5, 5));
+        imageContainer.getChildren().add(imageView);
 
-        // Event information with black text
+        // Information container
+        VBox infoContainer = new VBox(12);
+        infoContainer.getStyleClass().add("info-container");
+
+        // Title
         Label titreLabel = new Label(evenement.getTitre());
-        titreLabel.setStyle("-fx-font-weight: bold; " +
-                "-fx-font-size: 16px; " +
-                "-fx-text-fill: #000000;");
-        titreLabel.setWrapText(true);
+        titreLabel.getStyleClass().add("title-label");
 
+        // Date
         Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
-        dateLabel.setStyle("-fx-font-size: 14px; " +
-                "-fx-text-fill: #000000;");
+        dateLabel.getStyleClass().add("date-label");
 
-        Label prixLabel = new Label("Prix: " + evenement.getPrix() + " TND");
-        prixLabel.setStyle("-fx-font-size: 14px; " +
-                "-fx-font-weight: bold; " +
-                "-fx-text-fill: #000000;");
+        // Price with icon
+        HBox prixBox = new HBox(10);
+        prixBox.setAlignment(Pos.CENTER_LEFT);
+        Label prixLabel = new Label(String.format("%.2f TND", evenement.getPrix()));
+        prixLabel.getStyleClass().add("price-label");
 
-        // Add all components to the info container
-        infoContainer.getChildren().addAll(titreLabel, dateLabel, prixLabel);
+        prixBox.getChildren().add(prixLabel);
 
-        // Add all components to the main box
+        // Add all elements
+        infoContainer.getChildren().addAll(titreLabel, dateLabel, prixBox);
         eventBox.getChildren().addAll(imageContainer, infoContainer);
-
-        // Hover effect
-        eventBox.setOnMouseEntered(e ->
-                eventBox.setStyle("-fx-background-color: white; " +
-                        "-fx-border-radius: 8; " +
-                        "-fx-background-radius: 8; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 0);")
-        );
-        eventBox.setOnMouseExited(e ->
-                eventBox.setStyle("-fx-background-color: white; " +
-                        "-fx-border-radius: 8; " +
-                        "-fx-background-radius: 8; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);")
-        );
 
         // Click handler
         eventBox.setOnMouseClicked(event -> ouvrirDetailsEvenement(evenement));
@@ -375,13 +357,29 @@ public class EventsController {
     private void goToGererEvenements() {
         loadPage("/GererEvenements.fxml");
     }
-    @FXML private void goToPanier() {
-        loadPage("/Panier.fxml");
+    @FXML
+    private void goToPanier() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Mon Panier");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Afficher une alerte en cas d'erreur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText(null);
+            alert.setContentText("Une erreur est survenue lors de l'ouverture du panier.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
     private void goToReviews() {
-        loadPage("/Reviews.fxml");
+        loadPage("/EventReviews.fxml");
     }
 
     private void loadPage(String page) {

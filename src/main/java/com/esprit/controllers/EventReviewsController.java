@@ -1,7 +1,7 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Evenement;
-import com.esprit.models.Review;
+import com.esprit.models.EventReview;
 import com.esprit.models.User;
 import com.esprit.services.EvenementService;
 import com.esprit.services.EventReviewService;
@@ -17,21 +17,16 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class ReviewsController implements Initializable {
+public class EventReviewsController implements Initializable {
 
     @FXML
     private BorderPane rootPane;
@@ -105,21 +100,9 @@ public class ReviewsController implements Initializable {
         imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
 
-        // Try to load image
-        String imagePath = evenement.getImage();
-        if (imagePath != null && !imagePath.isEmpty()) {
-            try {
-                Image image = new Image(imagePath);
-                if (!image.isError()) {
-                    imageView.setImage(image);
-                } else {
-                    loadDefaultImage(imageView);
-                }
-            } catch (Exception e) {
-                loadDefaultImage(imageView);
-            }
-        } else {
-            loadDefaultImage(imageView);
+        // Load image directly
+        if (evenement.getImage() != null && !evenement.getImage().isEmpty()) {
+            imageView.setImage(new Image(evenement.getImage()));
         }
 
         // Event info
@@ -131,7 +114,8 @@ public class ReviewsController implements Initializable {
         Label dateLabel = new Label("Du " + evenement.getDateDebut() + " au " + evenement.getDateFin());
         dateLabel.setStyle("-fx-text-fill: #666;");
 
-        Label lieuLabel = new Label("Lieu: " + (evenement.getLieuId() != 0 ? evenement.getLieuNom() : evenement.getLieu_proprietaire()));
+        String lieu = evenement.getLieuId() != 0 ? evenement.getLieuNom() : evenement.getLieu_proprietaire();
+        Label lieuLabel = new Label("Lieu: " + lieu);
         lieuLabel.setStyle("-fx-text-fill: #666;");
 
         // Ajouter un bouton pour voir toutes les reviews
@@ -152,13 +136,13 @@ public class ReviewsController implements Initializable {
 
         if (hasReviewed) {
             // Show existing review
-            List<Review> userReviews = reviewService.rechercherParUtilisateur(currentUser.getUserID())
+            List<EventReview> userReviews = reviewService.rechercherParUtilisateur(currentUser.getUserID())
                     .stream()
                     .filter(r -> r.getEvenementId() == evenement.getId())
                     .toList();
 
             if (!userReviews.isEmpty()) {
-                Review userReview = userReviews.get(0);
+                EventReview userReview = userReviews.get(0);
 
                 Label reviewTitle = new Label("Votre avis");
                 reviewTitle.setFont(Font.font("System", FontWeight.BOLD, 14));
@@ -220,7 +204,7 @@ public class ReviewsController implements Initializable {
                 }
 
                 // Create and save review
-                Review review = new Review(
+                EventReview review = new EventReview(
                         evenement.getId(),
                         currentUser.getUserID(),
                         selectedRating[0],
@@ -265,25 +249,6 @@ public class ReviewsController implements Initializable {
         }
         
         return ratingBox;
-    }
-    
-    private void loadDefaultImage(ImageView imageView) {
-        try {
-            String defaultImagePath = "/Images/default-event.png";
-            Image defaultImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(defaultImagePath)));
-            imageView.setImage(defaultImage);
-        } catch (Exception e) {
-            System.err.println("Error loading default image: " + e.getMessage());
-            // Create a placeholder rectangle if even default image fails
-            Rectangle placeholder = new Rectangle(imageView.getFitWidth(), imageView.getFitHeight());
-            placeholder.setFill(Color.LIGHTGRAY);
-            placeholder.setArcWidth(8);
-            placeholder.setArcHeight(8);
-            StackPane parent = (StackPane) imageView.getParent();
-            if (parent != null) {
-                parent.getChildren().set(parent.getChildren().indexOf(imageView), placeholder);
-            }
-        }
     }
     
     private void showAlert(Alert.AlertType type, String title, String content) {
@@ -331,7 +296,7 @@ public class ReviewsController implements Initializable {
         reviewStage.setTitle("Avis pour " + evenement.getTitre());
         
         // Récupérer toutes les reviews pour cet événement
-        List<Review> eventReviews = reviewService.rechercherParEvenement(evenement.getId());
+        List<EventReview> eventReviews = reviewService.rechercherParEvenement(evenement.getId());
         
         // Créer le contenu de la fenêtre
         VBox content = new VBox(15);
@@ -375,7 +340,7 @@ public class ReviewsController implements Initializable {
             reviewsContainer.setPadding(new Insets(10, 5, 10, 5));
             
             // Ajouter chaque review
-            for (Review review : eventReviews) {
+            for (EventReview review : eventReviews) {
                 VBox reviewBox = createReviewBox(review);
                 reviewsContainer.getChildren().add(reviewBox);
             }
@@ -404,7 +369,7 @@ public class ReviewsController implements Initializable {
     /**
      * Crée une boîte contenant les détails d'une review
      */
-    private VBox createReviewBox(Review review) {
+    private VBox createReviewBox(EventReview review) {
         VBox reviewBox = new VBox(8);
         reviewBox.setPadding(new Insets(15));
         reviewBox.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8;");
@@ -435,4 +400,4 @@ public class ReviewsController implements Initializable {
         
         return reviewBox;
     }
-} 
+}

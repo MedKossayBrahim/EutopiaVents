@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ReviewsController">
+<BorderPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #faf6f3;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.EventReviewsController">
    <top>
       <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);" BorderPane.alignment="CENTER">
          <children>

@@ -115,7 +115,7 @@ public class EventDetailsController {
     }
     
     private void loadWeatherInfo(String lieu, String dateStr) {
-        // Simplification - Afficher directement les données météo par défaut
+        // Afficher les données par défaut en attendant
         displayFallbackWeather();
         
         // Nettoyer le lieu et utiliser Tunis par défaut si nécessaire
@@ -137,42 +137,96 @@ public class EventDetailsController {
                 String response = getJsonResponse(geocodingUrl);
                 JSONArray jsonArray = new JSONArray(response);
                 
-                // Si aucune coordonnée trouvée, on garde les données par défaut déjà affichées
                 if (jsonArray.length() == 0) return;
                 
                 JSONObject location = jsonArray.getJSONObject(0);
                 double lat = location.getDouble("lat");
                 double lon = location.getDouble("lon");
                 
-                // Obtenir la météo actuelle (simplifié - toujours utiliser la météo actuelle)
-                String weatherUrl = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + 
-                                  "&lon=" + lon + "&units=metric&lang=fr&appid=" + API_KEY;
+                // Obtenir la date de l'événement
+                LocalDate eventDate = LocalDate.parse(dateStr);
+                LocalDate today = LocalDate.now();
+                
+                // Choisir l'URL appropriée selon la date
+                String weatherUrl;
+                if (eventDate.equals(today)) {
+                    // Météo actuelle pour aujourd'hui
+                    weatherUrl = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + 
+                               "&lon=" + lon + "&units=metric&lang=fr&appid=" + API_KEY;
+                } else if (eventDate.isAfter(today) && eventDate.isBefore(today.plusDays(5))) {
+                    // Prévisions pour les 5 prochains jours
+                    weatherUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + 
+                               "&lon=" + lon + "&units=metric&lang=fr&appid=" + API_KEY;
+                } else {
+                    // Date trop éloignée, afficher un message
+                    Platform.runLater(() -> {
+                        weatherDescLabel.setText("Prévisions non disponibles pour cette date");
+                        weatherContainer.setVisible(true);
+                    });
+                    return;
+                }
                 
                 String weatherResponse = getJsonResponse(weatherUrl);
                 JSONObject weatherData = new JSONObject(weatherResponse);
                 
-                // Mettre à jour l'interface
-                double temp = weatherData.getJSONObject("main").getDouble("temp");
-                String description = weatherData.getJSONArray("weather")
-                                  .getJSONObject(0).getString("description");
-                String icon = weatherData.getJSONArray("weather")
-                           .getJSONObject(0).getString("icon");
-                
-                Platform.runLater(() -> {
-                    temperatureLabel.setText(Math.round(temp) + "°C");
-                    weatherDescLabel.setText(description);
+                // Mettre à jour l'interface selon le type de réponse
+                if (eventDate.equals(today)) {
+                    // Météo actuelle
+                    double temp = weatherData.getJSONObject("main").getDouble("temp");
+                    String description = weatherData.getJSONArray("weather")
+                                                  .getJSONObject(0).getString("description");
+                    String icon = weatherData.getJSONArray("weather")
+                                           .getJSONObject(0).getString("icon");
                     
-                    String iconUrl = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
-                    weatherIconView.setImage(new Image(iconUrl));
-                    
-                    weatherContainer.setVisible(true);
-                });
+                    updateWeatherUI(temp, description, icon);
+                } else {
+                    // Prévisions
+                    JSONArray list = weatherData.getJSONArray("list");
+                    // Trouver la prévision la plus proche de la date de l'événement
+                    JSONObject forecast = findClosestForecast(list, eventDate);
+                    if (forecast != null) {
+                        double temp = forecast.getJSONObject("main").getDouble("temp");
+                        String description = forecast.getJSONArray("weather")
+                                                   .getJSONObject(0).getString("description");
+                        String icon = forecast.getJSONArray("weather")
+                                            .getJSONObject(0).getString("icon");
+                        
+                        updateWeatherUI(temp, description, icon);
+                    }
+                }
                 
             } catch (Exception e) {
-                // En cas d'erreur, on garde les données par défaut déjà affichées
                 System.out.println("Erreur météo: " + e.getMessage());
             }
         }).start();
+    }
+
+    private JSONObject findClosestForecast(JSONArray list, LocalDate eventDate) {
+        JSONObject closest = null;
+        long minDiff = Long.MAX_VALUE;
+        
+        for (int i = 0; i < list.length(); i++) {
+            JSONObject forecast = list.getJSONObject(i);
+            String dtTxt = forecast.getString("dt_txt");
+            LocalDate forecastDate = LocalDate.parse(dtTxt.split(" ")[0]);
+            
+            long diff = Math.abs(forecastDate.toEpochDay() - eventDate.toEpochDay());
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = forecast;
+            }
+        }
+        
+        return closest;
+    }
+
+    private void updateWeatherUI(double temp, String description, String icon) {
+        Platform.runLater(() -> {
+            temperatureLabel.setText(Math.round(temp) + "°C");
+            weatherDescLabel.setText(description);
+            weatherIconView.setImage(new Image("http://openweathermap.org/img/wn/" + icon + "@2x.png"));
+            weatherContainer.setVisible(true);
+        });
     }
 
     private void displayFallbackWeather() {

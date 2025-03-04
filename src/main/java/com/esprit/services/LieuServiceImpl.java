@@ -11,6 +11,9 @@ import java.util.List;
 public class LieuServiceImpl implements IService<Lieu>{
     private Connection connection = DataSource.getInstance().getConnection();
 
+    public LieuServiceImpl() throws SQLException {
+    }
+
     @Override
     public void ajouter(Lieu lieu) {
         // Remplacer categorie_id par categorie_salle_id dans la requête
@@ -42,87 +45,45 @@ public class LieuServiceImpl implements IService<Lieu>{
             }
         }
     }
-
     @Override
     public void modifier(Lieu lieu) {
-        if (lieu == null) {
-            System.out.println("Erreur : L'objet Lieu fourni est nul.");
-            return;
-        }
-
-        if (lieu.getCategorie() == null) {
-            CategorieServiceImpl categorieService = new CategorieServiceImpl();
-            List<categorie_salle> categoriesDisponibles = categorieService.rechercher();
-            if (!categoriesDisponibles.isEmpty()) {
-                lieu.setCategorie(categoriesDisponibles.get(0));
-                System.out.println("La catégorie était nulle. Une catégorie par défaut a été affectée : " + categoriesDisponibles.get(0));
-            } else {
-                System.out.println("Erreur : aucune catégorie disponible pour affecter par défaut.");
-                return;
-            }
-        }
-
-        String checkReq = "SELECT * FROM lieu WHERE id = ?";
-        // Remplacer categorie_id par categorie_salle_id dans la requête UPDATE
         String updateReq = "UPDATE lieu SET nom=?, adresse=?, ville=?, code_postal=?, capacite=?, image=?, categorie_salle_id=?, prix=? WHERE id=?";
 
-        try (PreparedStatement checkStmt = connection.prepareStatement(checkReq);
-             PreparedStatement updateStmt = connection.prepareStatement(updateReq)) {
+        try (PreparedStatement updateStmt = connection.prepareStatement(updateReq)) {
+            updateStmt.setString(1, lieu.getNom());
+            updateStmt.setString(2, lieu.getAdresse());
+            updateStmt.setString(3, lieu.getVille());
+            updateStmt.setString(4, lieu.getCodePostal());
+            updateStmt.setInt(5, lieu.getCapacite());
 
-            checkStmt.setInt(1, lieu.getId());
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.next()) {
-                String currentNom = rs.getString("nom");
-                String currentAdresse = rs.getString("adresse");
-                String currentVille = rs.getString("ville");
-                String currentCodePostal = rs.getString("code_postal");
-                int currentCapacite = rs.getInt("capacite");
-                String currentImage = rs.getString("image");
-                int currentCategorieId = rs.getInt("categorie_salle_id"); // modifié ici
-                double currentPrix = rs.getDouble("prix");
-
-                if (!currentNom.equals(lieu.getNom()) ||
-                        !currentAdresse.equals(lieu.getAdresse()) ||
-                        !currentVille.equals(lieu.getVille()) ||
-                        !currentCodePostal.equals(lieu.getCodePostal()) ||
-                        currentCapacite != lieu.getCapacite() ||
-                        (currentImage != null ? !currentImage.equals(lieu.getImage()) : lieu.getImage() != null) ||
-                        currentCategorieId != lieu.getCategorie().getId() ||
-                        currentPrix != lieu.getPrix()) {
-
-                    updateStmt.setString(1, lieu.getNom());
-                    updateStmt.setString(2, lieu.getAdresse());
-                    updateStmt.setString(3, lieu.getVille());
-                    updateStmt.setString(4, lieu.getCodePostal());
-                    updateStmt.setInt(5, lieu.getCapacite());
-                    updateStmt.setString(6, lieu.getImage());
-                    updateStmt.setInt(7, lieu.getCategorie().getId());
-                    updateStmt.setDouble(8, lieu.getPrix());
-                    updateStmt.setInt(9, lieu.getId());
-
-                    try {
-                        int rowsAffected = updateStmt.executeUpdate();
-                        if (rowsAffected > 0) {
-                            System.out.println("Lieu modifié avec succès : " + lieu);
-                        } else {
-                            System.out.println("Aucune modification effectuée sur le lieu.");
-                        }
-                    } catch (SQLIntegrityConstraintViolationException e) {
-                        System.out.println("Erreur : Un lieu avec ce nom existe déjà.");
-                    } catch (SQLException e) {
-                        System.out.println("Erreur SQL lors de la modification du lieu : " + e.getMessage());
-                    }
-                } else {
-                    System.out.println("Aucune modification nécessaire pour le lieu : " + lieu);
-                }
+            // Vérification avant mise à jour
+            if (lieu.getImage() == null) {
+                System.out.println("DEBUG : L'image du lieu est NULL, suppression en cours...");
+                updateStmt.setNull(6, Types.VARCHAR);
             } else {
-                System.out.println("Lieu non trouvé avec l'ID : " + lieu.getId());
+                System.out.println("DEBUG : L'image est mise à jour avec " + lieu.getImage());
+                updateStmt.setString(6, lieu.getImage());
             }
+
+            updateStmt.setInt(7, lieu.getCategorie().getId());
+            updateStmt.setDouble(8, lieu.getPrix());
+            updateStmt.setInt(9, lieu.getId());
+
+            int rowsAffected = updateStmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Lieu modifié avec succès : " + lieu);
+            } else {
+                System.out.println("Aucun lieu trouvé avec l'ID : " + lieu.getId());
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Erreur SQL complète : " + e.getMessage());
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la modification du lieu : " + e.getMessage());
+            System.out.println("Erreur technique lors de la modification : " + e.getMessage());
         }
     }
+
 
     @Override
     public void supprimer(Lieu lieu) {
@@ -143,12 +104,18 @@ public class LieuServiceImpl implements IService<Lieu>{
     @Override
     public List<Lieu> rechercher() {
         List<Lieu> lieux = new ArrayList<>();
-        String req = "SELECT * FROM lieu";
+        String req = "SELECT l.*, c.id AS cat_id, c.nom AS cat_nom, c.description AS cat_description " +
+                "FROM lieu l " +
+                "JOIN categorie_salle c ON l.categorie_salle_id = c.id";
 
-        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(req)) {
+        try (PreparedStatement pst = connection.prepareStatement(req);
+             ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
-                // Récupération de la catégorie à partir de la colonne "categorie_salle_id"
-                categorie_salle categoriesalle = getCategorieById(rs.getInt("categorie_salle_id"));
+                categorie_salle categoriesalle = new categorie_salle(
+                        rs.getInt("cat_id"),
+                        rs.getString("cat_nom"),
+                        rs.getString("cat_description")
+                );
 
                 Lieu lieu = new Lieu(
                         rs.getInt("id"),
@@ -169,6 +136,7 @@ public class LieuServiceImpl implements IService<Lieu>{
         return lieux;
     }
 
+
     // Méthode pour récupérer la catégorie associée à un lieu (en utilisant la table categorie_salle)
     private categorie_salle getCategorieById(int id) {
         String req = "SELECT * FROM categorie_salle WHERE id = ?";
@@ -181,6 +149,45 @@ public class LieuServiceImpl implements IService<Lieu>{
             }
         } catch (SQLException e) {
             System.out.println("Erreur lors de la récupération de la catégorie : " + e.getMessage());
+        }
+        return null;
+    }
+    //nouvelles methodes**********************************************
+    public void afficherLieux() {
+        List<Lieu> lieux = this.rechercher();
+        lieux.forEach(System.out::println);
+    }
+
+    public Lieu getPremierLieu() {
+        List<Lieu> lieux = this.rechercher();
+        return lieux.isEmpty() ? null : lieux.get(0);
+    }
+
+    public Lieu getDernierLieu() {
+        List<Lieu> lieux = this.rechercher();
+        return lieux.isEmpty() ? null : lieux.get(lieux.size() - 1);
+    }
+    public Lieu getLieuById(int id) {
+        String req = "SELECT * FROM lieu WHERE id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Lieu(
+                            rs.getInt("id"),
+                            rs.getString("nom"),
+                            rs.getString("adresse"),
+                            rs.getString("ville"),
+                            rs.getString("code_postal"),
+                            rs.getInt("capacite"),
+                            rs.getString("image"),
+                            getCategorieById(rs.getInt("categorie_salle_id")),
+                            rs.getDouble("prix")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération du lieu : " + e.getMessage());
         }
         return null;
     }

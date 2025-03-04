@@ -2,10 +2,8 @@ package com.esprit.services;
 
 import com.esprit.models.reservation1;
 import com.esprit.utils.DataSource;
-
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,94 +11,49 @@ import java.util.Map;
 
 public class ReservationServiceImpl implements IService<reservation1> {
     private Connection connection;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private EvenementService evenementService;
 
-    public ReservationServiceImpl() {
+    public ReservationServiceImpl() throws SQLException {
         connection = DataSource.getInstance().getConnection();
+        evenementService = new EvenementService();
     }
 
     @Override
     public void ajouter(reservation1 reservation) {
         try {
-            // 1. Vérifier l'existence de l'événement et récupérer sa capacité, sa date_debut et sa date_fin
-            String eventQuery = "SELECT capacite, date_debut, date_fin FROM events WHERE id = ?";
-            int eventCapacity = 0;
-            LocalDateTime eventDebut = null;
-            LocalDateTime eventFin = null;
-            try (PreparedStatement eventStmt = connection.prepareStatement(eventQuery)) {
-                eventStmt.setInt(1, reservation.getIdEvenement());
-                try (ResultSet rs = eventStmt.executeQuery()) {
-                    if (rs.next()) {
-                        eventCapacity = rs.getInt("capacite");
-                        eventDebut = rs.getTimestamp("date_debut").toLocalDateTime();
-                        eventFin = rs.getTimestamp("date_fin").toLocalDateTime();
-                    } else {
-                        throw new RuntimeException("L'événement avec l'ID " + reservation.getIdEvenement() + " n'existe pas.");
-                    }
-                }
-            }
-
-            // Vérifier que l'événement n'est pas terminé
-            if (eventFin.isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("L'événement est déjà terminé.");
-            }
-
-            // Vérifier que la réservation se situe dans la période de l'événement
-            if (reservation.getDateDebut().isBefore(eventDebut) || reservation.getDateFin().isAfter(eventFin)) {
-                throw new RuntimeException("La réservation doit être comprise dans la période de l'événement (du "
-                        + eventDebut.format(DATE_TIME_FORMATTER)
-                        + " au "
-                        + eventFin.format(DATE_TIME_FORMATTER)
-                        + ").");
-            }
-
-            // 2. Vérifier l'existence du lieu et récupérer sa capacité
-            String lieuQuery = "SELECT capacite FROM lieu WHERE id = ?";
-            int lieuCapacity = 0;
-            try (PreparedStatement lieuStmt = connection.prepareStatement(lieuQuery)) {
-                lieuStmt.setInt(1, reservation.getIdLieu());
-                try (ResultSet rs = lieuStmt.executeQuery()) {
-                    if (rs.next()) {
-                        lieuCapacity = rs.getInt("capacite");
-                    } else {
-                        throw new RuntimeException("Le lieu avec l'ID " + reservation.getIdLieu() + " n'existe pas.");
-                    }
-                }
-            }
-
-            // 3. Vérifier que le lieu a une capacité suffisante pour l'événement
-            if (eventCapacity > lieuCapacity) {
-                throw new RuntimeException("La capacité du lieu (" + lieuCapacity
-                        + ") n'est pas suffisante pour l'événement (capacité requise " + eventCapacity + ").");
-            }
-
-            // 4. Vérifier l'absence de chevauchement avec une réservation existante pour ce lieu
+            // 1. Vérifier l'absence de chevauchement avec une réservation existante pour ce lieu
             String checkReservationSql = "SELECT COUNT(*) AS count FROM reservation1 " +
                     "WHERE lieu_id = ? AND (? < date_fin AND ? > date_debut)";
             try (PreparedStatement checkStmt = connection.prepareStatement(checkReservationSql)) {
-                Timestamp newStart = Timestamp.valueOf(reservation.getDateDebut());
-                Timestamp newEnd   = Timestamp.valueOf(reservation.getDateFin());
                 checkStmt.setInt(1, reservation.getIdLieu());
-                checkStmt.setTimestamp(2, newStart);
-                checkStmt.setTimestamp(3, newEnd);
+                checkStmt.setTimestamp(2, Timestamp.valueOf(reservation.getDateDebut()));
+                checkStmt.setTimestamp(3, Timestamp.valueOf(reservation.getDateFin()));
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next() && rs.getInt("count") > 0) {
-                        throw new RuntimeException("Le lieu est déjà réservé pour la période du "
-                                + reservation.getDateDebut().format(DATE_TIME_FORMATTER)
-                                + " au "
-                                + reservation.getDateFin().format(DATE_TIME_FORMATTER)
-                                + ".");
+                        throw new RuntimeException("Le lieu est déjà réservé pour la période spécifiée.");
                     }
                 }
             }
 
-            // 5. Aucune contrainte violée, insertion de la réservation dans la base de données
-            String insertSql = "INSERT INTO reservation1 (evenement_id, lieu_id, date_debut, date_fin) VALUES (?, ?, ?, ?)";
+            // 2. Vérifier l'absence de chevauchement avec un événement pour ce lieu
+            if (!checkEventAvailability(reservation.getIdLieu(), reservation.getDateDebut(), reservation.getDateFin())) {
+                throw new RuntimeException("Le lieu est déjà réservé pour un événement pendant la période spécifiée.");
+            }
+
+            // 3. Vérifier que l'utilisateur est défini
+            if (reservation.getUserID() <= 0) {
+                throw new RuntimeException("Vous devez être connecté pour effectuer une réservation.");
+            }
+
+            // 4. Insertion de la réservation dans la base de données
+            String insertSql = "INSERT INTO reservation1 (evenement_id, lieu_id, userID, date_debut, date_fin, type_reservation) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement insertStmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
-                insertStmt.setInt(1, reservation.getIdEvenement());
+                insertStmt.setObject(1, null);  // evenement_id is always null for direct rentals
                 insertStmt.setInt(2, reservation.getIdLieu());
-                insertStmt.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
-                insertStmt.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
+                insertStmt.setInt(3, reservation.getUserID());
+                insertStmt.setTimestamp(4, Timestamp.valueOf(reservation.getDateDebut()));
+                insertStmt.setTimestamp(5, Timestamp.valueOf(reservation.getDateFin()));
+                insertStmt.setString(6, "location");
 
                 int rowsInserted = insertStmt.executeUpdate();
                 if (rowsInserted > 0) {
@@ -121,7 +74,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
     @Override
     public void modifier(reservation1 reservation) {
         try {
-            // Vérifier si la réservation existe
+            // 1. Vérifier si la réservation existe
             String checkSql = "SELECT COUNT(*) AS count FROM reservation1 WHERE id = ?";
             try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
                 checkStmt.setInt(1, reservation.getId());
@@ -132,16 +85,40 @@ public class ReservationServiceImpl implements IService<reservation1> {
                 }
             }
 
-            // Vérifier les contraintes comme dans la méthode ajouter
-            // (Vous pouvez extraire ces vérifications dans une méthode séparée pour éviter la duplication de code)
+            // 2. Vérifier l'absence de chevauchement avec d'autres réservations
+            String checkReservationSql = "SELECT COUNT(*) AS count FROM reservation1 " +
+                    "WHERE lieu_id = ? AND id != ? AND (? < date_fin AND ? > date_debut)";
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkReservationSql)) {
+                checkStmt.setInt(1, reservation.getIdLieu());
+                checkStmt.setInt(2, reservation.getId());
+                checkStmt.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
+                checkStmt.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt("count") > 0) {
+                        throw new RuntimeException("Le lieu est déjà réservé pour la période spécifiée.");
+                    }
+                }
+            }
 
-            String sql = "UPDATE reservation1 SET evenement_id = ?, lieu_id = ?, date_debut = ?, date_fin = ? WHERE id = ?";
+            // 3. Vérifier l'absence de chevauchement avec un événement
+            if (!checkEventAvailability(reservation.getIdLieu(), reservation.getDateDebut(), reservation.getDateFin())) {
+                throw new RuntimeException("Le lieu est déjà réservé pour un événement pendant la période spécifiée.");
+            }
+
+            // 4. Vérifier que l'utilisateur est défini
+            if (reservation.getUserID() <= 0) {
+                throw new RuntimeException("Vous devez être connecté pour effectuer une réservation.");
+            }
+
+            // 5. Mise à jour de la réservation
+            String sql = "UPDATE reservation1 SET lieu_id = ?, userID = ?, date_debut = ?, date_fin = ?, type_reservation = ? WHERE id = ?";
             try (PreparedStatement pst = connection.prepareStatement(sql)) {
-                pst.setInt(1, reservation.getIdEvenement());
-                pst.setInt(2, reservation.getIdLieu());
+                pst.setInt(1, reservation.getIdLieu());
+                pst.setInt(2, reservation.getUserID());
                 pst.setTimestamp(3, Timestamp.valueOf(reservation.getDateDebut()));
                 pst.setTimestamp(4, Timestamp.valueOf(reservation.getDateFin()));
-                pst.setInt(5, reservation.getId());
+                pst.setString(5, "location");
+                pst.setInt(6, reservation.getId());
 
                 int rows = pst.executeUpdate();
                 if (rows == 0) {
@@ -150,6 +127,49 @@ public class ReservationServiceImpl implements IService<reservation1> {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la modification de la réservation : " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Vérifie si un lieu est disponible (pas d'événement prévu) pour une période donnée
+     * @param lieuId ID du lieu
+     * @param dateDebut Date et heure de début
+     * @param dateFin Date et heure de fin
+     * @return true si le lieu est disponible, false sinon
+     */
+    public boolean checkEventAvailability(int lieuId, LocalDateTime dateDebut, LocalDateTime dateFin) {
+        try {
+            String sql = "SELECT COUNT(*) AS count FROM events " +
+                    "WHERE lieu_id = ? AND statut = 'acceptée' AND " +
+                    "((date_debut <= ? AND date_fin >= ?) OR " +
+                    "(date_debut <= ? AND date_fin >= ?) OR " +
+                    "(date_debut >= ? AND date_fin <= ?))";
+
+            try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                pst.setInt(1, lieuId);
+                // Premier cas: l'événement commence avant et finit pendant
+                pst.setString(2, dateFin.toString());
+                pst.setString(3, dateDebut.toString());
+                // Deuxième cas: l'événement commence pendant et finit après
+                pst.setString(4, dateDebut.toString());
+                pst.setString(5, dateFin.toString());
+                // Troisième cas: l'événement est entièrement inclus
+                pst.setString(6, dateDebut.toString());
+                pst.setString(7, dateFin.toString());
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        System.out.println("Nombre d'événements en conflit: " + count);
+                        return count == 0;
+                    }
+                }
+            }
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL lors de la vérification de disponibilité: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -172,7 +192,7 @@ public class ReservationServiceImpl implements IService<reservation1> {
     @Override
     public List<reservation1> rechercher() {
         List<reservation1> reservations = new ArrayList<>();
-        String sql = "SELECT id, evenement_id, lieu_id, date_debut, date_fin FROM reservation1 ORDER BY id";
+        String sql = "SELECT id, evenement_id, lieu_id, userID, date_debut, date_fin, type_reservation FROM reservation1 ORDER BY id";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
@@ -183,6 +203,8 @@ public class ReservationServiceImpl implements IService<reservation1> {
                         rs.getTimestamp("date_debut").toLocalDateTime(),
                         rs.getTimestamp("date_fin").toLocalDateTime()
                 );
+                reservation.setUserID(rs.getInt("userID"));
+                reservation.setTypeReservation(rs.getString("type_reservation"));
                 reservations.add(reservation);
             }
         } catch (SQLException e) {
@@ -191,28 +213,10 @@ public class ReservationServiceImpl implements IService<reservation1> {
         return reservations;
     }
 
-    public List<Map<String, Object>> getAllEvenements() {
-        List<Map<String, Object>> evenements = new ArrayList<>();
-        String req = "SELECT * FROM events";
 
-        try (PreparedStatement pst = connection.prepareStatement(req);
-             ResultSet rs = pst.executeQuery()) {
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    row.put(metaData.getColumnName(i), rs.getObject(i));
-                }
-                evenements.add(row);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la récupération des événements : " + e.getMessage(), e);
-        }
-        return evenements;
-    }
 
     public List<Map<String, Object>> getAllLieux() {
+        // Code inchangé
         List<Map<String, Object>> lieux = new ArrayList<>();
         String req = "SELECT * FROM lieu";
 
@@ -233,29 +237,8 @@ public class ReservationServiceImpl implements IService<reservation1> {
         return lieux;
     }
 
-    public List<reservation1> getAllReservations() {
-        List<reservation1> reservations = new ArrayList<>();
-        String query = "SELECT * FROM reservation1";
-
-        try (PreparedStatement pst = connection.prepareStatement(query);
-             ResultSet rs = pst.executeQuery()) {
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                int idLieu = rs.getInt("lieu_id");
-                int idEvenement = rs.getInt("evenement_id");
-                LocalDateTime dateDebut = rs.getTimestamp("date_debut").toLocalDateTime();
-                LocalDateTime dateFin = rs.getTimestamp("date_fin").toLocalDateTime();
-
-                reservation1 reservation = new reservation1(id, idLieu, idEvenement, dateDebut, dateFin);
-                reservations.add(reservation);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la récupération de toutes les réservations : " + e.getMessage(), e);
-        }
-        return reservations;
-    }
-
     public String getNomLieuById(int idLieu) {
+
         String sql = "SELECT nom FROM lieu WHERE id = ?";
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
             pst.setInt(1, idLieu);
@@ -270,18 +253,28 @@ public class ReservationServiceImpl implements IService<reservation1> {
         return "Lieu inconnu";
     }
 
-    public String getTitreEventById(int idEvenement) {
-        String sql = "SELECT titre FROM events WHERE id = ?";
+    public List<reservation1> rechercherReservationsUtilisateur(int userID) {
+        List<reservation1> reservations = new ArrayList<>();
+        String sql = "SELECT * FROM reservation1 WHERE userID = ? ORDER BY date_debut";
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
-            pst.setInt(1, idEvenement);
+            pst.setInt(1, userID);
             try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("titre");
+                while (rs.next()) {
+                    reservation1 reservation = new reservation1(
+                            rs.getInt("id"),
+                            rs.getInt("lieu_id"),
+                            rs.getInt("evenement_id"),
+                            rs.getTimestamp("date_debut").toLocalDateTime(),
+                            rs.getTimestamp("date_fin").toLocalDateTime()
+                    );
+                    reservation.setUserID(rs.getInt("userID"));
+                    reservation.setTypeReservation(rs.getString("type_reservation"));
+                    reservations.add(reservation);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la récupération du titre de l'événement : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de la recherche des réservations de l'utilisateur : " + e.getMessage(), e);
         }
-        return "Événement inconnu";
+        return reservations;
     }
 }

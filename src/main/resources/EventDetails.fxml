@@ -63,7 +63,7 @@
             <!-- Météo (Nouveau) -->
             <VBox fx:id="weatherContainer" spacing="8" styleClass="info-box">
                 <HBox spacing="10" alignment="CENTER">
-                    <ImageView fx:id="weatherIconView" fitHeight="24" fitWidth="24"/>
+                    <ImageView fx:id="weatherIconView" fitHeight="28" fitWidth="28"/>
                     <Label text="Météo" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #34495e;"/>
                 </HBox>
                 <HBox spacing="5" alignment="CENTER">

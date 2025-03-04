@@ -26,6 +26,7 @@ import javafx.scene.web.WebEngine;
 import javafx.concurrent.Worker;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.stage.Stage;
 
 public class PanierController implements Initializable {
 
@@ -42,6 +43,7 @@ public class PanierController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        reservationsContainer.getStylesheets().add(getClass().getResource("/eventsstyle.css").toExternalForm());
         Stripe.apiKey = STRIPE_SECRET_KEY;
         User currentUser = Eutopia.getCurrentUser();
         if (currentUser == null) {
@@ -54,7 +56,7 @@ public class PanierController implements Initializable {
     private void showNoUserMessage() {
         reservationsContainer.getChildren().clear();
         Label messageLabel = new Label("Veuillez vous connecter pour voir votre panier");
-        messageLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+        messageLabel.getStyleClass().add("panier-message");
         reservationsContainer.getChildren().add(messageLabel);
         totalLabel.setText("0.00 TND");
     }
@@ -69,7 +71,7 @@ public class PanierController implements Initializable {
 
         if (reservations.isEmpty()) {
             Label emptyLabel = new Label("Votre panier est vide");
-            emptyLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #666;");
+            emptyLabel.getStyleClass().add("panier-message");
             reservationsContainer.getChildren().add(emptyLabel);
         } else {
             for (Reservations reservation : reservations) {
@@ -85,24 +87,26 @@ public class PanierController implements Initializable {
 
     private VBox createReservationCard(Reservations reservation, Evenement event) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-radius: 5;");
+        card.getStyleClass().add("panier-card");
         card.setPadding(new Insets(10));
 
-        // Titre et informations
+        // Title and information
         Label titreLabel = new Label(event.getTitre());
-        titreLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+        titreLabel.getStyleClass().add("panier-title");
 
         String lieu = event.getLieuId() != 0 ? event.getLieuNom() : event.getLieu_proprietaire();
         Label infoLabel = new Label(String.format("Date: %s\nLieu: %s", event.getDateDebut(), lieu));
+        infoLabel.getStyleClass().add("panier-info");
 
-        // Prix et quantité
+        // Price and quantity
         HBox prixQuantiteBox = new HBox(20);
-        prixQuantiteBox.setAlignment(Pos.CENTER_LEFT);
+        prixQuantiteBox.getStyleClass().add("panier-price-box");
 
         Label prixLabel = new Label(String.format("Prix unitaire: %.2f TND", event.getPrix()));
+        prixLabel.getStyleClass().add("panier-price-label");
 
         Spinner<Integer> quantiteSpinner = new Spinner<>(1, 100, reservation.getQuantite());
-        quantiteSpinner.setMaxWidth(100);
+        quantiteSpinner.getStyleClass().add("panier-quantity-spinner");
         quantiteSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             reservation.setQuantite(newValue);
             reservation.setPrixTotal(event.getPrix() * newValue);
@@ -111,18 +115,19 @@ public class PanierController implements Initializable {
         });
 
         Label totalLabel = new Label(String.format("Total: %.2f TND", reservation.getPrixTotal()));
+        totalLabel.getStyleClass().add("panier-price-label");
         prixQuantiteBox.getChildren().addAll(prixLabel, new Label("Quantité:"), quantiteSpinner, totalLabel);
 
-        // Boutons
+        // Buttons
         HBox buttonsBox = new HBox(10);
-        buttonsBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonsBox.getStyleClass().add("panier-button-box");
 
         Button confirmerBtn = new Button("Payer");
-        confirmerBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+        confirmerBtn.getStyleClass().add("panier-pay-button");
         confirmerBtn.setOnAction(e -> handlePaiement(reservation, event));
 
         Button annulerBtn = new Button("Annuler");
-        annulerBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+        annulerBtn.getStyleClass().add("panier-cancel-button");
         annulerBtn.setOnAction(e -> {
             reservation.setStatut("annulé");
             reservationsService.modifier(reservation);
@@ -130,7 +135,7 @@ public class PanierController implements Initializable {
         });
 
         Label statutLabel = new Label("Statut: " + reservation.getStatut());
-        statutLabel.setStyle("-fx-font-style: italic;");
+        statutLabel.getStyleClass().add("panier-status");
 
         buttonsBox.getChildren().addAll(confirmerBtn, annulerBtn);
         card.getChildren().addAll(titreLabel, infoLabel, prixQuantiteBox, statutLabel, buttonsBox);
@@ -140,20 +145,16 @@ public class PanierController implements Initializable {
 
     @FXML
     private void handleRetour() {
-        try {
-            Parent newPage = FXMLLoader.load(getClass().getResource("/events-view.fxml"));
-            retourButton.getScene().setRoot(newPage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erreur : Impossible de charger la page /events-view.fxml");
-        }
+        // Obtenir la fenêtre actuelle et la fermer
+        Stage stage = (Stage) retourButton.getScene().getWindow();
+        stage.close();
     }
 
     private void handlePaiement(Reservations reservation, Evenement event) {
         try {
             User currentUser = Eutopia.getCurrentUser();
             long amount = Math.max(50L, (long) (reservation.getPrixTotal() * 100));
-            
+
             // Créer l'intention de paiement
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amount)
@@ -181,11 +182,11 @@ public class PanierController implements Initializable {
 
             // Contenu HTML pour le formulaire de paiement
             String htmlContent = createPaymentFormHtml(
-                    reservation.getPrixTotal(), 
-                    STRIPE_PUBLIC_KEY, 
-                    paymentIntent.getClientSecret(), 
-                    currentUser.getEmail(), 
-                    currentUser.getNom() + " " + currentUser.getPrenom()
+                    reservation.getPrixTotal(),
+                    STRIPE_PUBLIC_KEY,
+                    paymentIntent.getClientSecret(),
+                    currentUser.getEmail(),
+                    currentUser.getFullname()
             );
 
             engine.loadContent(htmlContent);
@@ -206,7 +207,7 @@ public class PanierController implements Initializable {
                                         this.cancel();
                                     }
                                 } catch (Exception e) {
-                                    // Ignorer les erreurs de polling
+
                                 }
                             });
                         }
@@ -371,10 +372,10 @@ public class PanierController implements Initializable {
     private void finalizePayment(Reservations reservation, Evenement event, User currentUser) {
         try {
             reservationsService.confirmerAchat(reservation.getId(), reservation.getQuantite());
-            
+
             javafx.application.Platform.runLater(() -> {
                 loadReservations(currentUser.getUserID());
-                
+
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Paiement réussi");
                 alert.setHeaderText("Transaction complétée");

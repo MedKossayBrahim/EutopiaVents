@@ -22,6 +22,7 @@ import com.esprit.services.ReservationServiceImpl;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -53,6 +54,9 @@ public class GererEvenementsController implements Initializable {
     private final EvenementService evenementService = new EvenementService();
     private final ReservationService reservationMaterielService = new ReservationService();
     private final ReservationServiceImpl reservationLieuService = new ReservationServiceImpl();
+
+    public GererEvenementsController() throws SQLException {
+    }
 
     @FXML
     private void goToAjouterCateg() {
@@ -184,23 +188,30 @@ public class GererEvenementsController implements Initializable {
         alert.setHeaderText("Confirmer l'acceptation de l'événement");
         alert.setContentText("Êtes-vous sûr de vouloir accepter cet événement ?");
 
-        // Ajout des boutons "Confirmer" et "Annuler"
         ButtonType confirmButton = new ButtonType("Confirmer");
         ButtonType cancelButton = new ButtonType("Annuler");
         alert.getButtonTypes().setAll(confirmButton, cancelButton);
 
-        // Afficher l'alerte et attendre la réponse de l'utilisateur
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == confirmButton) {
-            // Si l'utilisateur confirme, procéder à l'acceptation
             try {
-                // Créer une réservation pour le lieu si nécessaire
+                // Si l'événement a un lieu assigné
                 if (evenement.getLieuId() > 0) {
                     LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
                     LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
 
                     reservation1 reservationLieu = new reservation1(
                             0, evenement.getLieuId(), evenement.getId(), dateDebut, dateFin);
+                    
+                    // Définir l'utilisateur de la réservation (utiliser l'organisateur de l'événement)
+                    reservationLieu.setUserID(evenement.getOrganisateurId());
+                    reservationLieu.setTypeReservation("evenement");
+                    
+                    // Vérifier si la réservation est possible
+                    if (!reservationLieuService.checkEventAvailability(evenement.getLieuId(), dateDebut, dateFin)) {
+                        throw new RuntimeException("Le lieu est déjà réservé pour cette période.");
+                    }
+                    
                     reservationLieuService.ajouter(reservationLieu);
                 }
 

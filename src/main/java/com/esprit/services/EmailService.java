@@ -20,25 +20,15 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 
 public class EmailService {
     private final String username = "raefhossni@gmail.com";
     private final String password = "tkabuwcphhppykix";
 
     public void envoyerBillet(String emailDestinataire, Reservations reservation, Evenement evenement) {
-        if (emailDestinataire == null || emailDestinataire.trim().isEmpty()) {
-            throw new IllegalArgumentException("L'adresse email du destinataire est requise");
-        }
-
         // Recharger l'événement complet depuis la base de données
         EvenementService evenementService = new EvenementService();
         evenement = evenementService.rechercherParId(evenement.getId());
-
-        if (evenement == null || evenement.getTitre() == null) {
-            throw new IllegalArgumentException("Les informations de l'événement sont incomplètes");
-        }
 
         String cheminBillet = null;
         try {
@@ -64,7 +54,8 @@ public class EmailService {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinataire));
             message.setSubject("🎫 Votre billet pour " + evenement.getTitre());
 
-            // Corps HTML de l'email avec vérification des valeurs nulles
+            // Corps HTML de l'email
+            String lieu = evenement.getLieuNom() != null ? evenement.getLieuNom() : evenement.getLieu_proprietaire();
             String emailHTML = String.format("""
                 <!DOCTYPE html>
                 <html>
@@ -102,10 +93,9 @@ public class EmailService {
                 </body>
                 </html>
                 """,
-                evenement.getTitre() != null ? evenement.getTitre() : "Événement",
-                evenement.getDateDebut() != null ? evenement.getDateDebut() : "Date non spécifiée",
-                evenement.getLieuNom() != null ? evenement.getLieuNom() : 
-                    (evenement.getLieu_proprietaire() != null ? evenement.getLieu_proprietaire() : "Lieu non spécifié"),
+                evenement.getTitre(),
+                evenement.getDateDebut(),
+                lieu,
                 reservation.getQuantite(),
                 reservation.getPrixTotal()
             );
@@ -126,12 +116,8 @@ public class EmailService {
             message.setContent(multipart);
             Transport.send(message);
 
-        } catch (MessagingException e) {
-            System.err.println("Erreur SMTP: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Erreur lors de l'envoi du mail (SMTP): " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Erreur générale: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi du mail: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Erreur lors de l'envoi du mail: " + e.getMessage());
         } finally {
@@ -148,9 +134,9 @@ public class EmailService {
         
         try {
             // Générer le QR Code
+            String lieu = evenement.getLieuNom() != null ? evenement.getLieuNom() : evenement.getLieu_proprietaire();
             String qrContent = String.format("ID: %d\nÉvénement: %s\nDate: %s\nLieu: %s",
-                    reservation.getId(), evenement.getTitre(), evenement.getDateDebut(), 
-                    evenement.getLieuNom() != null ? evenement.getLieuNom() : evenement.getLieu_proprietaire());
+                    reservation.getId(), evenement.getTitre(), evenement.getDateDebut(), lieu);
             
             generateQRCode(qrContent, qrCodePath, 200, 200);
 
@@ -162,7 +148,7 @@ public class EmailService {
                     float pageWidth = page.getMediaBox().getWidth();
                     float pageHeight = page.getMediaBox().getHeight();
                     
-                    // Fond coloré en dégradé (simulation avec deux rectangles)
+                    // Fond coloré en dégradé
                     contentStream.setNonStrokingColor(new Color(76, 175, 80));
                     contentStream.addRect(0, pageHeight - 100, pageWidth, 100);
                     contentStream.fill();
@@ -171,9 +157,9 @@ public class EmailService {
                     contentStream.addRect(0, pageHeight - 120, pageWidth, 20);
                     contentStream.fill();
 
-                    // Logo (si disponible)
+                    // Logo
                     try {
-                        PDImageXObject logo = PDImageXObject.createFromFile("src/main/resources/Images/logo.png", document);
+                        PDImageXObject logo = PDImageXObject.createFromFile("src/main/resources/Images/eutopia", document);
                         contentStream.drawImage(logo, 50, pageHeight - 90, 70, 70);
                     } catch (Exception e) {
                         System.err.println("Logo non trouvé");
@@ -187,7 +173,7 @@ public class EmailService {
                     contentStream.showText("BILLET ÉLECTRONIQUE");
                     contentStream.endText();
 
-                    // Ligne de séparation décorative
+                    // Ligne de séparation
                     contentStream.setStrokingColor(new Color(224, 224, 224));
                     contentStream.setLineWidth(1);
                     contentStream.moveTo(50, pageHeight - 130);
@@ -207,13 +193,9 @@ public class EmailService {
                     float leftColumn = 50;
                     float rightColumn = pageWidth / 2 + 50;
 
-                    // Style pour les labels
-                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                    contentStream.setNonStrokingColor(new Color(97, 97, 97));
-
                     // Colonne gauche
                     addDetailLine(contentStream, "Date", evenement.getDateDebut(), leftColumn, yPosition);
-                    addDetailLine(contentStream, "Lieu", evenement.getLieuNom(), leftColumn, yPosition - 40);
+                    addDetailLine(contentStream, "Lieu", lieu, leftColumn, yPosition - 40);
                     addDetailLine(contentStream, "Prix total", reservation.getPrixTotal() + " TND", leftColumn, yPosition - 80);
 
                     // Colonne droite
@@ -253,7 +235,7 @@ public class EmailService {
         }
     }
 
-    private void addDetailLine(PDPageContentStream contentStream, String label, String value, float x, float y) throws IOException, IOException {
+    private void addDetailLine(PDPageContentStream contentStream, String label, String value, float x, float y) throws IOException {
         // Label
         contentStream.beginText();
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);

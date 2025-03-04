@@ -2,7 +2,7 @@ package com.esprit.models;
 
 import java.time.LocalDateTime;
 
-public class Review {
+public class EventReview {
     private int id;
     private int evenementId;
     private int utilisateurId;
@@ -15,7 +15,7 @@ public class Review {
     private String titreEvenement;
 
     // Constructeur complet
-    public Review(int id, int evenementId, int utilisateurId, int note, String commentaire, LocalDateTime dateCreation) {
+    public EventReview(int id, int evenementId, int utilisateurId, int note, String commentaire, LocalDateTime dateCreation) {
         this.id = id;
         this.evenementId = evenementId;
         this.utilisateurId = utilisateurId;
@@ -30,7 +30,7 @@ public class Review {
     }
     
     // Constructeur pour création (sans ID)
-    public Review(int evenementId, int utilisateurId, int note, String commentaire) {
+    public EventReview(int evenementId, int utilisateurId, int note, String commentaire) {
         this(0, evenementId, utilisateurId, note, commentaire, LocalDateTime.now());
     }
 

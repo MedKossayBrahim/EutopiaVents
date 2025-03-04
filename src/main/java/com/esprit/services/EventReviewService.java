@@ -1,14 +1,13 @@
 package com.esprit.services;
 
-import com.esprit.models.Review;
+import com.esprit.models.EventReview;
 import com.esprit.utils.DataSource;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventReviewService implements IService<Review> {
+public class EventReviewService implements IService<EventReview> {
 
     private Connection connection;
 
@@ -17,7 +16,7 @@ public class EventReviewService implements IService<Review> {
     }
 
     @Override
-    public void ajouter(Review review) {
+    public void ajouter(EventReview review) {
         String req = "INSERT INTO eventreviews (evenement_id, utilisateur_id, note, commentaire, date_creation) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(req, Statement.RETURN_GENERATED_KEYS)) {
             pst.setInt(1, review.getEvenementId());
@@ -41,7 +40,7 @@ public class EventReviewService implements IService<Review> {
     }
 
     @Override
-    public void modifier(Review review) {
+    public void modifier(EventReview review) {
         String req = "UPDATE eventreviews SET evenement_id=?, utilisateur_id=?, note=?, commentaire=?, date_creation=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
             pst.setInt(1, review.getEvenementId());
@@ -59,7 +58,7 @@ public class EventReviewService implements IService<Review> {
     }
 
     @Override
-    public void supprimer(Review review) {
+    public void supprimer(EventReview review) {
         String req = "DELETE FROM eventreviews WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
             pst.setInt(1, review.getId());
@@ -75,8 +74,8 @@ public class EventReviewService implements IService<Review> {
     }
 
     @Override
-    public List<Review> rechercher() {
-        List<Review> reviews = new ArrayList<>();
+    public List<EventReview> rechercher() {
+        List<EventReview> reviews = new ArrayList<>();
         String req = "SELECT r.*, u.userName as nom_utilisateur, e.titre as titre_evenement " +
                 "FROM eventreviews r " +
                 "JOIN users u ON r.utilisateur_id = u.userID " +
@@ -86,7 +85,7 @@ public class EventReviewService implements IService<Review> {
         try (PreparedStatement pst = connection.prepareStatement(req);
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
-                Review review = new Review(
+                EventReview review = new EventReview(
                         rs.getInt("id"),
                         rs.getInt("evenement_id"),
                         rs.getInt("utilisateur_id"),
@@ -104,8 +103,8 @@ public class EventReviewService implements IService<Review> {
         return reviews;
     }
 
-    public List<Review> rechercherParEvenement(int evenementId) {
-        List<Review> reviews = new ArrayList<>();
+    public List<EventReview> rechercherParEvenement(int evenementId) {
+        List<EventReview> reviews = new ArrayList<>();
         String req = "SELECT r.*, u.userName as nom_utilisateur, e.titre as titre_evenement " +
                 "FROM eventreviews r " +
                 "JOIN users u ON r.utilisateur_id = u.userID " +
@@ -117,7 +116,7 @@ public class EventReviewService implements IService<Review> {
             pst.setInt(1, evenementId);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
-                    Review review = new Review(
+                    EventReview review = new EventReview(
                             rs.getInt("id"),
                             rs.getInt("evenement_id"),
                             rs.getInt("utilisateur_id"),
@@ -136,8 +135,8 @@ public class EventReviewService implements IService<Review> {
         return reviews;
     }
 
-    public List<Review> rechercherParUtilisateur(int utilisateurId) {
-        List<Review> reviews = new ArrayList<>();
+    public List<EventReview> rechercherParUtilisateur(int utilisateurId) {
+        List<EventReview> reviews = new ArrayList<>();
         String req = "SELECT r.*, u.userName as nom_utilisateur, e.titre as titre_evenement " +
                 "FROM eventreviews r " +
                 "JOIN users u ON r.utilisateur_id = u.userID " +
@@ -149,7 +148,7 @@ public class EventReviewService implements IService<Review> {
             pst.setInt(1, utilisateurId);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
-                    Review review = new Review(
+                    EventReview review = new EventReview(
                             rs.getInt("id"),
                             rs.getInt("evenement_id"),
                             rs.getInt("utilisateur_id"),

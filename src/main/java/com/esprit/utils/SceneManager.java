@@ -54,4 +54,9 @@ public class SceneManager {
             stage.setScene(history.pop());
         }
     }
+
+    public Object getStylesheets() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getStylesheets'");
+    }
 }
