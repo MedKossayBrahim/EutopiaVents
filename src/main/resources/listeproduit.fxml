@@ -19,7 +19,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Label styleClass="main-title" text="Gestion des Produits"/>
+            <Label styleClass="main-title" text="EutopiaVents Store"/>
         </HBox>
 
         <!-- Buttons Section -->

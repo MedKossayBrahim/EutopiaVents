@@ -13,6 +13,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 public class UserManagementController implements Initializable {
     @FXML
@@ -65,15 +66,11 @@ public class UserManagementController implements Initializable {
     private void setupSearch() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (filteredUsers != null) {
-                filteredUsers.setPredicate(user -> {
-                    if (newValue == null || newValue.isEmpty()) {
-                        return true;
-                    }
-                    String lowerCaseFilter = newValue.toLowerCase();
-                    return user.getFullname().toLowerCase().contains(lowerCaseFilter) ||
-                            user.getUserName().toLowerCase().contains(lowerCaseFilter) ||
-                            user.getEmail().toLowerCase().contains(lowerCaseFilter);
-                });
+                filteredUsers.setPredicate(user ->
+                        Stream.of(user.getFullname(), user.getUserName(), user.getEmail())
+                                .map(String::toLowerCase)
+                                .anyMatch(value -> value.contains(newValue == null ? "" : newValue.toLowerCase()))
+                );
             }
         });
     }

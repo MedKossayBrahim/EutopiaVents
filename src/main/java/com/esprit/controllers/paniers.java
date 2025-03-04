@@ -212,7 +212,7 @@ public class paniers {
         TextInputDialog dialog = new TextInputDialog("+216");
         dialog.setTitle("Confirmation par SMS");
         dialog.setHeaderText("Entrez votre numéro de téléphone");
-        dialog.setContentText("Numéro (format: +21651707908):");
+        dialog.setContentText("Numéro (format: +216XXXXXXXX):");
 
         dialog.showAndWait().ifPresent(numero -> {
             if (numero.matches("\\+\\d{8,15}")) {
@@ -394,7 +394,7 @@ public class paniers {
                 <body>
                     <div class="container">
                         <div class="product-info">%s x%d</div>
-                        <div class="amount">%.2f €</div>
+                        <div class="amount">%.2f DT</div>
                         <form id="payment-form">
                             <div class="form-row">
                                 <label for="card-element">Informations de carte</label>

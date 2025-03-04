@@ -1,6 +1,7 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Lieu;
+import com.esprit.models.User;
 import com.esprit.models.categorie_salle;
 import com.esprit.services.LieuServiceImpl;
 import com.esprit.services.CategorieServiceImpl;
@@ -8,6 +9,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.Node;
@@ -61,10 +64,36 @@ public class MainMenuController {
 
         // Configure "Ajouter Lieu" button
         if (searchField != null && searchField.getScene() != null) {
-            Button ajouterButton = (Button) searchField.getScene().lookup("#ajouterLieuBtn");
+            Button ajouterButton = (Button) searchField.getScene().lookup(".primary-button");
             if (ajouterButton != null) {
                 ajouterButton.setVisible(isAdmin);
                 ajouterButton.setManaged(isAdmin);
+            }
+        }
+
+        // Configure navigation buttons
+        if (lieuxGrid != null && lieuxGrid.getScene() != null) {
+            // Find all navigation buttons
+            HBox navButtonsContainer = (HBox) lieuxGrid.getScene().lookup(".nav-buttons");
+            if (navButtonsContainer != null) {
+                // Get all buttons in the navigation container
+                for (Node node : navButtonsContainer.getChildren()) {
+                    if (node instanceof Button) {
+                        Button button = (Button) node;
+                        String buttonText = button.getText();
+                        
+                        // Only keep the Réservations button visible for non-admin users
+                        if ("Réservations".equals(buttonText)) {
+                            // Always visible for all users
+                            button.setVisible(true);
+                            button.setManaged(true);
+                        } else {
+                            // Other buttons only visible for admin
+                            button.setVisible(isAdmin);
+                            button.setManaged(isAdmin);
+                        }
+                    }
+                }
             }
         }
 

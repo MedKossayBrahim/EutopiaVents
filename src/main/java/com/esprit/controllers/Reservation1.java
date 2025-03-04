@@ -68,15 +68,19 @@ public class Reservation1 implements Initializable {
                 return;
             }
             
-            // Get the role and configure buttons based on role
             Role userRole = user.getRole();
             
-            // Check roles using equals method for proper enum comparison
+            // Configure buttons based on role
             if (Role.Admin.equals(userRole)) {
                 // Admins can do everything
                 ajouterBtn.setDisable(false);
                 modifierBtn.setDisable(false);
                 supprimerBtn.setDisable(false);
+                
+                // Update user info label to indicate admin sees all reservations
+                if (userInfoLabel != null) {
+                    userInfoLabel.setText("Admin: " + user.getUserName() + " (Toutes les réservations)");
+                }
             } else if (Role.Organisateur.equals(userRole)) {
                 // Organisateurs can add and modify but not delete
                 ajouterBtn.setDisable(false);
@@ -197,10 +201,23 @@ public class Reservation1 implements Initializable {
     private void loadUserReservations() {
         try {
             if (currentUser != null) {
-                List<reservation1> userReservations = reservationService.rechercherReservationsUtilisateur(currentUser.getUserID());
-                ObservableList<reservation1> reservations = FXCollections.observableArrayList(userReservations);
+                // Check if user is admin
+                boolean isAdmin = Role.Admin.equals(currentUser.getRole());
+                
+                ObservableList<reservation1> reservations;
+                
+                if (isAdmin) {
+                    // Admin sees all reservations
+                    reservations = FXCollections.observableArrayList(reservationService.rechercher());
+                } else {
+                    // Regular users only see their own reservations
+                    List<reservation1> userReservations = reservationService.rechercherReservationsUtilisateur(currentUser.getUserID());
+                    reservations = FXCollections.observableArrayList(userReservations);
+                }
+                
                 reservationsTable.setItems(reservations);
             } else {
+                // Fallback if no user is logged in (shouldn't happen)
                 ObservableList<reservation1> reservations = FXCollections.observableArrayList(
                         reservationService.rechercher()
                 );
