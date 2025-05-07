@@ -6,7 +6,6 @@ import java.util.*;
 public class Reservation {
     private int id;
     private int userId;
-    private int evenementId; // Clé étrangère vers Evenement
     private int materielId;  // Clé étrangère vers Materiel
     private int quantite;
     private double prixTotal; // Prix total = prix du matériel * quantité
@@ -16,22 +15,24 @@ public class Reservation {
     private List<Materiel> materials;
     private Map<Materiel, Integer> quantities;
     private boolean paye;  // true si payé, false sinon
+    private boolean recup; // true si récupéré, false sinon
 
     public Reservation() {
         this.materials = new ArrayList<>();
         this.quantities = new HashMap<>();
         this.status = "EN_ATTENTE";
+        this.recup = false;
     }
 
-    public Reservation(int id, int userId, Integer evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
+    public Reservation(int id, int userId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
         this.userId = userId;
-        this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
         this.dateDebut = convertToSqlTimestamp(dateDebut);
         this.dateFin = convertToSqlTimestamp(dateFin);
+        this.recup = false;
     }
 
     private java.sql.Timestamp convertToSqlTimestamp(java.util.Date date) {
@@ -50,55 +51,46 @@ public class Reservation {
         this.userId = userId;
     }
 
-    public Reservation(int id, int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
+    public Reservation(int id, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
         this.id = id;
-        this.evenementId = evenementId;
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
         this.dateDebut = convertToSqlTimestamp(dateDebut);
         this.dateFin = convertToSqlTimestamp(dateFin);
+        this.recup = false;
     }
 
-    public Reservation( int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin, int userId) {
+    public Reservation(int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin, int userId) {
         this.materielId = materielId;
         this.quantite = quantite;
         this.prixTotal = prixTotal;
         this.dateDebut = convertToSqlTimestamp(dateDebut);
         this.dateFin = convertToSqlTimestamp(dateFin);
         this.userId = userId;
+        this.recup = false;
     }
 
-    public Reservation(int evenementId, int materielId, int quantite, double prixTotal, java.util.Date dateDebut, java.util.Date dateFin) {
-        this.evenementId = evenementId;
+    public Reservation(int id, int qte, int materielId) {
+        this.id = id;
+        this.quantite = qte;
         this.materielId = materielId;
-        this.quantite = quantite;
-        this.prixTotal = prixTotal;
-        this.dateDebut = convertToSqlTimestamp(dateDebut);
-        this.dateFin = convertToSqlTimestamp(dateFin);
+        this.recup = false;
     }
 
-    public Reservation(int id, int qte,int materielId,int evenementId) {
-        this.id=id;
-        this.quantite=qte;
-        this.materielId=materielId;
-        this.evenementId=evenementId;
-    }
-    public Reservation( int qte,int materielId,int evenementId) {
-        this.quantite=qte;
-        this.materielId=materielId;
-        this.evenementId=evenementId;
+    public Reservation(int qte, int materielId) {
+        this.quantite = qte;
+        this.materielId = materielId;
+        this.recup = false;
     }
 
     public Reservation(int i) {
-        this.id=i;
+        this.id = i;
+        this.recup = false;
     }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-
-    public Integer getEvenementId() { return evenementId; }
-    public void setEvenementId(int evenementId) { this.evenementId = evenementId; }
 
     public int getMaterielId() { return materielId; }
     public void setMaterielId(int materielId) { this.materielId = materielId; }
@@ -143,6 +135,14 @@ public class Reservation {
         this.status = paye ? "PAYÉ" : "EN_ATTENTE";
     }
 
+    public boolean isRecup() {
+        return recup;
+    }
+
+    public void setRecup(boolean recup) {
+        this.recup = recup;
+    }
+
     public List<Materiel> getMaterials() {
         return materials;
     }
@@ -171,7 +171,6 @@ public class Reservation {
         return "Reservation{" +
                 "id=" + id +
                 ", userId=" + userId +
-                ", evenementId=" + evenementId +
                 ", materielId=" + materielId +
                 ", quantite=" + quantite +
                 ", prixTotal=" + prixTotal +
@@ -179,6 +178,7 @@ public class Reservation {
                 ", dateFin=" + dateFin +
                 ", status='" + status + '\'' +
                 ", paye=" + paye +
+                ", recup=" + recup +
                 ", materials=" + materials +
                 ", quantities=" + quantities +
                 '}';

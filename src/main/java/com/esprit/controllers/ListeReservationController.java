@@ -26,8 +26,6 @@ public class ListeReservationController {
     @FXML
     private TableView<Reservation> reservationTable;
     @FXML
-    private TableColumn<Reservation, String> evenementIdColumn;
-    @FXML
     private TableColumn<Reservation, String> materielIdColumn;
     @FXML
     private TableColumn<Reservation, Integer> quantiteColumn;
@@ -39,8 +37,6 @@ public class ListeReservationController {
     private TableColumn<Reservation, Timestamp> dateFinColumn;
     @FXML
     private TableColumn<Reservation, Void> actionsColumn;
-    @FXML
-    private TextField filterEventField; // Champ de filtre par événement
     @FXML
     private TextField filterMaterialField; // Champ de filtre par matériel
     @FXML
@@ -60,7 +56,6 @@ public class ListeReservationController {
     public void initialize() {
         setupColumns();
         loadReservations();
-
 
         // Configurer les filtres
         setupFilters();
@@ -85,10 +80,6 @@ public class ListeReservationController {
 
     private void setupColumns() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-        evenementIdColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(reservationService.getEventName(cellData.getValue().getEvenementId()))
-        );
 
         materielIdColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(reservationService.getMaterialName(cellData.getValue().getMaterielId()))
@@ -182,23 +173,6 @@ public class ListeReservationController {
     }
 
     private void setupFilters() {
-        // Ajouter un écouteur sur le champ de filtre par événement
-        filterEventField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredReservations.setPredicate(reservation -> {
-                // Si le champ de filtre par événement est vide, ignorer ce filtre
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-
-                // Convertir le texte saisi et le nom de l'événement en minuscules pour une recherche insensible à la casse
-                String lowerCaseFilter = newValue.toLowerCase();
-                String eventName = reservationService.getEventName(reservation.getEvenementId()).toLowerCase();
-
-                // Vérifier si le nom de l'événement contient le texte saisi
-                return eventName.contains(lowerCaseFilter);
-            });
-        });
-
         // Ajouter un écouteur sur le champ de filtre par matériel
         filterMaterialField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredReservations.setPredicate(reservation -> {

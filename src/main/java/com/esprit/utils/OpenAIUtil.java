@@ -1,223 +1,261 @@
 package com.esprit.utils;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.List;
 
 public class OpenAIUtil {
-    private static final String API_KEY = "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";
-    private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-
+    
     public static int analyzeMaterielReviews(List<String> reviews) {
         String allReviews = String.join("\n", reviews);
+        return analyzeSentiment(allReviews);
+    }
 
-        // Calculer d'abord le score basé sur les mots-clés
-        int keywordScore = calculateKeywordScore(allReviews);
+    public static int analyzeSentiment(String text) {
+        try {
+            System.out.println("🔍 Démarrage analyse pour: " + text);
+            
+            // Analyse par mots-clés uniquement
+            int rating = calculateKeywordScore(text);
+            
+            System.out.println("✅ Analyse réussie - Score final: " + rating);
+            return rating;
 
-        // Ensuite obtenir le score de l'API
-        int apiScore = getAPIScore(allReviews);
-
-        // Combiner les deux scores avec une pondération
-        // 60% pour l'API, 40% pour l'analyse des mots-clés
-        double finalScore = (apiScore * 0.5) + (keywordScore * 0.5);
-
-        // Arrondir au nombre entier le plus proche
-        return Math.min(5, Math.max(1, (int) Math.round(finalScore)));
+        } catch (Exception e) {
+            System.err.println("💥 Erreur critique: " + e.getMessage());
+            return 3; // Note neutre par défaut en cas d'erreur
+        }
     }
 
     private static int calculateKeywordScore(String text) {
         text = text.toLowerCase().trim();
         double score = 3.0;
 
-        // Vérifier d'abord les mots critiques pour une réduction immédiate du score
+        // Gestion des cas particuliers
+        if (Pattern.compile("\\bpas mal\\b").matcher(text).find()) {
+            return 4;
+        }
+        if (Pattern.compile("\\bpas mauvais\\b").matcher(text).find()) {
+            return 4;
+        }
+        if (Pattern.compile("\\bpas terrible\\b").matcher(text).find()) {
+            return 2;
+        }
+
         if (containsCriticalNegative(text)) {
-            score = 1.0;  // Score de base plus bas pour les mots critiques
+            return 1;
         }
 
-        double positiveScore = getWeightedPositiveScore(text);
-        double negativeScore = getWeightedNegativeScore(text);
+        double positiveScore = getWeightedKeywordScore(text, getPositiveWords());
+        double negativeScore = getWeightedKeywordScore(text, getNegativeWords());
+        double neutralScore = getWeightedKeywordScore(text, getNeutralWords());
 
-        // Si des mots négatifs sont trouvés, augmenter leur impact
+        System.out.println("Scores calculés - Positif: " + positiveScore + 
+                         ", Négatif: " + negativeScore + 
+                         ", Neutre: " + neutralScore);
+
+        // Si le score neutre est significatif, limiter le score maximum
+        if (neutralScore > 0) {
+            // Un commentaire neutre ne peut pas dépasser 3 étoiles
+            double maxScore = 3;
+            
+            // Si c'est un commentaire purement neutre
+            if (positiveScore == 0 && negativeScore == 0) {
+                return (int) maxScore;
+            }
+            
+            // Sinon, atténuer les autres scores
+            positiveScore *= 0.7;
+            negativeScore *= 0.7;
+        }
+
         if (negativeScore > 0) {
-            negativeScore *= 1.5; // Augmenter l'impact des mots négatifs de 50%
+            negativeScore *= 1.5;
         }
 
-        // Si aucun mot trouvé, retourner le score de base
-        if (positiveScore + negativeScore == 0) {
+        if (positiveScore + negativeScore + neutralScore == 0) {
             return (int) score;
         }
 
-        // Calculer le ratio avec plus de poids pour les mots négatifs
-        double ratio = positiveScore / (positiveScore + negativeScore);
+        double ratio = positiveScore / (positiveScore + negativeScore + neutralScore);
 
-        // Seuils plus stricts
-        if (ratio >= 0.9) score = 5.0;
-        else if (ratio >= 0.75) score = 4.0;
-        else if (ratio >= 0.5) score = 3.0;
-        else if (ratio >= 0.25) score = 2.0;
+        // Ajustement des seuils
+        if (ratio >= 0.95) score = 5.0;
+        else if (ratio >= 0.85) score = 4.0;
+        else if (ratio >= 0.6) score = 3.0;
+        else if (ratio >= 0.3) score = 2.0;
         else score = 1.0;
 
-        // Réductions supplémentaires basées sur des mots spécifiques
-        if (text.contains("faible") || text.contains("mal") || text.contains("mauvais")) {
-            score = Math.max(1.0, score - 2.0); // Réduction plus importante
+        // Si le commentaire est neutre, limiter à 3 étoiles maximum
+        if (neutralScore > 0 && score > 3) {
+            score = 3;
+        }
+
+        // Vérification spéciale pour les mots simples
+        if (containsOnlySimplePositiveWords(text) && score > 3) {
+            score = 3;
         }
 
         return (int) Math.round(score);
     }
 
-    private static double getWeightedPositiveScore(String text) {
+    private static double getWeightedKeywordScore(String text, Map<String, Double> keywords) {
         double score = 0;
-
-        // Mots très positifs (poids 2.0)
-        String[] veryPositive = {
-                "excellent", "parfait", "exceptionnel", "extraordinaire", "incroyable",
-                "fantastique", "remarquable", "meilleur"
-        };
-
-        // Mots positifs (poids 1.0)
-        String[] positive = {
-                "excellent", "parfait", "super", "génial", "très bien", "satisfait",
-                "recommande", "qualité", "efficace", "pratique", "facile", "agréable",
-                "fiable", "formidable", "merveilleux", "rapide", "top", "convivial",
-                "fonctionnel", "utile", "fluide", "intuitif", "performant", "incroyable",
-                "exceptionnel", "remarquable", "brillant", "impressionnant", "nickel",
-                "content", "satisfaisant", "pratique", "bien", "bon", "super",
-                "bien", "bon", "satisfait", "content", "pratique", "efficace",
-                "utile", "agréable", "recommande", "qualité"
-        };
-
-        // Mots légèrement positifs (poids 0.5)
-        String[] slightlyPositive = {
-                "correct", "ok", "acceptable", "passable", "suffisant"
-        };
-
-        for (String word : veryPositive) {
-            if (text.contains(word)) score += 2.0;
+        for (Map.Entry<String, Double> entry : keywords.entrySet()) {
+            if (Pattern.compile("\\b" + Pattern.quote(entry.getKey()) + "\\b")
+                      .matcher(text).find()) {
+                score += entry.getValue();
+                System.out.println("Mot trouvé: " + entry.getKey() + " (poids: " + entry.getValue() + ")");
+            }
         }
-
-        for (String word : positive) {
-            if (text.contains(word)) score += 1.0;
-        }
-
-        for (String word : slightlyPositive) {
-            if (text.contains(word)) score += 0.5;
-        }
-
         return score;
     }
 
-    private static double getWeightedNegativeScore(String text) {
-        double score = 0;
+    private static Map<String, Double> getPositiveWords() {
+        Map<String, Double> words = new HashMap<>();
+        words.put("excellent", 1.5);
+        words.put("parfait", 1.5);
+        words.put("super", 1.2);
+        words.put("génial", 1.2);
+        words.put("satisfait", 1.0);
+        words.put("recommande", 1.2);
+        words.put("efficace", 0.8);
+        words.put("fiable", 0.8);
+        words.put("bien", 0.5);
+        words.put("pratique", 0.5);
+        words.put("bon", 0.5);
+        words.put("agréable", 0.5);
+        words.put("conforme", 0.5);
+        words.put("qualité", 0.5);
+        words.put("top", 0.8);
+        words.put("parfaitement", 1.0);
+        words.put("très bien", 0.8);
+        words.put("exactement", 0.3);
+        words.put("idéal", 0.8);
+        words.put("fonctionne", 0.3);
+        words.put("apprécié", 0.8);
+        words.put("recommandé", 1.0);
+        words.put("satisfaisant", 0.8);
+        words.put("performant", 0.8);
+        words.put("adapté", 0.5);
+        words.put("very good", 1.2);
+        words.put("great", 1.2);
+        words.put("amazing", 1.5);
+        words.put("perfect", 1.5);
+        words.put("awesome", 1.5);
+        words.put("fantastic", 1.5);
+        words.put("wonderful", 1.2);
+        words.put("superb", 1.5);
+        words.put("outstanding", 1.5);
+        words.put("impressive", 1.2);
+        words.put("satisfied", 1.0);
+        words.put("recommend", 1.2);
+        words.put("good", 0.3);
+        words.put("nice", 0.3);
+        words.put("well", 0.3);
+        words.put("fine", 0.3);
+        words.put("satisfactory", 0.6);
+        words.put("pleased", 0.8);
+        words.put("happy", 0.8);
+        words.put("delighted", 1.0);
+        words.put("thrilled", 1.2);
+        return words;
+    }
 
-        // Mots très négatifs (poids 3.0) - augmenté de 2.0 à 3.0
-        String[] veryNegative = {
-                "mauvais", "décevant", "problème", "défaut", "panne", "difficile",
-                "compliqué", "cassé", "inutile", "cher", "déçu", "insatisfait",
-                "horrible", "médiocre", "inadmissible", "lamentable", "catastrophique",
-                "nul", "impossible", "inefficace", "lent", "inacceptable", "bof",
-                "bug", "planté", "dysfonctionnement", "peu fiable", "instable",
-                "défectueux", "trop cher", "frustrant", "dommage", "problématique",
-                "pas bon", "mauvaise", "pas bien", "pas terrible"
-        };
+    private static Map<String, Double> getNegativeWords() {
+        Map<String, Double> words = new HashMap<>();
+        words.put("mauvais", 1.5);
+        words.put("décevant", 1.2);
+        words.put("panne", 1.5);
+        words.put("cassé", 1.5);
+        words.put("insatisfait", 1.2);
+        words.put("médiocre", 1.2);
+        words.put("inadmissible", 2.0);
+        words.put("problème", 0.8);
+        words.put("défaut", 0.8);
+        words.put("mal", 0.8);
+        words.put("difficile", 0.5);
+        words.put("compliqué", 0.5);
+        words.put("déçu", 1.2);
+        words.put("défectueux", 1.5);
+        words.put("ne fonctionne pas", 1.5);
+        words.put("ne marche pas", 1.5);
+        words.put("inutilisable", 1.5);
+        words.put("insatisfaisant", 1.2);
+        words.put("défaillant", 1.5);
+        words.put("inadapté", 1.0);
+        words.put("déplorable", 1.5);
+        return words;
+    }
 
-        // Mots négatifs (poids 2.0) - augmenté de 1.0 à 2.0
-        String[] negative = {
-                "problème", "défaut", "panne", "difficile", "compliqué",
-                "cassé", "inutile", "déçu", "insatisfait", "peu fiable"
-        };
-
-        // Mots légèrement négatifs (poids 1.0) - augmenté de 0.5 à 1.0
-        String[] slightlyNegative = {
-                "moyen", "bof", "pas terrible", "peu", "lent", "médiocre"
-        };
-
-        for (String word : veryNegative) {
-            if (text.contains(word)) score += 3.0;
-        }
-
-        for (String word : negative) {
-            if (text.contains(word)) score += 2.0;
-        }
-
-        for (String word : slightlyNegative) {
-            if (text.contains(word)) score += 1.0;
-        }
-
-        // Vérifier les combinaisons de mots négatifs
-        if (text.contains("pas") || text.contains("peu")) {
-            String[] positiveWords = {"bon", "bien", "efficace", "utile", "pratique"};
-            for (String word : positiveWords) {
-                if (text.contains(word)) score += 2.0; // Augmenter le score négatif pour "pas bon", "peu efficace", etc.
-            }
-        }
-
-        return score;
+    private static Map<String, Double> getNeutralWords() {
+        Map<String, Double> words = new HashMap<>();
+        words.put("correct", 0.5);
+        words.put("normal", 0.5);
+        words.put("standard", 0.5);
+        words.put("basique", 0.5);
+        words.put("simple", 0.4);
+        words.put("fonctionnel", 0.4);
+        words.put("comme prévu", 0.5);
+        words.put("attendu", 0.4);
+        words.put("habituel", 0.4);
+        words.put("ordinaire", 0.4);
+        words.put("moyen", 0.5);
+        words.put("classique", 0.4);
+        words.put("conventionnel", 0.4);
+        words.put("traditionnel", 0.4);
+        return words;
     }
 
     private static boolean containsCriticalNegative(String text) {
         String[] criticalWords = {
-                "mauvais", "décevant", "problème", "défaut", "panne", "difficile",
-                "compliqué", "cassé", "inutile", "cher", "déçu", "insatisfait",
-                "horrible", "médiocre", "inadmissible", "lamentable", "catastrophique",
-                "nul", "impossible", "inefficace", "lent", "inacceptable", "bof",
-                "bug", "planté", "dysfonctionnement", "peu fiable", "instable",
-                "défectueux", "trop cher", "frustrant", "dommage", "problématique",
-                "pas bon", "mauvaise", "pas bien", "pas terrible"
+            "inadmissible", "catastrophique", "horrible", "inutile",
+            "dangereux", "arnaque", "scandaleux", "déplorable",
+            "dangereux", "risque", "défectueux", "ne fonctionne pas du tout",
+            "ne marche pas du tout", "inutilisable", "déplorable",
+            "scandaleux", "inacceptable"
         };
 
         for (String word : criticalWords) {
-            if (text.contains(word)) return true;
+            if (text.contains(word)) {
+                System.out.println("Mot critique trouvé: " + word);
+                return true;
+            }
         }
         return false;
     }
 
-    private static int getAPIScore(String review) {
-        String requestBody = String.format("""
-            {
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "Vous êtes un expert en analyse de sentiment spécialisé dans l'évaluation des avis sur le matériel informatique et électronique. Évaluez l'avis selon ces critères stricts:\\n\\n5: Excellente expérience, satisfaction totale, aucun problème\\n4: Bonne expérience avec des points mineurs\\n3: Expérience moyenne ou mitigée\\n2: Problèmes significatifs mais quelques points positifs\\n1: Expérience très négative, problèmes majeurs\\n\\nConsidérez:\\n- Fonctionnalité\\n- Fiabilité\\n- Rapport qualité/prix\\n- Problèmes techniques\\n- Satisfaction globale"
-                    },
-                    {
-                        "role": "user",
-                        "content": "Évaluez cet avis et donnez une note précise de 1 à 5. Répondez uniquement avec le chiffre.\\n\\nAvis: %s"
-                    }
-                ],
-                "temperature": 0.1,
-                "max_tokens": 10
+    private static boolean containsOnlySimplePositiveWords(String text) {
+        String[] simpleWords = {"good", "nice", "well", "fine", "ok", "okay", "bien", "bon"};
+        String[] significantWords = {
+            "excellent", "parfait", "super", "génial", "satisfait", "recommande",
+            "efficace", "fiable", "pratique", "agréable", "conforme", "qualité",
+            "top", "parfaitement", "très bien", "idéal", "apprécié", "recommandé",
+            "satisfaisant", "performant", "adapté", "very good", "great", "amazing",
+            "perfect", "awesome", "fantastic", "wonderful", "superb", "outstanding",
+            "impressive", "satisfied", "recommend", "pleased", "happy", "delighted", "thrilled"
+        };
+        
+        // Vérifier si le texte contient au moins un mot significatif
+        for (String word : significantWords) {
+            if (Pattern.compile("\\b" + Pattern.quote(word) + "\\b")
+                      .matcher(text).find()) {
+                return false;
             }
-            """, review);
-
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + API_KEY)
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return parseRating(response.body());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 3;
         }
-    }
-
-    private static int parseRating(String response) {
-        try {
-            String cleanResponse = response.replaceAll("[^1-5]", "");
-            if (!cleanResponse.isEmpty()) {
-                return Integer.parseInt(cleanResponse.substring(0, 1));
+        
+        // Vérifier si le texte contient au moins un mot simple
+        boolean containsSimpleWord = false;
+        for (String word : simpleWords) {
+            if (Pattern.compile("\\b" + Pattern.quote(word) + "\\b")
+                      .matcher(text).find()) {
+                containsSimpleWord = true;
+                break;
             }
-        } catch (Exception ignored) {}
-        return 3;
+        }
+        
+        // Si le texte ne contient que des mots simples et est court
+        return containsSimpleWord && text.trim().length() < 20;
     }
-
 }

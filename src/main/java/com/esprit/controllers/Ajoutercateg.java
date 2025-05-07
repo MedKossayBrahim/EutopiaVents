@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.sql.SQLException;
 
@@ -27,6 +28,10 @@ public class Ajoutercateg {
 
         showAlert(Alert.AlertType.INFORMATION, "Confirmation", "Catégorie ajoutée avec succès !");
         tfcategorie.clear(); // Nettoyer le champ après ajout
+        
+        // Fermer la fenêtre
+        Stage stage = (Stage) tfcategorie.getScene().getWindow();
+        stage.close();
     }
 
     private boolean validateCategorie(String text) {

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +67,6 @@ public class AjoutMaterielController {
         });
     }
 
-
     private void loadCategories() {
         try {
             categorieComboBox.getItems().clear();
@@ -99,12 +99,23 @@ public class AjoutMaterielController {
                         imageUrl
                 );
                 materielService.ajouter(materiel);
-                clearFields();
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Matériel ajouté avec succès !");
+                
+                // Fermer la fenêtre
+                Stage stage = (Stage) libelleField.getScene().getWindow();
+                stage.close();
+                
             } catch (Exception e) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout: " + e.getMessage());
             }
         }
+    }
+
+    @FXML
+    private void handleAnnuler(ActionEvent event) {
+        // Fermer la fenêtre
+        Stage stage = (Stage) libelleField.getScene().getWindow();
+        stage.close();
     }
 
     @FXML
@@ -167,18 +178,6 @@ public class AjoutMaterielController {
         }
 
         return true;
-    }
-
-
-    @FXML
-    private void clearFields() {
-        libelleField.clear();
-        descriptionArea.clear();
-        quantiteField.clear();
-        categorieComboBox.setValue(null);
-        prixField.clear();
-        imagePreview.setImage(null);
-        selectedImageFile = null;
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

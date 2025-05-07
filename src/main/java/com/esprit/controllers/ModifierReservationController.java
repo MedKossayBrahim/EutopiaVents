@@ -10,8 +10,6 @@ import java.sql.SQLException;
 
 public class ModifierReservationController {
     @FXML
-    private TextField evenementIdField;
-    @FXML
     private TextField materielIdField;
     @FXML
     private TextField quantiteField;
@@ -36,7 +34,6 @@ public class ModifierReservationController {
 
     private void displayReservation() {
         if (currentReservation != null) {
-            evenementIdField.setText(String.valueOf(currentReservation.getEvenementId()));
             materielIdField.setText(String.valueOf(currentReservation.getMaterielId()));
             quantiteField.setText(String.valueOf(currentReservation.getQuantite()));
             prixTotalLabel.setText(String.format("%.2f", currentReservation.getPrixTotal()));
@@ -57,6 +54,14 @@ public class ModifierReservationController {
     private void handleSauvegarder() {
         try {
             currentReservation.setQuantite(Integer.parseInt(quantiteField.getText()));
+            
+            // Mise à jour des dates si elles ont été modifiées
+            if (dateDebutPicker.getValue() != null) {
+                currentReservation.setDateDebut(java.sql.Date.valueOf(dateDebutPicker.getValue()));
+            }
+            if (dateFinPicker.getValue() != null) {
+                currentReservation.setDateFin(java.sql.Date.valueOf(dateFinPicker.getValue()));
+            }
             
             // Mise à jour de la réservation
             reservationService.modifier(currentReservation);

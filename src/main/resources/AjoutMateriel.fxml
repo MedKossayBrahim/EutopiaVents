@@ -5,46 +5,85 @@
 <?import javafx.scene.image.ImageView?>
 <?import java.net.URL?>
 
-<VBox spacing="20" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
-      xmlns="http://javafx.com/javafx/20"
-      fx:controller="com.esprit.controllers.AjoutMaterielController"
-      styleClass="root">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.esprit.controllers.AjoutMaterielController"
+            styleClass="root"
+            style="-fx-background-color: linear-gradient(to bottom right, #f0f4f8, #d9e2ec);">
 
-    <padding>
-        <Insets top="30" right="40" bottom="30" left="40"/>
-    </padding>
+    <center>
+        <VBox spacing="25" alignment="CENTER">
+            <padding>
+                <Insets top="35" right="45" bottom="35" left="45"/>
+            </padding>
 
-    <Label text="Ajouter un nouveau matériel" styleClass="title-label"/>
+            <!-- En-tête avec dégradé -->
+            <HBox styleClass="header" alignment="CENTER"
+                  style="-fx-background-radius: 18; 
+                         -fx-background-color: linear-gradient(to right, #3498db, #2980b9); 
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 4);">
+                <padding>
+                    <Insets top="25" right="30" bottom="25" left="30"/>
+                </padding>
+                <VBox alignment="CENTER">
+                    <Label text="Ajouter un Matériel" 
+                           style="-fx-font-size: 32px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: white;
+                                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);"/>
+                    <Label text="Remplissez les informations du matériel" 
+                           style="-fx-font-size: 16px; 
+                                  -fx-text-fill: #e6f2ff;
+                                  -fx-font-style: italic;"/>
+                </VBox>
+            </HBox>
 
-    <GridPane vgap="10" hgap="10">
-        <Label text="Libellé:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="libelleField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <!-- Formulaire -->
+            <VBox spacing="20" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 2);">
+                <GridPane vgap="15" hgap="15">
+                    <Label text="Libellé:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="libelleField" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="300"/>
 
-        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <TextArea fx:id="descriptionArea" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextArea fx:id="descriptionArea" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="300" prefHeight="100"/>
 
-        <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <TextField fx:id="quantiteField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="quantiteField" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="300"/>
 
-        <Label text="Catégorie:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <ComboBox fx:id="categorieComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label text="Catégorie:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <ComboBox fx:id="categorieComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="300"/>
 
-        <Label text="Prix:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-        <TextField fx:id="prixField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    <Label text="Prix:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                    <TextField fx:id="prixField" GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="300"/>
 
-        <Label text="Image:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-        <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="5">
-            <Button text="Sélectionner une image" onAction="#handleSelectImage"/>
-            <ImageView fx:id="imagePreview" fitHeight="100" fitWidth="100" preserveRatio="true"/>
-        </HBox>
-    </GridPane>
+                    <Label text="Image:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                        <Button text="Sélectionner Image" onAction="#handleSelectImage"/>
+                        <ImageView fx:id="imagePreview" fitWidth="100" fitHeight="100" preserveRatio="true"/>
+                    </HBox>
+                </GridPane>
 
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Ajouter" onAction="#handleAjouterMateriel" styleClass="success"/>
-        <Button text="Annuler" onAction="#clearFields" styleClass="danger"/>
-    </HBox>
+                <!-- Boutons -->
+                <HBox spacing="20" alignment="CENTER">
+                    <Button text="Ajouter" onAction="#handleAjouterMateriel" 
+                            style="-fx-background-color: #3498db; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 10 20;
+                                   -fx-background-radius: 5;"/>
+                    <Button text="Annuler" 
+                            style="-fx-background-color: #e74c3c; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 10 20;
+                                   -fx-background-radius: 5;"
+                            onAction="#handleAnnuler"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
 
     <stylesheets>
-        <URL value="@/styleall.css"/>
+        <URL value="@/stylereservation.css"/>
     </stylesheets>
-</VBox>
+</BorderPane>

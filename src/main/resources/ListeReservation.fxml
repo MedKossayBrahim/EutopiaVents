@@ -46,16 +46,6 @@
                          -fx-background-color: white; 
                          -fx-padding: 20; 
                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 2);">
-                <TextField fx:id="filterEventField" promptText="Filtrer par événement..."
-                           style="-fx-background-color: #f0f4f8;
-                                  -fx-background-radius: 25;
-                                  -fx-border-radius: 25;
-                                  -fx-font-size: 14px;
-                                  -fx-padding: 12 25;
-                                  -fx-prompt-text-fill: #829ab1;
-                                  -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1);"
-                           prefWidth="220"/>
-
                 <TextField fx:id="filterMaterialField" promptText="Filtrer par matériel..."
                            style="-fx-background-color: #f0f4f8;
                                   -fx-background-radius: 25;
@@ -87,8 +77,6 @@
                               -fx-border-radius: 18;">
                 <columns>
                     <TableColumn fx:id="userColumn" text="Utilisateur" prefWidth="120"
-                                 style="-fx-alignment: CENTER-LEFT; -fx-font-size: 14px;"/>
-                    <TableColumn fx:id="evenementIdColumn" text="Événement" prefWidth="100"
                                  style="-fx-alignment: CENTER-LEFT; -fx-font-size: 14px;"/>
                     <TableColumn fx:id="materielIdColumn" text="Matériel" prefWidth="100"
                                  style="-fx-alignment: CENTER-LEFT; -fx-font-size: 14px;"/>
