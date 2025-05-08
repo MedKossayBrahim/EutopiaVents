@@ -1,11 +1,1 @@
-{
-  "userID": 11,
-  "fullname": "Doeççç",
-  "email": "john.doe@example.com",
-  "passwd": "$2a$10$7G0lmbkm3TbO3.WDwpQfX.tKHGEDAZ7ssNAmsJjZnmKTrhI54bRmG",
-  "userName": "raeff",
-  "image": "http://localhost/img/ffdf32b7-04bb-4ad9-aae6-1cae678d151c.jpg",
-  "phone": 123456789,
-  "isActive": true,
-  "role": "Admin"
-}
+null

@@ -1,9 +1,9 @@
 package com.esprit.services;
 
-
 import com.esprit.models.Admin;
 import com.esprit.models.Role;
 import com.esprit.utils.DataSource;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,21 +17,21 @@ public class AdminService implements IService<Admin> {
 
     @Override
     public void ajouter(Admin admin) {
+        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        String req = "INSERT INTO users (fullName, userName, phone, email, password, image, isActive, role) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            // Hash the password before storing
+            String hashedPassword = BCrypt.hashpw(admin.getPasswd(), BCrypt.gensalt());
 
-        try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
-
-            // Set parameters to prevent SQL injection
             st.setString(1, admin.getFullname());
             st.setString(2, admin.getUserName());
             st.setInt(3, admin.getphone());
             st.setString(4, admin.getEmail());
-            st.setString(5, admin.getPasswd());
-            st.setString(6, "http://localhost/img/default.png"); // Assuming image is optional and can be null
-            st.setBoolean(7, true); // Assuming isActive is a string (adjust if it's a boolean)
-            st.setString(8, "admin"); // Assuming role is a string
+            st.setString(5, hashedPassword);
+            st.setString(6, "http://localhost/img/default.png");
+            st.setBoolean(7, true);
+            st.setString(8, "admin");
 
             int rowsAffected = st.executeUpdate();
             if (rowsAffected > 0) {
@@ -42,7 +42,6 @@ public class AdminService implements IService<Admin> {
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout du admin: " + e.getMessage());
         }
-
     }
 
     @Override
@@ -52,7 +51,7 @@ public class AdminService implements IService<Admin> {
         String req = "UPDATE users SET fullName = ?, userName = ?, phone = ?, email = ?, password = ?, image = ?, isActive = ?, role = ? WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
+                PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set parameters for the update query
             st.setString(1, admin.getFullname());
@@ -78,7 +77,6 @@ public class AdminService implements IService<Admin> {
             System.out.println("Erreur lors de la modification du admin: " + e.getMessage());
         }
 
-
     }
 
     @Override
@@ -87,7 +85,7 @@ public class AdminService implements IService<Admin> {
         String req = "DELETE FROM users WHERE userID = ?";
 
         try ( // Ensure you have a method to get a connection
-              PreparedStatement st = connection.prepareStatement(req)) {
+                PreparedStatement st = connection.prepareStatement(req)) {
 
             // Set the userID parameter for the delete query
             st.setInt(1, admin.getUserID());
@@ -106,7 +104,6 @@ public class AdminService implements IService<Admin> {
         }
     }
 
-
     @Override
     public List<Admin> rechercher() {
         String req = "SELECT * FROM users";
@@ -115,13 +112,16 @@ public class AdminService implements IService<Admin> {
         List<Admin> admins = new ArrayList<>();
 
         try (// Ensure you have a method to get a connection
-             Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(req)) {
+                Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(req)) {
 
             // Iterate through the result set and create admin objects
             while (rs.next()) {
                 // Create a admin object using the parameterized constructor
-                Admin adminTEMP = new Admin(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"), // Ensure this is hashed
-                        rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"), Role.valueOf(rs.getString("role")) // Assuming Role is an enum
+                Admin adminTEMP = new Admin(rs.getInt("userID"), rs.getString("fullName"), rs.getString("email"),
+                        rs.getString("password"), // Ensure this is hashed
+                        rs.getString("userName"), rs.getString("image"), rs.getInt("phone"), rs.getBoolean("isActive"),
+                        Role.valueOf(rs.getString("role")) // Assuming Role is an enum
                 );
 
                 // Add the admin to the list

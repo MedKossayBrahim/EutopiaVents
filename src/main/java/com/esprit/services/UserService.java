@@ -1,6 +1,5 @@
 package com.esprit.services;
 
-
 import com.esprit.models.Role;
 import com.esprit.models.User;
 import com.esprit.utils.DataSource;
@@ -21,20 +20,26 @@ public class UserService {
 
     public User signIn(String login, String passwd) {
         User user = null;
-        String req = "SELECT * FROM users WHERE (email = ? OR username = ?) AND isActive = TRUE;"; // Ensure user is active
+        String req = "SELECT * FROM users WHERE (email = ? OR username = ?) AND isActive = TRUE;";
 
         try (PreparedStatement st = connection.prepareStatement(req)) {
-            // Set parameters to prevent SQL injection
             st.setString(1, login);
             st.setString(2, login);
 
             try (ResultSet rs = st.executeQuery()) {
-                if (rs.next()) { // Check if a user was found
-                    String storedHashedPassword = rs.getString("password"); // Get the stored hashed password
+                if (rs.next()) {
+                    String storedHashedPassword = rs.getString("password");
+
+                    // Check if the hash is in Symfony format (starts with $2y$)
+                    boolean isSymfonyHash = storedHashedPassword.startsWith("$2y$");
+
+                    // Convert Symfony hash to BCrypt format if needed
+                    if (isSymfonyHash) {
+                        storedHashedPassword = storedHashedPassword.replace("$2y$", "$2a$");
+                    }
 
                     // Compare the input password with the stored hashed password
                     if (BCrypt.checkpw(passwd, storedHashedPassword)) {
-                        // Passwords match, create the User object
                         user = new User(
                                 rs.getInt("userID"),
                                 rs.getString("fullName"),
@@ -44,8 +49,7 @@ public class UserService {
                                 rs.getString("image"),
                                 rs.getInt("phone"),
                                 rs.getBoolean("isActive"),
-                                Role.valueOf(rs.getString("role"))
-                        );
+                                Role.valueOf(rs.getString("role")));
                         System.out.println("User logged in: " + user);
                     } else {
                         System.out.println("Invalid password.");
@@ -58,7 +62,7 @@ public class UserService {
             System.out.println("Error during sign-in: " + e.getMessage());
         }
 
-        return user; // Return the user object (or null if login fails)
+        return user;
     }
 
     public boolean userExistsByEmail(String email) {
@@ -77,7 +81,8 @@ public class UserService {
     }
 
     public void updatePass(String email, String password) {
-        // Hash the password before storing it (use a secure hashing algorithm like BCrypt)
+        // Hash the password before storing it (use a secure hashing algorithm like
+        // BCrypt)
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         String req = "UPDATE users SET password = ? WHERE email = ?;";
@@ -103,21 +108,20 @@ public class UserService {
     public List<User> getAllNonAdminUsers() throws SQLException {
         String query = "SELECT * FROM users WHERE role != 'admin'";
         List<User> users = new ArrayList<>();
-        
+
         try (PreparedStatement st = connection.prepareStatement(query);
-             ResultSet rs = st.executeQuery()) {
+                ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 User user = new User(
-                    rs.getInt("userID"),
-                    rs.getString("fullName"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getString("userName"),
-                    rs.getString("image"),
-                    rs.getInt("phone"),
-                    rs.getBoolean("isActive"),
-                    Role.valueOf(rs.getString("role"))
-                );
+                        rs.getInt("userID"),
+                        rs.getString("fullName"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("userName"),
+                        rs.getString("image"),
+                        rs.getInt("phone"),
+                        rs.getBoolean("isActive"),
+                        Role.valueOf(rs.getString("role")));
                 users.add(user);
             }
         }

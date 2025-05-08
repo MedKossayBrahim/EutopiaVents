@@ -1,6 +1,7 @@
 package com.esprit.controllers;
 
 import com.esprit.services.ParticipantService;
+import com.esprit.utils.MqttService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -21,6 +23,7 @@ public class RequestList implements Initializable {
     private TableView<Map<String, Object>> userRequestsTable;
 
     private final ParticipantService participantService = new ParticipantService();
+    private MqttService mq;
 
     public RequestList() throws SQLException {
     }
@@ -29,6 +32,11 @@ public class RequestList implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setupTable();
         loadRequests();
+        try {
+            mq = new MqttService();
+        } catch (MqttException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setupTable() {
@@ -86,6 +94,8 @@ public class RequestList implements Initializable {
             
             showAlert(Alert.AlertType.INFORMATION, "Success", 
                      "User has been promoted to Organisateur successfully!");
+            mq.publishSms(participantService.getPhoneNumberById(userId),"Your request to become an organizer has been approved. You now have access to organizer tools. Welcome aboard!");
+
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", 
                      "Failed to accept request: " + e.getMessage());
@@ -100,6 +110,7 @@ public class RequestList implements Initializable {
             
             showAlert(Alert.AlertType.INFORMATION, "Success", 
                      "Request has been denied and removed.");
+            mq.publishSms(participantService.getPhoneNumberById(userId),"Your request to become an organizer has been reviewed but unfortunately was not approved at this time. Thank you for your interest.");
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", 
                      "Failed to deny request: " + e.getMessage());

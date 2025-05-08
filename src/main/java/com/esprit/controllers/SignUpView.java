@@ -15,6 +15,7 @@ import org.apache.hc.client5.http.fluent.Content;
 import org.apache.hc.client5.http.fluent.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -90,7 +91,10 @@ public class SignUpView {
                 return;
             }
 
-            ps.ajouter(new Participant(nom.getText(), userName.getText(), email.getText(), passwd.getText(),
+            // Hash the password using BCrypt
+            String hashedPassword = BCrypt.hashpw(passwd.getText(), BCrypt.gensalt());
+
+            ps.ajouter(new Participant(nom.getText(), userName.getText(), email.getText(), hashedPassword,
                     Integer.parseInt(tel.getText())));
 
             showAlert("Success", "Account created successfully!");

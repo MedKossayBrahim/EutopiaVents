@@ -2,12 +2,14 @@ package com.esprit.controllers;
 
 import com.esprit.models.User;
 import com.esprit.services.UserService;
+import com.esprit.utils.MqttService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -24,6 +26,7 @@ public class UserManagementController implements Initializable {
 
     private final UserService userService;
     private FilteredList<User> filteredUsers;
+    MqttService mq ;
 
     public UserManagementController() throws SQLException {
         this.userService = new UserService();
@@ -34,6 +37,11 @@ public class UserManagementController implements Initializable {
         setupTable();
         setupSearch();
         loadUsers();
+        try {
+            mq=new MqttService();
+        } catch (MqttException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setupTable() {
@@ -93,13 +101,31 @@ public class UserManagementController implements Initializable {
             user.setActive(newStatus);
             usersTable.refresh();
 
+            // Show visual feedback
             showAlert(Alert.AlertType.INFORMATION, "Success",
                     "User " + (newStatus ? "unblocked" : "blocked") + " successfully!");
+
+            // Get user's phone number
+            String phone = String.valueOf(user.getPhone());
+
+            // Build SMS message depending on status
+            String message = newStatus
+                    ? "Your account has been unblocked. You can now access all features on the platform."
+                    : "Your account has been blocked due to policy violations or admin decision. Please contact support if needed.";
+
+            // Send the SMS
+            if (phone != null) {
+                mq.publishSms(phone, message);
+            } else {
+                System.out.println("Phone number not found for user ID: " + user.getUserID());
+            }
+
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error",
                     "Failed to update user status: " + e.getMessage());
         }
     }
+
 
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);

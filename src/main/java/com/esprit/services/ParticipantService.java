@@ -22,7 +22,7 @@ public class ParticipantService extends UserService implements IService<Particip
     }
 
     public boolean hasExistingRequest(int userId) {
-        String req = "SELECT * FROM request WHERE userID = ?";
+        String req = "SELECT * FROM request WHERE user_id = ?";
         try (PreparedStatement st = connection.prepareStatement(req)) {
             st.setInt(1, userId);
             ResultSet rs = st.executeQuery();
@@ -39,7 +39,7 @@ public class ParticipantService extends UserService implements IService<Particip
             throw new SQLException("You have already sent a request to become an organisateur");
         }
 
-        String req = "INSERT INTO request (userID) VALUES (?)";
+        String req = "INSERT INTO request (user_id) VALUES (?)";
         try (PreparedStatement st = connection.prepareStatement(req)) {
             st.setInt(1, id);
             int rowsAffected = st.executeUpdate();
@@ -211,7 +211,7 @@ public class ParticipantService extends UserService implements IService<Particip
     }
 
     public void deleteRequest(int userId) throws SQLException {
-        String req = "DELETE FROM request WHERE userID = ?";
+        String req = "DELETE FROM request WHERE user_id = ?";
         try (PreparedStatement st = connection.prepareStatement(req)) {
             st.setInt(1, userId);
             st.executeUpdate();
@@ -221,7 +221,7 @@ public class ParticipantService extends UserService implements IService<Particip
     public List<Map<String, Object>> getUserRequests() {
         String query = "SELECT u.userID, u.fullName, u.userName, u.email, r.created_at " +
                 "FROM users u " +
-                "JOIN request r ON u.userID = r.userID";
+                "JOIN request r ON u.userID = r.user_id";
 
         List<Map<String, Object>> userRequests = new ArrayList<>();
 
@@ -279,5 +279,21 @@ public class ParticipantService extends UserService implements IService<Particip
             System.out.println("Error checking username: " + e.getMessage());
         }
         return false;
+    }
+    public String getPhoneNumberById(int userId) {
+        String query = "SELECT phone FROM users WHERE userID = ?";
+        try (PreparedStatement st = connection.prepareStatement(query)) {
+            st.setInt(1, userId);
+            ResultSet rs = st.executeQuery();
+
+            if (rs.next()) {
+                return String.valueOf(rs.getInt("phone")); // Convert to String if you want it in SMS format
+            } else {
+                System.out.println("No user found with ID: " + userId);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving phone number: " + e.getMessage());
+        }
+        return null; // Return null if not found or error occurs
     }
 }
