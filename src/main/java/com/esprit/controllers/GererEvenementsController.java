@@ -200,10 +200,12 @@ public class GererEvenementsController implements Initializable {
                     LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
                     LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
 
-                    reservation1 reservationLieu = new reservation1(
-                            0, evenement.getLieuId(), evenement.getId(), dateDebut, dateFin);
-
-                    // Définir l'utilisateur de la réservation (utiliser l'organisateur de l'événement)
+                    // Créer la réservation du lieu
+                    reservation1 reservationLieu = new reservation1();
+                    reservationLieu.setIdLieu(evenement.getLieuId());
+                    reservationLieu.setIdEvenement(evenement.getId());
+                    reservationLieu.setDateDebut(dateDebut);
+                    reservationLieu.setDateFin(dateFin);
                     reservationLieu.setUserID(evenement.getOrganisateurId());
                     reservationLieu.setTypeReservation("evenement");
 
@@ -246,15 +248,22 @@ public class GererEvenementsController implements Initializable {
                 int materielId = rs.getInt("materiel_id");
                 int quantite = rs.getInt("quantite");
                 double prix = rs.getDouble("prix");
+                double prixTotal = prix * quantite;
 
-                Reservation reservationMateriel = new Reservation(
-                        evenement.getId(),
-                        materielId,
-                        quantite,
-                        prix * quantite,
-                        java.sql.Date.valueOf(evenement.getDateDebut().split(" ")[0]),
-                        java.sql.Date.valueOf(evenement.getDateFin().split(" ")[0])
-                );
+                // Convertir les dates de l'événement en LocalDateTime
+                LocalDateTime dateDebut = LocalDateTime.parse(evenement.getDateDebut().replace(" ", "T"));
+                LocalDateTime dateFin = LocalDateTime.parse(evenement.getDateFin().replace(" ", "T"));
+
+                // Créer la réservation avec les champs requis
+                Reservation reservationMateriel = new Reservation();
+                reservationMateriel.setMaterielId(materielId);
+                reservationMateriel.setQuantite(quantite);
+                reservationMateriel.setPrixTotal(prixTotal);
+                reservationMateriel.setDateDebut(java.sql.Timestamp.valueOf(dateDebut));
+                reservationMateriel.setDateFin(java.sql.Timestamp.valueOf(dateFin));
+                reservationMateriel.setUserId(evenement.getOrganisateurId());
+                reservationMateriel.setRecup(false);
+
                 reservationMaterielService.ajouter(reservationMateriel);
             }
         }

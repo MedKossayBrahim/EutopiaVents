@@ -1,1 +1,11 @@
-null
+{
+  "userID": 12,
+  "fullname": "raef",
+  "email": "raefhossni@gmail.com",
+  "passwd": "$2a$10$nu5URl3ERubmbPeyW1TdCO5I.Qy40SeQRXlx4O4WobNJ8vJGcntYu",
+  "userName": "raeffhey",
+  "image": "http://localhost/img/default.png",
+  "phone": 26123582,
+  "isActive": true,
+  "role": "Admin"
+}

@@ -11,6 +11,10 @@ public class reservation1 {
     private int userID;
     private String typeReservation;
 
+    // Constructeur par défaut
+    public reservation1() {
+    }
+
     public reservation1(int id, int idLieu, int idEvenement, LocalDateTime dateDebut, LocalDateTime dateFin) {
         this.id = id;
         this.idLieu = idLieu;

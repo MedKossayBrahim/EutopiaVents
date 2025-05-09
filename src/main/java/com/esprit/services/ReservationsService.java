@@ -20,7 +20,7 @@ public class ReservationsService {
         double prixEvenement = getPrixEvenement(reservation.getEvenementId());
         reservation.setPrixTotal(prixEvenement * reservation.getQuantite());
 
-        String req = "INSERT INTO Reservations (evenement_id, utilisateur_id, quantite, prix_total, statut) VALUES (?, ?, ?, ?, ?)";
+        String req = "INSERT INTO Reservations (evenement_id, utilisateur_id, quantite, prix_total, statut, date_reservation) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement pst = connection.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
             pst.setInt(1, reservation.getEvenementId());
@@ -28,6 +28,8 @@ public class ReservationsService {
             pst.setInt(3, reservation.getQuantite());
             pst.setDouble(4, reservation.getPrixTotal());
             pst.setString(5, reservation.getStatut());
+            pst.setTimestamp(6, new Timestamp(System.currentTimeMillis())); // Date actuelle pour date_reservation
+
             pst.executeUpdate();
 
             // Récupérer l'ID généré
