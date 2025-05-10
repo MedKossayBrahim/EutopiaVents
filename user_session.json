@@ -1,11 +1,11 @@
 {
   "userID": 12,
   "fullname": "raef",
-  "email": "raefhossni@gmail.com",
-  "passwd": "$2a$10$nu5URl3ERubmbPeyW1TdCO5I.Qy40SeQRXlx4O4WobNJ8vJGcntYu",
-  "userName": "raeffhey",
+  "email": "simessisi@gmail.com",
+  "passwd": "$2a$10$2CrU52THQnAwQdblC0ElT.gtbH/xh9JlrabryRAgK6bG1qq2tJQ0S",
+  "userName": "hosni",
   "image": "http://localhost/img/default.png",
-  "phone": 26123582,
+  "phone": 26013250,
   "isActive": true,
   "role": "Admin"
 }
