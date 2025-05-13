@@ -45,6 +45,26 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - User profiles and authentication
 - Content moderation
 - PDF generation
+-----------
+### Store Management 
+Product Category Management
+Create, edit, and delete categories.
+Associate products with categories.
+Product Management
+Add, edit, and delete products.
+Manage product stock levels.
+Shopping Cart Management
+Add and remove products from the cart.
+Automatic calculation of totals and discounts.
+Reports on cart-to-order conversion rates.
+Admin and User Interfaces
+Intuitive user interface for browsing and shopping.
+Comprehensive admin interface for store, orders, and inventory management.
+Role-Based Access Control
+Email Notifications
+Notifications for order confirmation.
+Stock shortage alerts.
+Collect product reviews.
 
 ## 🛠️ Technical Stack
 
