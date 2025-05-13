@@ -21,20 +21,20 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - AI-powered sentiment analysis for material reviews
 
 ### Space Management (espaces)
--🎯#Admin Features
--CRUD operations for venues (lieux)
--Categorization of venues (catégories de salle)
--Upload and manage photo albums per venue (PhotosLieu)
--Geolocation API integration for displaying venue location on an interactive map
--Admin dashboard with:
--KPIs on venues, categories, and reservations
--Visual statistics
--PDF export of statistical reports
--‍💼#Client Features
--Browse venues by category
--search functionality
--Venue reservation
--Map-based location visualization via geolocation API
+# Admin Features
+- CRUD operations for venues (lieux)
+- Categorization of venues (catégories de salle)
+- Upload and manage photo albums per venue (PhotosLieu)
+- Geolocation API integration for displaying venue location on an interactive map
+- Admin dashboard with:
+- KPIs on venues, categories, and reservations
+- Visual statistics
+- PDF export of statistical reports
+# Client Features
+- Browse venues by category
+- search functionality
+- Venue reservation
+- Map-based location visualization via geolocation API
 
 ### Community & Content (Forum/Blog)
 - Blog post management
