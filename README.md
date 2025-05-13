@@ -21,7 +21,7 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - AI-powered sentiment analysis for material reviews
 
 ### Space Management (espaces)
-# Admin Features
+##### Admin Features
 - CRUD operations for venues (lieux)
 - Categorization of venues (catégories de salle)
 - Upload and manage photo albums per venue (PhotosLieu)
@@ -30,7 +30,7 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - KPIs on venues, categories, and reservations
 - Visual statistics
 - PDF export of statistical reports
-# Client Features
+##### Client Features
 - Browse venues by category
 - search functionality
 - Venue reservation
