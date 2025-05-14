@@ -19,7 +19,7 @@ public class CommentService implements IServiceF<Comment> {
     
     @Override
     public void ajouter(Comment comment) throws SQLException {
-        String query = "INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)";
+        String query = "INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = DataSource.getInstance().getConnection();
              PreparedStatement pst = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -27,23 +27,15 @@ public class CommentService implements IServiceF<Comment> {
             pst.setInt(1, comment.getPostId());
             pst.setInt(2, comment.getUserId());
             pst.setString(3, comment.getContent());
+            pst.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now())); // Set current timestamp
             
             pst.executeUpdate();
             
-            // Get the generated ID and created_at timestamp
+            // Get the generated ID
             try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     comment.setId(generatedKeys.getInt(1));
-                    
-                    // Get the created_at timestamp from the database
-                    String timeQuery = "SELECT created_at FROM comments WHERE id = ?";
-                    try (PreparedStatement timePst = conn.prepareStatement(timeQuery)) {
-                        timePst.setInt(1, comment.getId());
-                        ResultSet timeRs = timePst.executeQuery();
-                        if (timeRs.next()) {
-                            comment.setCreatedAt(timeRs.getTimestamp("created_at").toLocalDateTime());
-                        }
-                    }
+                    comment.setCreatedAt(LocalDateTime.now()); // Set the creation time directly
                 }
             }
             
@@ -150,12 +142,15 @@ public class CommentService implements IServiceF<Comment> {
             ResultSet rs = pst.executeQuery();
             
             while (rs.next()) {
+                Timestamp timestamp = rs.getTimestamp("created_at");
+                LocalDateTime createdAt = timestamp != null ? timestamp.toLocalDateTime() : LocalDateTime.now();
+                
                 Comment comment = new Comment(
                     rs.getInt("id"),
                     rs.getInt("post_id"),
                     rs.getInt("user_id"),
                     rs.getString("content"),
-                    rs.getTimestamp("created_at").toLocalDateTime()
+                    createdAt
                 );
                 comment.setUsername(rs.getString("username"));
                 comments.add(comment);

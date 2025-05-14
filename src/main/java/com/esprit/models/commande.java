@@ -3,6 +3,7 @@ package com.esprit.models;
 import com.esprit.services.ProduitService;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class commande {
 
@@ -11,6 +12,7 @@ public class commande {
         private int produitId;
         private int quantite;
         private double prixTotal;
+        private LocalDateTime createdAt;
 
         public commande() {
         }
@@ -43,6 +45,9 @@ this.id = id;
 
         public int getQuantite() { return quantite; }
         public void setQuantite(int quantite) { this.quantite = quantite; }
+
+        public LocalDateTime getCreatedAt() { return createdAt; }
+        public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
         @Override
         public String toString() {

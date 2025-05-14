@@ -78,11 +78,7 @@ public class paniers {
         panierProduitColumn.setCellValueFactory(cellData -> {
             commande cmd = cellData.getValue();
             ProduitService produitService = null;
-            try {
-                produitService = new ProduitService();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            produitService = new ProduitService();
             produit prod = produitService.getOne(cmd.getProduitId());
             return new SimpleStringProperty(prod != null ? prod.getNom() : "Produit inconnu");
         });

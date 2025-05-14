@@ -63,7 +63,16 @@
                     </ImageView>
                 </graphic>
             </Button>
-            
+            <Button fx:id="btnListeproduit"
+                    text="Liste produit"
+                    onAction="#openListeproduit"
+                    styleClass="action-button">
+                <graphic>
+                    <ImageView fitHeight="24" fitWidth="24">
+                        <Image url="@Images/tshirts.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
             <!-- Panier Button -->
             <Button fx:id="btnListeCommande"
                     text="Panier"

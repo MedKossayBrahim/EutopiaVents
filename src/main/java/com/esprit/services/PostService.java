@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.io.FileReader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import java.time.LocalDateTime;
 
 public class PostService implements IServiceF<Post> {
     
@@ -111,7 +112,8 @@ public class PostService implements IServiceF<Post> {
                 );
                 post.setAuthor(rs.getString("username"));
                 post.setUserId(rs.getInt("user_id"));
-                post.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                post.setCreatedAt(createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now());
                 posts.add(post);
             }
         }
@@ -179,10 +181,11 @@ public class PostService implements IServiceF<Post> {
                     );
                     post.setAuthor(rs.getString("username"));
                     post.setUserId(rs.getInt("user_id"));
-                    post.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    post.setCreatedAt(createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now());
                     Timestamp updatedAt = rs.getTimestamp("updated_at");
                     post.setUpdatedAt(updatedAt != null ? updatedAt.toLocalDateTime() : 
-                                    rs.getTimestamp("created_at").toLocalDateTime());
+                                    (createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now()));
                     return post;
                 }
             }
@@ -210,7 +213,8 @@ public class PostService implements IServiceF<Post> {
                         rs.getString("content")
                     );
                     post.setAuthor(rs.getString("username"));
-                    post.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    post.setCreatedAt(createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now());
                     posts.add(post);
                 }
             }
@@ -365,7 +369,8 @@ public class PostService implements IServiceF<Post> {
                 post.setContent(rs.getString("content"));
                 post.setAuthor(rs.getString("author_name"));
                 post.setPinned(true);
-                post.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                post.setCreatedAt(createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now());
                 
                 Timestamp updatedAt = rs.getTimestamp("updated_at");
                 if (updatedAt != null) {

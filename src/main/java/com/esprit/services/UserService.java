@@ -81,19 +81,19 @@ public class UserService {
     }
 
     public void updatePass(String email, String password) {
-        // Hash the password before storing it (use a secure hashing algorithm like
-        // BCrypt)
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        // Hash the password using BCrypt with cost factor 10 and convert to Symfony
+        // format
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(10));
+        // Convert $2a$ to $2y$ for Symfony compatibility
+        hashedPassword = hashedPassword.replace("$2a$", "$2y$");
 
         String req = "UPDATE users SET password = ? WHERE email = ?;";
 
         try (PreparedStatement st = connection.prepareStatement(req)) {
-            // Set parameters to prevent SQL injection
-            st.setString(1, hashedPassword); // Use the hashed password
+            st.setString(1, hashedPassword);
             st.setString(2, email);
 
-            // Execute the update
-            int rowsUpdated = st.executeUpdate(); // Use executeUpdate() for UPDATE queries
+            int rowsUpdated = st.executeUpdate();
 
             if (rowsUpdated > 0) {
                 System.out.println("Password updated successfully for email: " + email);

@@ -91,11 +91,20 @@ public class SignUpView {
                 return;
             }
 
-            // Hash the password using BCrypt
-            String hashedPassword = BCrypt.hashpw(passwd.getText(), BCrypt.gensalt());
+            // Hash the password using BCrypt with cost factor 10 and convert to Symfony
+            // format
+            String hashedPassword = BCrypt.hashpw(passwd.getText(), BCrypt.gensalt(10));
+            // Convert $2a$ to $2y$ for Symfony compatibility
+            hashedPassword = hashedPassword.replace("$2a$", "$2y$");
 
-            ps.ajouter(new Participant(nom.getText(), userName.getText(), email.getText(), hashedPassword,
-                    Integer.parseInt(tel.getText())));
+            // Create new participant with Symfony-compatible hash
+            Participant newParticipant = new Participant(
+                    nom.getText(),
+                    userName.getText(),
+                    email.getText(),
+                    hashedPassword,
+                    Integer.parseInt(tel.getText()));
+            ps.ajouter(newParticipant);
 
             showAlert("Success", "Account created successfully!");
 

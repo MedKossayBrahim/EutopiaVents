@@ -40,7 +40,6 @@ public class editProfile implements Initializable {
     @FXML
     private Button becomeOrganisateur;
 
-
     private File selectedImageFile;
     private String imagePath;
     private final ParticipantService ps = new ParticipantService();
@@ -170,7 +169,12 @@ public class editProfile implements Initializable {
             currentUser.setEmail(email.getText());
 
             if (!password.getText().isEmpty()) {
-                currentUser.setPasswd(BCrypt.hashpw(password.getText(), BCrypt.gensalt()));
+                // Hash the password using BCrypt with cost factor 10 and convert to Symfony
+                // format
+                String hashedPassword = BCrypt.hashpw(password.getText(), BCrypt.gensalt(10));
+                // Convert $2a$ to $2y$ for Symfony compatibility
+                hashedPassword = hashedPassword.replace("$2a$", "$2y$");
+                currentUser.setPasswd(hashedPassword);
             }
 
             currentUser.setPhone(Integer.parseInt(phone.getText()));
@@ -258,7 +262,6 @@ public class editProfile implements Initializable {
                 currentUser.setActive(false);
                 Participant user = new Participant(currentUser);
                 ps.modifier(user);
-
 
                 // Show success message
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);

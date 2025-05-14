@@ -9,6 +9,7 @@ import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
 import com.esprit.services.FeedbackProduitService;
 import com.esprit.tests.Eutopia;
+import com.esprit.utils.DataSource;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,6 +34,7 @@ import javafx.scene.Node;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -179,7 +181,21 @@ public class Listeproduit {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void openListeproduit() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/listeproduit.fxml"));
+            Parent root = loader.load();
 
+            Stage stage = new Stage();
+            stage.setTitle("Liste des produit");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir la liste des catégories: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     // Method to handle opening the Cart page
     @FXML
     public void openListeCommande() {
@@ -575,6 +591,7 @@ public class Listeproduit {
     }
 
     private void supprimerProduit(produit produit) {
+
         // Check if user is admin
         User currentUser = Eutopia.getCurrentUser();
         if (currentUser == null || !Role.Admin.equals(currentUser.getRole())) {

@@ -1,5 +1,7 @@
 package com.esprit.models;
 
+import java.time.LocalDateTime;
+
 public class FeedbackProduit {
     private int id;
     private int userId;
@@ -7,6 +9,7 @@ public class FeedbackProduit {
     private String comment;
     private String userName; // For display
     private int rating;  // 1-5 rating
+    private LocalDateTime dateCreated;
 
     public FeedbackProduit(int id, int userId, int produitId, String comment, int rating) {
         this.id = id;
@@ -45,4 +48,7 @@ public class FeedbackProduit {
     public void setRating(int rating) {
         this.rating = rating;
     }
+
+    public LocalDateTime getDateCreated() { return dateCreated; }
+    public void setDateCreated(LocalDateTime dateCreated) { this.dateCreated = dateCreated; }
 } 

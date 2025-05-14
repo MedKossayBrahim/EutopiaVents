@@ -1,11 +1,11 @@
 {
-  "userID": 12,
-  "fullname": "raef",
-  "email": "simessisi@gmail.com",
-  "passwd": "$2a$10$2CrU52THQnAwQdblC0ElT.gtbH/xh9JlrabryRAgK6bG1qq2tJQ0S",
-  "userName": "hosni",
-  "image": "http://localhost/img/default.png",
-  "phone": 26013250,
+  "userID": 6,
+  "fullname": "talel boukhris",
+  "email": "ambrose.army1997@gmail.com",
+  "passwd": "$2a$10$VP.5glwr4Fh1vbg1oHaOoeYexSxasa.Zl/MzInLvrm013LKuqtwrK",
+  "userName": "Revenge",
+  "image": "https://images.squarespace-cdn.com/content/v1/600c783087812b75eb0a1732/1629078625006-MPF05SBCWKYJHYGH8DZE/Killua+Zoldyck.jpg",
+  "phone": 51707908,
   "isActive": true,
   "role": "Admin"
 }

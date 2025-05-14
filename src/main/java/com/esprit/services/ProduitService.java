@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProduitService implements IService<produit> {
-    Connection connection = DataSource.getInstance().getConnection();
 
-    public ProduitService() throws SQLException {
+    public ProduitService() {
+        // no need to get connection here anymore
     }
 
     @Override
@@ -22,8 +22,8 @@ public class ProduitService implements IService<produit> {
                 + produit.getNom() + "', '" + produit.getDescription() + "', " + produit.getPrix() + ", "
                 + produit.getStock() + ", " + produit.getCategorieId() + ", '" + produit.getImageUrl() + "')";
 
-        try {
-            Statement st = this.connection.createStatement();
+        try (Connection connection = DataSource.getInstance().getConnection();
+             Statement st = connection.createStatement()) {
             st.executeUpdate(req);
             System.out.println("Produit ajouté avec succès.");
         } catch (SQLException e) {
@@ -37,8 +37,8 @@ public class ProduitService implements IService<produit> {
                 + "', prix=" + produit.getPrix() + ", stock=" + produit.getStock() + ", categorie_produit_id="
                 + produit.getCategorieId() + ", image_url='" + produit.getImageUrl() + "' WHERE id=" + produit.getId();
 
-        try {
-            Statement st = this.connection.createStatement();
+        try (Connection connection = DataSource.getInstance().getConnection();
+             Statement st = connection.createStatement()) {
             st.executeUpdate(req);
             System.out.println("Produit modifié avec succès.");
         } catch (SQLException e) {
@@ -50,8 +50,8 @@ public class ProduitService implements IService<produit> {
     public void supprimer(produit produit) {
         String req = "DELETE FROM produit WHERE id=" + produit.getId();
 
-        try {
-            Statement st = this.connection.createStatement();
+        try (Connection connection = DataSource.getInstance().getConnection();
+             Statement st = connection.createStatement()) {
             st.executeUpdate(req);
             System.out.println("Produit supprimé avec succès.");
         } catch (SQLException e) {
@@ -64,9 +64,9 @@ public class ProduitService implements IService<produit> {
         List<produit> produits = new ArrayList<>();
         String req = "SELECT * FROM produit";
 
-        try {
-            Statement st = this.connection.createStatement();
-            ResultSet rs = st.executeQuery(req);
+        try (Connection connection = DataSource.getInstance().getConnection();
+             Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
 
             while (rs.next()) {
                 produits.add(new produit(
@@ -89,9 +89,9 @@ public class ProduitService implements IService<produit> {
     public produit getOne(int produitId) {
         String req = "SELECT * FROM produit WHERE id=" + produitId;
 
-        try {
-            Statement st = this.connection.createStatement();
-            ResultSet rs = st.executeQuery(req);
+        try (Connection connection = DataSource.getInstance().getConnection();
+             Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
 
             if (rs.next()) {
                 return new produit(

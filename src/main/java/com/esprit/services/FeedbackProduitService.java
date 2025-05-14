@@ -4,6 +4,7 @@ import com.esprit.models.FeedbackProduit;
 import com.esprit.utils.DataSource;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,12 +12,13 @@ public class FeedbackProduitService {
 
     public void ajouter(FeedbackProduit feedback) {
         try (Connection connection = DataSource.getInstance().getConnection()) {
-            String req = "INSERT INTO feedbackProduit (user_id, produit_id, comment, rating) VALUES (?, ?, ?, ?)";
+            String req = "INSERT INTO feedbackProduit (user_id, produit_id, comment, rating, date_created) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, feedback.getUserId());
             ps.setInt(2, feedback.getProduitId());
             ps.setString(3, feedback.getComment());
             ps.setInt(4, feedback.getRating());
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.executeUpdate();
             System.out.println("Product feedback added successfully");
         } catch (SQLException e) {
@@ -30,7 +32,7 @@ public class FeedbackProduitService {
             String req = "SELECT f.*, u.fullname FROM feedbackProduit f " +
                     "JOIN users u ON f.user_id = u.userID " +
                     "WHERE f.produit_id = ? " +
-                    "ORDER BY f.id DESC";
+                    "ORDER BY f.date_created DESC";
             PreparedStatement ps = connection.prepareStatement(req);
             ps.setInt(1, produitId);
             ResultSet rs = ps.executeQuery();
@@ -44,6 +46,10 @@ public class FeedbackProduitService {
                         rs.getInt("rating")
                 );
                 feedback.setUserName(rs.getString("fullname"));
+                Timestamp dateCreated = rs.getTimestamp("date_created");
+                if (dateCreated != null) {
+                    feedback.setDateCreated(dateCreated.toLocalDateTime());
+                }
                 feedbacks.add(feedback);
             }
         } catch (SQLException e) {
@@ -127,6 +133,10 @@ public class FeedbackProduitService {
                         rs.getInt("rating")
                 );
                 feedback.setUserName(rs.getString("fullname"));
+                Timestamp dateCreated = rs.getTimestamp("date_created");
+                if (dateCreated != null) {
+                    feedback.setDateCreated(dateCreated.toLocalDateTime());
+                }
                 return feedback;
             }
         } catch (SQLException e) {
