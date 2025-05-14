@@ -20,6 +20,22 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - Email notifications
 - AI-powered sentiment analysis for material reviews
 
+### Space Management (espaces)
+##### Admin Features
+- CRUD operations for venues (lieux)
+- Categorization of venues (catégories de salle)
+- Upload and manage photo albums per venue (PhotosLieu)
+- Geolocation API integration for displaying venue location on an interactive map
+- Admin dashboard with:
+- KPIs on venues, categories, and reservations
+- Visual statistics
+- PDF export of statistical reports
+##### Client Features
+- Browse venues by category
+- search functionality
+- Venue reservation
+- Map-based location visualization via geolocation API
+
 ### Community & Content (Forum/Blog)
 - Blog post management
 - Category and post pinning
@@ -29,6 +45,26 @@ A comprehensive event organization platform built with Java and JavaFX, offering
 - User profiles and authentication
 - Content moderation
 - PDF generation
+-----------
+### Store Management 
+Product Category Management
+Create, edit, and delete categories.
+Associate products with categories.
+Product Management
+Add, edit, and delete products.
+Manage product stock levels.
+Shopping Cart Management
+Add and remove products from the cart.
+Automatic calculation of totals and discounts.
+Reports on cart-to-order conversion rates.
+Admin and User Interfaces
+Intuitive user interface for browsing and shopping.
+Comprehensive admin interface for store, orders, and inventory management.
+Role-Based Access Control
+Email Notifications
+Notifications for order confirmation.
+Stock shortage alerts.
+Collect product reviews.
 
 ## 🛠️ Technical Stack
 
@@ -42,6 +78,8 @@ A comprehensive event organization platform built with Java and JavaFX, offering
   - iText for PDF generation
   - OpenAI API for AI features
   - MQTT for real-time updates
+
+ - Google Maps API
 
 ## 📋 Prerequisites
 
