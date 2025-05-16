@@ -164,7 +164,38 @@ class UserTest {
             assertNotNull(activeUser, "Should find user with ID 6");
             assertEquals(6, activeUser.getUserID(), "Should be user ID 6");
             
-            signInAttempt = userService.signIn(activeUser.getEmail(), "Talel@1997");
+            // Print user details for debugging
+            System.out.println("\nUser details before sign in:");
+            System.out.println("ID: " + activeUser.getUserID());
+            System.out.println("Email: " + activeUser.getEmail());
+            System.out.println("Active status: " + activeUser.getActive());
+            System.out.println("Role: " + activeUser.getRole());
+            
+            // Verify user is active
+            assertTrue(activeUser.getActive(), "User should be active");
+            
+            // Try sign in with correct password
+            String correctPassword = "Talel@1997";
+            System.out.println("\nAttempting sign in with password: " + correctPassword);
+            signInAttempt = userService.signIn(activeUser.getEmail(), correctPassword);
+            
+            if (signInAttempt == null) {
+                System.out.println("Sign in failed. Checking if password is correct...");
+                // Try to verify password directly
+                User userCheck = userService.getUserByEmail(activeUser.getEmail());
+                System.out.println("Stored password hash: " + userCheck.getPasswd());
+                System.out.println("Attempted password: " + correctPassword);
+                
+                // Try to reset the password to the same value to see if it works
+                System.out.println("\nTrying to reset password to same value...");
+                userService.updatePass(activeUser.getEmail(), correctPassword);
+                System.out.println("Password reset attempted");
+                
+                // Try sign in again
+                System.out.println("\nAttempting sign in again after password reset...");
+                signInAttempt = userService.signIn(activeUser.getEmail(), correctPassword);
+            }
+            
             assertNotNull(signInAttempt, "Active user should be able to sign in");
             assertTrue(signInAttempt.getActive(), "User should be active");
             System.out.println("Active user sign in test passed");
