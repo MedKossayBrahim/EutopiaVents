@@ -18,16 +18,29 @@ public class ProduitService implements IService<produit> {
 
     @Override
     public void ajouter(produit produit) {
-        String req = "INSERT INTO produit (nom, description, prix, stock, categorie_produit_id, image_url) VALUES ('"
+        String req = "INSERT INTO produit (nom, description, prix, stock, categorie_produit_id, image_url, created_at) VALUES ('"
                 + produit.getNom() + "', '" + produit.getDescription() + "', " + produit.getPrix() + ", "
-                + produit.getStock() + ", " + produit.getCategorieId() + ", '" + produit.getImageUrl() + "')";
+                + produit.getStock() + ", " + produit.getCategorieId() + ", '" + produit.getImageUrl() + "', NOW())";
 
         try (Connection connection = DataSource.getInstance().getConnection();
              Statement st = connection.createStatement()) {
-            st.executeUpdate(req);
-            System.out.println("Produit ajouté avec succès.");
+            System.out.println("Executing SQL: " + req);
+            int rowsAffected = st.executeUpdate(req);
+            System.out.println("Rows affected: " + rowsAffected);
+            
+            // Get the last inserted ID
+            try (ResultSet rs = st.executeQuery("SELECT LAST_INSERT_ID()")) {
+                if (rs.next()) {
+                    int lastId = rs.getInt(1);
+                    System.out.println("Last inserted ID: " + lastId);
+                    produit.setId(lastId);
+                }
+            }
+            
+            System.out.println("Produit ajouté avec succès. ID: " + produit.getId());
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout du produit : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -88,13 +101,14 @@ public class ProduitService implements IService<produit> {
 
     public produit getOne(int produitId) {
         String req = "SELECT * FROM produit WHERE id=" + produitId;
+        System.out.println("Executing getOne query: " + req);
 
         try (Connection connection = DataSource.getInstance().getConnection();
              Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(req)) {
 
             if (rs.next()) {
-                return new produit(
+                produit p = new produit(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("description"),
@@ -103,9 +117,14 @@ public class ProduitService implements IService<produit> {
                         rs.getInt("categorie_produit_id"),
                         rs.getString("image_url")
                 );
+                System.out.println("Found product: " + p);
+                return p;
+            } else {
+                System.out.println("No product found with ID: " + produitId);
             }
         } catch (SQLException e) {
             System.out.println("Erreur lors de la récupération du produit : " + e.getMessage());
+            e.printStackTrace();
         }
 
         return null;
