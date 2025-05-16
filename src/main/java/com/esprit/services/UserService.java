@@ -20,7 +20,7 @@ public class UserService {
 
     public User signIn(String login, String passwd) {
         User user = null;
-        String req = "SELECT * FROM users WHERE (email = ? OR username = ?) AND isActive = TRUE;";
+        String req = "SELECT * FROM users WHERE (email = ? OR username = ?);";
 
         try (PreparedStatement st = connection.prepareStatement(req)) {
             st.setString(1, login);
@@ -28,6 +28,13 @@ public class UserService {
 
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
+                    // First check if the user is active
+                    boolean isActive = rs.getBoolean("isActive");
+                    if (!isActive) {
+                        System.out.println("Account is deactivated.");
+                        return null;
+                    }
+
                     String storedHashedPassword = rs.getString("password");
 
                     // Check if the hash is in Symfony format (starts with $2y$)
@@ -55,7 +62,7 @@ public class UserService {
                         System.out.println("Invalid password.");
                     }
                 } else {
-                    System.out.println("No active user found with the provided credentials.");
+                    System.out.println("No user found with the provided credentials.");
                 }
             }
         } catch (SQLException e) {
@@ -134,6 +141,49 @@ public class UserService {
             st.setBoolean(1, isActive);
             st.setInt(2, userId);
             st.executeUpdate();
+        }
+    }
+
+    public User getUserByEmail(String email) {
+        String req = "SELECT * FROM users WHERE email = ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt("userID"),
+                            rs.getString("fullName"),
+                            rs.getString("email"),
+                            rs.getString("password"),
+                            rs.getString("userName"),
+                            rs.getString("image"),
+                            rs.getInt("phone"),
+                            rs.getBoolean("isActive"),
+                            Role.valueOf(rs.getString("role")));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting user by email: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public void printAllUsers() {
+        String req = "SELECT * FROM users";
+        try (PreparedStatement st = connection.prepareStatement(req);
+             ResultSet rs = st.executeQuery()) {
+            
+            System.out.println("\n=== All Users in Database ===");
+            while (rs.next()) {
+                System.out.println("\nUser ID: " + rs.getInt("userID"));
+                System.out.println("Email: " + rs.getString("email"));
+                System.out.println("Username: " + rs.getString("userName"));
+                System.out.println("Active: " + rs.getBoolean("isActive"));
+                System.out.println("Role: " + rs.getString("role"));
+                System.out.println("------------------------");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting users: " + e.getMessage());
         }
     }
 

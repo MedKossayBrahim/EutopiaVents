@@ -3,15 +3,11 @@ package com.esprit.models;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import com.esprit.utils.DataSource;
+import com.esprit.services.UserService;
 
 class UserTest {
     private User user;
-    private Connection connection;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -20,11 +16,11 @@ class UserTest {
         System.out.println("Created test user with ID: " + user.getUserID());
         
         try {
-            connection = DataSource.getInstance().getConnection();
-            System.out.println("Database connection established successfully");
-        } catch (SQLException e) {
-            System.out.println("Error connecting to database: " + e.getMessage());
-            fail("Database connection failed");
+            userService = new UserService();
+            System.out.println("Service initialized successfully");
+        } catch (Exception e) {
+            System.out.println("Error initializing service: " + e.getMessage());
+            fail("Service initialization failed");
         }
     }
 
@@ -121,114 +117,91 @@ class UserTest {
         System.out.println("ToString test passed!");
     }
 
+    private void printUserDetails(String email) {
+        User user = userService.getUserByEmail(email);
+        if (user != null) {
+            System.out.println("\nUser details for " + email + ":");
+            System.out.println("ID: " + user.getUserID());
+            System.out.println("Email: " + user.getEmail());
+            System.out.println("Username: " + user.getUserName());
+            System.out.println("Active: " + user.getActive());
+            System.out.println("Role: " + user.getRole());
+        } else {
+            System.out.println("\nNo user found with email: " + email);
+        }
+    }
+
     @Test
-    void testDatabaseOperations() {
-        System.out.println("\n=== Testing Database Operations ===");
+    void testUserServiceOperations() {
+        System.out.println("\n=== Testing User Service Operations ===");
         
         try {
-            // First, ensure the test record doesn't exist
-            System.out.println("Cleaning up any existing test record...");
-            String cleanupSQL = "DELETE FROM users WHERE userID = ?";
-            PreparedStatement cleanupStmt = connection.prepareStatement(cleanupSQL);
-            cleanupStmt.setInt(1, user.getUserID());
-            int deleted = cleanupStmt.executeUpdate();
-            System.out.println("Deleted " + deleted + " existing records");
-            cleanupStmt.close();
+            // Print all users in database
+            System.out.println("\nChecking all users in database...");
+            userService.printAllUsers();
             
-            // Test adding to database
-            System.out.println("Testing database insertion...");
-            String insertSQL = "INSERT INTO users (userID, fullname, email, password, userName, image, phone, isActive, role) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
-            PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
-            insertStmt.setInt(1, user.getUserID());
-            insertStmt.setString(2, user.getFullname());
-            insertStmt.setString(3, user.getEmail());
-            insertStmt.setString(4, user.getPasswd());
-            insertStmt.setString(5, user.getUserName());
-            insertStmt.setString(6, user.getImage());
-            insertStmt.setInt(7, user.getPhone());
-            insertStmt.setBoolean(8, user.getActive());
-            insertStmt.setString(9, user.getRole().toString());
-            
-            System.out.println("Executing insert with values: id=" + user.getUserID() + 
-                             ", fullname=" + user.getFullname() + 
-                             ", email=" + user.getEmail() + 
-                             ", password=" + user.getPasswd() + 
-                             ", username=" + user.getUserName() + 
-                             ", image=" + user.getImage() + 
-                             ", phone=" + user.getPhone() + 
-                             ", isActive=" + user.getActive() + 
-                             ", role=" + user.getRole());
-            
-            int rowsAffected = insertStmt.executeUpdate();
-            System.out.println("Inserted " + rowsAffected + " row(s) into database");
-            assertEquals(1, rowsAffected, "Should insert exactly one row");
-            insertStmt.close();
-            
-            // Verify the insertion
-            System.out.println("Verifying inserted data...");
-            String selectSQL = "SELECT * FROM users WHERE userID = ?";
-            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
-            selectStmt.setInt(1, user.getUserID());
-            System.out.println("Executing select query for id=" + user.getUserID());
-            
-            ResultSet rs = selectStmt.executeQuery();
-            boolean found = rs.next();
-            System.out.println("Query result found: " + found);
-            
-            if (found) {
-                System.out.println("Found record with values:");
-                System.out.println("userID: " + rs.getInt("userID"));
-                System.out.println("fullname: " + rs.getString("fullname"));
-                System.out.println("email: " + rs.getString("email"));
-                System.out.println("password: " + rs.getString("password"));
-                System.out.println("userName: " + rs.getString("userName"));
-                System.out.println("image: " + rs.getString("image"));
-                System.out.println("phone: " + rs.getInt("phone"));
-                System.out.println("isActive: " + rs.getBoolean("isActive"));
-                System.out.println("role: " + rs.getString("role"));
+            // Get an inactive user
+            System.out.println("\nFinding an inactive user...");
+            User inactiveUser = null;
+            for (User user : userService.getAllNonAdminUsers()) {
+                if (!user.getActive()) {
+                    inactiveUser = user;
+                    break;
+                }
             }
+            assertNotNull(inactiveUser, "Should find an inactive user");
+            System.out.println("Found inactive user: " + inactiveUser.getEmail());
             
-            assertTrue(found, "Should find the inserted record");
-            assertEquals(user.getFullname(), rs.getString("fullname"));
-            assertEquals(user.getEmail(), rs.getString("email"));
-            assertEquals(user.getPasswd(), rs.getString("password"));
-            assertEquals(user.getUserName(), rs.getString("userName"));
-            assertEquals(user.getImage(), rs.getString("image"));
-            assertEquals(user.getPhone(), rs.getInt("phone"));
-            assertEquals(user.getActive(), rs.getBoolean("isActive"));
-            assertEquals(user.getRole().toString(), rs.getString("role"));
-            System.out.println("Data verification successful");
-            rs.close();
+            // Test inactive user
+            System.out.println("\nTesting inactive user...");
+            User signInAttempt = userService.signIn(inactiveUser.getEmail(), "password123");
+            assertNull(signInAttempt, "Inactive user should not be able to sign in");
+            System.out.println("Inactive user sign in test passed");
             
-            // Test deleting from database
-            System.out.println("Testing database deletion...");
-            String deleteSQL = "DELETE FROM users WHERE userID = ?";
-            PreparedStatement deleteStmt = connection.prepareStatement(deleteSQL);
-            deleteStmt.setInt(1, user.getUserID());
+            // Test active user (ID: 6)
+            System.out.println("\nTesting active user (ID: 6)...");
+            User activeUser = userService.getUserByEmail("ambrose.army1997@gmail.com");
+            assertNotNull(activeUser, "Should find user with ID 6");
+            assertEquals(6, activeUser.getUserID(), "Should be user ID 6");
             
-            rowsAffected = deleteStmt.executeUpdate();
-            System.out.println("Deleted " + rowsAffected + " row(s) from database");
-            assertEquals(1, rowsAffected, "Should delete exactly one row");
-            deleteStmt.close();
+            signInAttempt = userService.signIn(activeUser.getEmail(), "Talel@1997");
+            assertNotNull(signInAttempt, "Active user should be able to sign in");
+            assertTrue(signInAttempt.getActive(), "User should be active");
+            System.out.println("Active user sign in test passed");
             
-            // Verify the deletion
-            System.out.println("Verifying deletion...");
-            rs = selectStmt.executeQuery();
-            assertFalse(rs.next(), "Should not find the deleted record");
-            System.out.println("Deletion verification successful");
+            // Test password update for active user
+            System.out.println("\nTesting password update for active user...");
+            String newPassword = "newSecurePassword123";
+            userService.updatePass(activeUser.getEmail(), newPassword);
+            System.out.println("Password updated successfully");
             
-            // Clean up
-            selectStmt.close();
-            rs.close();
+            // Verify new password works
+            signInAttempt = userService.signIn(activeUser.getEmail(), newPassword);
+            assertNotNull(signInAttempt, "Should be able to sign in with new password");
+            System.out.println("New password verification successful");
             
-        } catch (SQLException e) {
-            System.out.println("Database operation failed: " + e.getMessage());
+            // Test get all non-admin users
+            System.out.println("\nTesting get all non-admin users...");
+            var nonAdminUsers = userService.getAllNonAdminUsers();
+            assertNotNull(nonAdminUsers, "Should get list of non-admin users");
+            System.out.println("Found " + nonAdminUsers.size() + " non-admin users");
+            
+            // Test update user status
+            System.out.println("\nTesting update user status...");
+            userService.updateUserStatus(activeUser.getUserID(), false);
+            System.out.println("User status updated successfully");
+            
+            // Verify status update
+            signInAttempt = userService.signIn(activeUser.getEmail(), newPassword);
+            assertNull(signInAttempt, "Should not be able to sign in with deactivated account");
+            System.out.println("Status update verification successful");
+            
+        } catch (Exception e) {
+            System.out.println("Service operation failed: " + e.getMessage());
             e.printStackTrace();
-            fail("Database operation test failed");
+            fail("Service operation test failed");
         }
         
-        System.out.println("Database operations test completed successfully!");
+        System.out.println("Service operations test completed successfully!");
     }
 } 
