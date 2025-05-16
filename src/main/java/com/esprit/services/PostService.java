@@ -181,6 +181,8 @@ public class PostService implements IServiceF<Post> {
                     );
                     post.setAuthor(rs.getString("username"));
                     post.setUserId(rs.getInt("user_id"));
+                    post.setCategoryId(rs.getInt("category_id"));
+                    post.setPinned(rs.getBoolean("is_pinned"));
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     post.setCreatedAt(createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now());
                     Timestamp updatedAt = rs.getTimestamp("updated_at");

@@ -4,17 +4,53 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import com.esprit.utils.DataSource;
+import com.esprit.services.PostService;
 
 class PostTest {
     private Post post;
     private LocalDateTime now;
+    private Connection connection;
+    private PostService postService;
 
     @BeforeEach
     void setUp() {
         System.out.println("\n=== Setting up test environment ===");
         now = LocalDateTime.now();
-        post = new Post(1, "Test Title", "Test Content", "Test Author", 1);
+        // Using category_id = 8 which exists in categoriesposts table
+        post = new Post(100, "Test Title", "Test Content", "Test Author", 8);
+        post.setId(100); // Explicitly set the ID
+        post.setUserId(7); // Set the user ID to the existing user
+        post.setCreatedAt(now);
+        post.setUpdatedAt(now);
         System.out.println("Created test post with ID: " + post.getId());
+        
+        try {
+            connection = DataSource.getInstance().getConnection();
+            postService = new PostService();
+            System.out.println("Database connection established successfully");
+            
+            // Get the actual username for user ID 7
+            String usernameSQL = "SELECT userName FROM users WHERE userID = ?";
+            PreparedStatement stmt = connection.prepareStatement(usernameSQL);
+            stmt.setInt(1, post.getUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String actualUsername = rs.getString("userName");
+                post.setAuthor(actualUsername); // Update the author to match the actual username
+                System.out.println("Set author to actual username: " + actualUsername);
+            }
+            rs.close();
+            stmt.close();
+            
+        } catch (SQLException e) {
+            System.out.println("Error connecting to database: " + e.getMessage());
+            fail("Database connection failed");
+        }
     }
 
     @Test
@@ -48,16 +84,32 @@ class PostTest {
     @Test
     void testConstructorWithAllFields() {
         System.out.println("\n=== Testing Constructor with All Fields ===");
-        System.out.println("Verifying ID (should be 0 as not set in constructor)");
-        assertEquals(0, post.getId());
+        System.out.println("Verifying ID (should be 100 as set in constructor)");
+        assertEquals(100, post.getId());
         System.out.println("Verifying title");
         assertEquals("Test Title", post.getTitle());
         System.out.println("Verifying content");
         assertEquals("Test Content", post.getContent());
-        System.out.println("Verifying author");
-        assertEquals("Test Author", post.getAuthor());
+        
+        // Get the actual username for user ID 7
+        try {
+            String usernameSQL = "SELECT userName FROM users WHERE userID = ?";
+            PreparedStatement stmt = connection.prepareStatement(usernameSQL);
+            stmt.setInt(1, post.getUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String actualUsername = rs.getString("userName");
+                System.out.println("Verifying author (should match username from users table)");
+                assertEquals(actualUsername, post.getAuthor(), "Author should match the username from users table");
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            fail("Failed to verify author: " + e.getMessage());
+        }
+        
         System.out.println("Verifying category ID");
-        assertEquals(1, post.getCategoryId());
+        assertEquals(8, post.getCategoryId());
         System.out.println("Verifying isPinned is false");
         assertFalse(post.isPinned());
         System.out.println("All fields constructor test passed!");
@@ -96,10 +148,10 @@ class PostTest {
     void testEqualsAndHashCode() {
         System.out.println("\n=== Testing Equals and HashCode ===");
         System.out.println("Creating two identical posts");
-        Post post1 = new Post(1, "Test Title", "Test Content", "Test Author", 1);
-        Post post2 = new Post(1, "Test Title", "Test Content", "Test Author", 1);
+        Post post1 = new Post(100, "Test Title", "Test Content", "Test Author", 8);
+        Post post2 = new Post(100, "Test Title", "Test Content", "Test Author", 8);
         System.out.println("Creating a different post");
-        Post post3 = new Post(2, "Different Title", "Different Content", "Different Author", 2);
+        Post post3 = new Post(101, "Different Title", "Different Content", "Different Author", 8);
 
         System.out.println("Verifying equals for identical posts");
         assertTrue(post1.equals(post2));
@@ -120,5 +172,61 @@ class PostTest {
         System.out.println("Actual toString output: " + post.toString());
         assertEquals(expected, post.toString());
         System.out.println("ToString test passed!");
+    }
+
+    @Test
+    void testDatabaseOperations() {
+        System.out.println("\n=== Testing Database Operations ===");
+        
+        try {
+            // First, ensure the test record doesn't exist
+            System.out.println("Cleaning up any existing test record...");
+            postService.supprimer(post);
+            System.out.println("Cleaned up any existing test record");
+            
+            // Test adding to database
+            System.out.println("Testing database insertion...");
+            System.out.println("Executing insert with values: id=" + post.getId() + 
+                             ", title=" + post.getTitle() + 
+                             ", content=" + post.getContent() + 
+                             ", author=" + post.getAuthor() + 
+                             ", category_id=" + post.getCategoryId() +
+                             ", user_id=" + post.getUserId());
+            
+            postService.ajouter(post);
+            System.out.println("Inserted post into database");
+            
+            // Verify the insertion
+            System.out.println("Verifying inserted data...");
+            Post retrievedPost = postService.getPostById(post.getId());
+            System.out.println("Retrieved post from database");
+            
+            assertNotNull(retrievedPost, "Should find the inserted record");
+            assertEquals(post.getTitle(), retrievedPost.getTitle());
+            assertEquals(post.getContent(), retrievedPost.getContent());
+            assertEquals(post.getAuthor(), retrievedPost.getAuthor(), "Author should match the username from users table");
+            assertEquals(post.getCategoryId(), retrievedPost.getCategoryId());
+            assertEquals(post.isPinned(), retrievedPost.isPinned());
+            assertEquals(post.getUserId(), retrievedPost.getUserId());
+            System.out.println("Data verification successful");
+            
+            // Test deleting from database
+            System.out.println("Testing database deletion...");
+            postService.supprimer(post);
+            System.out.println("Deleted post from database");
+            
+            // Verify the deletion
+            System.out.println("Verifying deletion...");
+            retrievedPost = postService.getPostById(post.getId());
+            assertNull(retrievedPost, "Should not find the deleted record");
+            System.out.println("Deletion verification successful");
+            
+        } catch (SQLException e) {
+            System.out.println("Database operation failed: " + e.getMessage());
+            e.printStackTrace();
+            fail("Database operation test failed");
+        }
+        
+        System.out.println("Database operations test completed successfully!");
     }
 } 

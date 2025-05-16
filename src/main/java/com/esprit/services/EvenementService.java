@@ -24,21 +24,24 @@ public class EvenementService implements IService<Evenement> {
             pst.setString(3, evenement.getDateDebut());
             pst.setString(4, evenement.getDateFin());
             pst.setInt(5, evenement.getCapacite());
-            pst.setInt(6, evenement.getCategorieId());  // Ajout de l'ID de la catégorie
+            pst.setInt(6, evenement.getCategorieId());
             pst.setInt(7, evenement.getOrganisateurId());
             pst.setDouble(8, evenement.getPrix());
             pst.setString(9, evenement.getStatut());
 
-            // Vérification du lieu
-            if (evenement.getLieuId() != 0) {
-                pst.setInt(10, evenement.getLieuId());
-                pst.setNull(11, Types.VARCHAR);
-            } else {
-                pst.setNull(10, Types.INTEGER);
-                pst.setString(11, evenement.getLieu_proprietaire());
-            }
+            // Set lieu_id
+            pst.setInt(10, evenement.getLieuId());
+            
+            // Always set lieu_proprietaire
+            pst.setString(11, evenement.getLieu_proprietaire());
 
             pst.setString(12, evenement.getImage());
+
+            // Debug print
+            System.out.println("Inserting event with details:");
+            System.out.println("Titre: " + evenement.getTitre());
+            System.out.println("Lieu ID: " + evenement.getLieuId());
+            System.out.println("Lieu Proprietaire: " + evenement.getLieu_proprietaire());
 
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
@@ -51,6 +54,7 @@ public class EvenementService implements IService<Evenement> {
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de l'ajout de l'événement: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -163,11 +167,6 @@ public class EvenementService implements IService<Evenement> {
                 "LEFT JOIN lieu l ON e.lieu_id = l.id " +
                 "WHERE e.id = ?";
 
-
-
-
-
-
         try (PreparedStatement pst = connection.prepareStatement(req)) {
             pst.setInt(1, id);
             try (ResultSet rs = pst.executeQuery()) {
@@ -190,10 +189,17 @@ public class EvenementService implements IService<Evenement> {
                     evenement.setOrganisateurNom(rs.getString("organisateur_nom"));
                     evenement.setCategorieNom(rs.getString("categorie_nom"));
                     evenement.setLieuNom(rs.getString("lieu_nom"));
+                    
+                    // Debug print
+                    System.out.println("Retrieved event details:");
+                    System.out.println("ID: " + evenement.getId());
+                    System.out.println("Titre: " + evenement.getTitre());
+                    System.out.println("Lieu Proprietaire: " + evenement.getLieu_proprietaire());
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la recherche de l'événement par ID: " + e.getMessage());
+            e.printStackTrace();
         }
         return evenement;
     }
